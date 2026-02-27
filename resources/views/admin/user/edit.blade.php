@@ -13,6 +13,22 @@
     </a>
 </div>
 
+@if ($errors->any())
+<div class="bg-error-light border border-error/20 p-4 mb-6 rounded-2xl flex items-start gap-3">
+    <div class="size-8 bg-error/20 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+        <i data-lucide="alert-circle" class="size-5 text-error"></i>
+    </div>
+    <div>
+        <p class="text-error font-bold mb-1">Gagal menyimpan perubahan!</p>
+        <ul class="text-error/80 text-sm list-disc pl-4">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+</div>
+@endif
+
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     <div class="lg:col-span-2">
         <div class="bg-white rounded-2xl shadow-sm border border-border p-6 md:p-8">
@@ -27,23 +43,35 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label class="block text-sm font-semibold text-foreground mb-2">Nama Lengkap <span class="text-error">*</span></label>
-                            <input type="text" name="name" value="{{ old('name', $user->name) }}" class="w-full px-4 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all" required>
+                            <input type="text" name="name" value="{{ old('name', $user->name) }}" class="w-full px-4 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all @error('name') border-error @enderror" required>
+                            @error('name')
+                                <p class="text-xs text-error mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-foreground mb-2">Email <span class="text-error">*</span></label>
-                            <input type="email" name="email" value="{{ old('email', $user->email) }}" class="w-full px-4 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all" required>
+                            <input type="email" name="email" value="{{ old('email', $user->email) }}" class="w-full px-4 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all @error('email') border-error @enderror" required>
+                            @error('email')
+                                <p class="text-xs text-error mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-foreground mb-2">Role <span class="text-error">*</span></label>
-                            <select name="role" class="w-full px-4 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none" required>
+                            <select name="role" class="w-full px-4 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none @error('role') border-error @enderror" required>
                                 <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Administrator</option>
                                 <option value="penghuni" {{ old('role', $user->role) == 'penghuni' ? 'selected' : '' }}>Penghuni</option>
                                 <option value="calon_penghuni" {{ old('role', $user->role) == 'calon_penghuni' ? 'selected' : '' }}>Calon Penghuni</option>
                             </select>
+                            @error('role')
+                                <p class="text-xs text-error mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-foreground mb-2">No. Handphone</label>
-                            <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" class="w-full px-4 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                            <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" class="w-full px-4 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all @error('phone') border-error @enderror">
+                            @error('phone')
+                                <p class="text-xs text-error mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -58,7 +86,10 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label class="block text-sm font-semibold text-foreground mb-2">Password Baru</label>
-                            <input type="password" name="password" class="w-full px-4 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-secondary" placeholder="Ketik sandi baru">
+                            <input type="password" name="password" class="w-full px-4 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-secondary @error('password') border-error @enderror" placeholder="Ketik sandi baru">
+                            @error('password')
+                                <p class="text-xs text-error mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-foreground mb-2">Konfirmasi Password Baru</label>
@@ -76,18 +107,24 @@
                     <div class="space-y-5">
                         <div>
                             <label class="block text-sm font-semibold text-foreground mb-2">Nomor KTP/SIM</label>
-                            <input type="text" name="identity_number" value="{{ old('identity_number', $user->identity_number) }}" class="w-full px-4 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                            <input type="text" name="identity_number" value="{{ old('identity_number', $user->identity_number) }}" class="w-full px-4 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all @error('identity_number') border-error @enderror">
+                            @error('identity_number')
+                                <p class="text-xs text-error mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-foreground mb-2">Alamat Asal</label>
-                            <textarea name="address" rows="3" class="w-full px-4 py-3 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none">{{ old('address', $user->address) }}</textarea>
+                            <textarea name="address" rows="3" class="w-full px-4 py-3 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none @error('address') border-error @enderror">{{ old('address', $user->address) }}</textarea>
+                            @error('address')
+                                <p class="text-xs text-error mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-border">
                     <a href="{{ route('admin.user.index') }}" class="px-5 py-2.5 font-semibold text-secondary hover:text-foreground transition-colors">Batal</a>
-                    <button type="submit" class="px-6 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary-hover transition-colors shadow-sm shadow-primary/30">
+                    <button type="submit" class="px-6 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary-hover transition-colors shadow-sm shadow-primary/30 cursor-pointer">
                         Update User
                     </button>
                 </div>

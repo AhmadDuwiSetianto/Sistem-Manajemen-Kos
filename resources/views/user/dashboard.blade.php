@@ -1,74 +1,96 @@
-@extends('layouts.app')
+@extends('layouts.user')
 
 @section('title', 'Dashboard Penghuni')
 
 @section('content')
-<div class="min-h-screen bg-slate-50 py-8">
+<div class="py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-slate-800">
-                    Dashboard Penghuni
-                </h1>
-                <p class="text-slate-500 mt-1">
-                    Selamat datang kembali, <span class="font-semibold text-brand-600">{{ Auth::user()->name }}</span>!
-                </p>
+                <h1 class="text-2xl md:text-3xl font-bold text-foreground">Dashboard Penghuni</h1>
+                <p class="text-secondary mt-1">Selamat datang kembali, <span class="font-bold text-primary">{{ Auth::user()->name }}</span>!</p>
             </div>
-            <div class="text-sm text-slate-500 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200">
-                <i class="far fa-calendar-alt mr-2"></i> {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
+            <div class="inline-flex items-center gap-2 text-sm font-semibold text-secondary bg-white px-4 py-2.5 rounded-xl shadow-sm border border-border">
+                <i data-lucide="calendar" class="size-4 text-primary"></i> 
+                {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
             
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative">
-                    <div class="h-24 bg-gradient-to-r from-brand-600 to-blue-500"></div>
-                    <div class="px-6 pb-6 relative">
-                        <div class="w-20 h-20 rounded-full bg-white p-1 absolute -top-10 left-1/2 transform -translate-x-1/2 shadow-md">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=0D8ABC&color=fff" 
-                                 alt="Profile" 
-                                 class="w-full h-full rounded-full object-cover">
+                
+                <div class="bg-white rounded-3xl shadow-sm border border-border overflow-hidden">
+                    <div class="h-24 bg-gradient-to-r from-primary to-blue-400 relative">
+                        <div class="absolute inset-0 bg-white/20" style="clip-path: polygon(0 0, 100% 0, 100% 100%, 0 75%);"></div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 relative flex flex-col items-center">
+                        
+                        <div class="w-24 h-24 rounded-full bg-white p-1.5 absolute -top-12 shadow-md ring-1 ring-border">
+                            @if(Auth::user()->avatar)
+                                <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="Profile" class="w-full h-full rounded-full object-cover">
+                            @else
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=165DFF&color=fff&size=150&bold=true" alt="Profile" class="w-full h-full rounded-full object-cover">
+                            @endif
                         </div>
-                        <div class="mt-12 text-center">
-                            <h3 class="font-bold text-lg text-slate-800">{{ Auth::user()->name }}</h3>
-                            <span class="inline-block px-3 py-1 mt-2 text-xs font-semibold rounded-full 
-                                {{ Auth::user()->role == 'penghuni' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
-                                {{ ucfirst(str_replace('_', ' ', Auth::user()->role)) }}
+                        
+                        <div class="mt-14 text-center w-full">
+                            <h3 class="font-bold text-xl text-foreground truncate">{{ Auth::user()->name }}</h3>
+                            <span class="inline-flex items-center justify-center mt-1.5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md {{ Auth::user()->role == 'penghuni' ? 'bg-success-light text-success' : 'bg-warning-light text-warning-dark' }}">
+                                {{ str_replace('_', ' ', Auth::user()->role) }}
                             </span>
                         </div>
                         
-                        <div class="mt-6 space-y-3">
-                            <div class="flex items-center text-sm text-slate-600">
-                                <i class="fas fa-envelope w-6 text-slate-400"></i>
-                                <span class="truncate">{{ Auth::user()->email }}</span>
+                        <div class="w-full mt-6 space-y-3">
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-muted/40 border border-border/60">
+                                <div class="size-8 rounded-lg bg-white flex items-center justify-center shrink-0 shadow-sm">
+                                    <i data-lucide="mail" class="size-4 text-secondary"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <p class="text-[10px] font-bold text-secondary uppercase tracking-wider mb-0.5">Email</p>
+                                    <p class="text-sm font-medium text-foreground truncate">{{ Auth::user()->email }}</p>
+                                </div>
                             </div>
-                            <div class="flex items-center text-sm text-slate-600">
-                                <i class="fas fa-phone w-6 text-slate-400"></i>
-                                <span>{{ Auth::user()->phone ?? '-' }}</span>
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-muted/40 border border-border/60">
+                                <div class="size-8 rounded-lg bg-white flex items-center justify-center shrink-0 shadow-sm">
+                                    <i data-lucide="phone" class="size-4 text-secondary"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <p class="text-[10px] font-bold text-secondary uppercase tracking-wider mb-0.5">Telepon</p>
+                                    <p class="text-sm font-medium text-foreground truncate">{{ Auth::user()->phone ?? 'Belum diisi' }}</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="mt-6 pt-6 border-t border-slate-100">
-                            <a href="{{ route('user.profile') }}" class="block w-full py-2 text-center text-sm font-semibold text-brand-600 border border-brand-600 rounded-lg hover:bg-brand-50 transition">
-                                <i class="fas fa-edit mr-1"></i> Edit Profil
+                        <div class="w-full mt-6 pt-6 border-t border-border">
+                            <a href="{{ route('user.profile') }}" class="group flex items-center justify-center gap-2 w-full py-2.5 text-sm font-bold text-primary bg-primary/5 border border-primary/20 rounded-xl hover:bg-primary hover:text-white transition-all duration-300">
+                                <i data-lucide="user-cog" class="size-4"></i> Edit Profil
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                    <h4 class="font-bold text-slate-800 mb-4 text-sm uppercase tracking-wide">Pusat Bantuan</h4>
-                    <ul class="space-y-3 text-sm">
+                <div class="bg-white rounded-3xl shadow-sm border border-border p-6">
+                    <h4 class="font-bold text-foreground mb-4 text-sm uppercase tracking-wider flex items-center gap-2">
+                        <i data-lucide="help-circle" class="size-4 text-primary"></i> Pusat Bantuan
+                    </h4>
+                    <ul class="space-y-3">
                         <li>
-                            <a href="#" class="flex items-center text-slate-600 hover:text-brand-600 transition">
-                                <i class="fab fa-whatsapp w-6 text-green-500 text-lg"></i> Hubungi Admin
+                            <a href="#" class="flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-success-light hover:text-success transition-colors text-sm font-semibold text-secondary group">
+                                <div class="size-8 rounded-lg bg-success/10 text-success flex items-center justify-center group-hover:bg-success group-hover:text-white transition-all">
+                                    <i data-lucide="message-circle" class="size-4"></i>
+                                </div>
+                                Hubungi Admin
                             </a>
                         </li>
                         <li>
-                            <a href="#" class="flex items-center text-slate-600 hover:text-brand-600 transition">
-                                <i class="fas fa-book w-6 text-blue-400"></i> Tata Tertib Kos
+                            <a href="#" class="flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-primary/10 hover:text-primary transition-colors text-sm font-semibold text-secondary group">
+                                <div class="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                                    <i data-lucide="book-open" class="size-4"></i>
+                                </div>
+                                Tata Tertib Kos
                             </a>
                         </li>
                     </ul>
@@ -84,11 +106,9 @@
                         $isPaid = $pembayaran && $pembayaran->status == 'paid';
                         $jatuhTempo = $pembayaran ? \Carbon\Carbon::parse($pembayaran->tanggal_jatuh_tempo) : null;
                         
-                        // Logic Warning H-3
                         $showWarning = false;
                         if($jatuhTempo && !$isPaid && !$isOverdue) {
                             $diffDays = \Carbon\Carbon::now()->diffInDays($jatuhTempo, false);
-                            // Jika selisih positif dan kurang dari 3 hari
                             if ($diffDays >= 0 && $diffDays <= 3) {
                                 $showWarning = true;
                             }
@@ -96,62 +116,52 @@
                     @endphp
 
                     @if($isOverdue && !$isPaid)
-                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm animate-pulse">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
-                            </div>
-                            <div class="ml-3 w-full">
-                                <h3 class="text-sm font-bold text-red-800">PEMBAYARAN KEDALUWARSA / JATUH TEMPO</h3>
-                                <div class="mt-2 text-sm text-red-700">
-                                    <p>Masa pembayaran untuk Kamar {{ $activeBooking->kamar->nomor_kamar }} telah habis pada <b>{{ $jatuhTempo->format('d M Y H:i') }}</b>.</p>
-                                    <p class="mt-1">Silakan lakukan pembayaran segera atau hubungi admin jika ada kendala.</p>
-                                </div>
-                                <div class="mt-4">
-                                    <a href="{{ route('booking.retry-payment', $pembayaran->id) }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                                        Bayar Sekarang
-                                    </a>
-                                </div>
-                            </div>
+                    <div class="bg-error-light border border-error/30 p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4 animate-pulse">
+                        <div class="size-12 bg-error/20 rounded-full flex items-center justify-center shrink-0">
+                            <i data-lucide="alert-triangle" class="size-6 text-error"></i>
                         </div>
+                        <div class="flex-1">
+                            <h3 class="text-base font-bold text-error">Tagihan Jatuh Tempo!</h3>
+                            <p class="text-sm text-error/80 mt-1">Masa pembayaran Kamar {{ $activeBooking->kamar->nomor_kamar }} telah habis pada <b>{{ $jatuhTempo->format('d M Y, H:i') }}</b>. Segera selesaikan pembayaran Anda.</p>
+                        </div>
+                        <a href="{{ route('booking.retry-payment', $pembayaran->id) }}" class="shrink-0 px-5 py-2.5 bg-error text-white text-sm font-bold rounded-xl hover:bg-error/90 transition-colors shadow-lg shadow-error/30">
+                            Bayar Sekarang
+                        </a>
                     </div>
                     @endif
 
                     @if($showWarning)
-                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg shadow-sm">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-exclamation-triangle text-yellow-400"></i>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm text-yellow-700">
-                                    <span class="font-bold">Pengingat:</span> Batas pembayaran Anda berakhir dalam {{ \Carbon\Carbon::now()->diffInDays($jatuhTempo) }} hari lagi ({{ $jatuhTempo->format('d M Y') }}).
-                                </p>
-                            </div>
+                    <div class="bg-warning-light border border-warning/40 p-5 rounded-2xl shadow-sm flex items-start gap-4">
+                        <div class="size-10 bg-warning/20 rounded-full flex items-center justify-center shrink-0">
+                            <i data-lucide="clock" class="size-5 text-warning-dark"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-warning-dark">Pengingat Pembayaran</h3>
+                            <p class="text-sm text-warning-dark/80 mt-1">Batas pembayaran Anda berakhir dalam <b>{{ \Carbon\Carbon::now()->diffInDays($jatuhTempo) }} hari</b> lagi ({{ $jatuhTempo->format('d M Y') }}).</p>
                         </div>
                     </div>
                     @endif
 
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                            <h2 class="font-bold text-slate-800 flex items-center gap-2">
-                                <i class="fas fa-key text-brand-600"></i> Kamar Aktif Saat Ini
+                    <div class="bg-white rounded-3xl shadow-sm border border-border overflow-hidden">
+                        <div class="p-5 md:p-6 border-b border-border flex justify-between items-center bg-muted/30">
+                            <h2 class="font-bold text-foreground flex items-center gap-2">
+                                <i data-lucide="key" class="size-5 text-primary"></i> Kamar Aktif Anda
                             </h2>
-                            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                                {{ $activeBooking->status == 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
+                            <span class="px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider {{ $activeBooking->status == 'confirmed' ? 'bg-success-light text-success' : 'bg-primary/10 text-primary' }}">
                                 {{ $activeBooking->status == 'confirmed' ? 'Aktif' : ucfirst($activeBooking->status) }}
                             </span>
                         </div>
                         
-                        <div class="p-6">
-                            <div class="flex flex-col md:flex-row gap-6">
-                                <div class="w-full md:w-1/3">
-                                    <div class="aspect-w-16 aspect-h-9 rounded-xl overflow-hidden bg-slate-100 relative">
+                        <div class="p-5 md:p-8">
+                            <div class="flex flex-col md:flex-row gap-6 md:gap-8">
+                                <div class="w-full md:w-1/3 shrink-0">
+                                    <div class="aspect-[4/3] rounded-2xl overflow-hidden bg-muted relative ring-1 ring-border">
                                         @if($activeBooking->kamar->gambar)
                                             <img src="{{ asset('storage/' . $activeBooking->kamar->gambar) }}" class="object-cover w-full h-full" alt="Kamar">
                                         @else
-                                            <div class="flex items-center justify-center h-48 bg-slate-200 text-slate-400">
-                                                <i class="fas fa-bed text-4xl"></i>
+                                            <div class="absolute inset-0 flex flex-col items-center justify-center text-secondary">
+                                                <i data-lucide="bed-double" class="size-12 opacity-50 mb-2"></i>
+                                                <span class="text-xs font-medium">No Image</span>
                                             </div>
                                         @endif
                                     </div>
@@ -159,44 +169,50 @@
 
                                 <div class="w-full md:w-2/3 flex flex-col justify-between">
                                     <div>
-                                        <div class="flex justify-between items-start">
+                                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                                             <div>
-                                                <h3 class="text-2xl font-bold text-slate-800">Kamar {{ $activeBooking->kamar->nomor_kamar }}</h3>
-                                                <p class="text-slate-500 text-sm">Tipe {{ ucfirst($activeBooking->kamar->tipe_kamar) }}</p>
+                                                <h3 class="text-3xl font-bold text-foreground">Kamar {{ $activeBooking->kamar->nomor_kamar }}</h3>
+                                                <p class="text-secondary font-medium mt-1">Tipe {{ ucfirst($activeBooking->kamar->tipe_kamar) }}</p>
                                             </div>
-                                            <div class="text-right">
-                                                <p class="text-xs text-slate-400 uppercase">Harga Sewa</p>
-                                                <p class="text-lg font-bold text-brand-600">Rp {{ number_format($activeBooking->kamar->harga, 0, ',', '.') }}<span class="text-xs font-normal text-slate-500">/bln</span></p>
+                                            <div class="sm:text-right bg-primary/5 p-3 rounded-xl border border-primary/10 inline-block">
+                                                <p class="text-xs font-bold text-primary uppercase tracking-wider mb-1">Tagihan Bulanan</p>
+                                                <p class="text-xl font-bold text-foreground">Rp {{ number_format($activeBooking->kamar->harga, 0, ',', '.') }}</p>
                                             </div>
                                         </div>
 
                                         <div class="grid grid-cols-2 gap-4 mt-6">
-                                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                                <p class="text-xs text-slate-400 mb-1">Tanggal Masuk</p>
-                                                <p class="font-semibold text-slate-700">{{ $activeBooking->tanggal_masuk->format('d M Y') }}</p>
+                                            <div class="bg-muted/50 p-4 rounded-xl border border-border">
+                                                <p class="text-xs font-semibold text-secondary uppercase tracking-wider mb-1">Tanggal Masuk</p>
+                                                <p class="font-bold text-foreground flex items-center gap-2">
+                                                    <i data-lucide="calendar-check" class="size-4 text-primary"></i> 
+                                                    {{ $activeBooking->tanggal_masuk->format('d M Y') }}
+                                                </p>
                                             </div>
-                                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                                <p class="text-xs text-slate-400 mb-1">Durasi Sewa</p>
-                                                <p class="font-semibold text-slate-700">{{ $activeBooking->durasi }} Bulan</p>
+                                            <div class="bg-muted/50 p-4 rounded-xl border border-border">
+                                                <p class="text-xs font-semibold text-secondary uppercase tracking-wider mb-1">Durasi Sewa</p>
+                                                <p class="font-bold text-foreground flex items-center gap-2">
+                                                    <i data-lucide="hourglass" class="size-4 text-warning-dark"></i> 
+                                                    {{ $activeBooking->durasi }} Bulan
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="mt-6 pt-4 border-t border-slate-100 flex flex-wrap gap-3">
+                                    <div class="mt-6 pt-6 border-t border-border flex flex-wrap items-center gap-3">
                                         @if($isPaid)
-                                            <div class="flex items-center gap-2 text-green-600 font-bold bg-green-50 px-4 py-2 rounded-lg border border-green-100">
-                                                <i class="fas fa-check-circle"></i> Pembayaran Lunas
+                                            <div class="inline-flex items-center gap-2 text-success font-bold bg-success-light px-5 py-2.5 rounded-xl border border-success/20">
+                                                <i data-lucide="check-circle-2" class="size-5"></i> Lunas
                                             </div>
-                                            <a href="{{ route('booking.receipt', $pembayaran->id) }}" class="inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 transition">
-                                                <i class="fas fa-print mr-2"></i> Cetak Struk
+                                            <a href="{{ route('booking.receipt', $pembayaran->id) }}" class="inline-flex justify-center items-center px-5 py-2.5 border border-border font-bold rounded-xl text-foreground bg-white hover:bg-muted transition-colors shadow-sm">
+                                                <i data-lucide="printer" class="size-4 mr-2"></i> Cetak Struk
                                             </a>
                                         @elseif($isOverdue)
-                                            <a href="{{ route('booking.retry-payment', $pembayaran->id) }}" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 shadow-lg shadow-red-500/30 transition animate-bounce">
-                                                <i class="fas fa-wallet mr-2"></i> Bayar Tagihan (Overdue)
+                                            <a href="{{ route('booking.retry-payment', $pembayaran->id) }}" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-2.5 bg-error text-white font-bold rounded-xl hover:bg-error/90 shadow-lg shadow-error/30 transition-all">
+                                                <i data-lucide="wallet" class="size-4 mr-2"></i> Bayar Tunggakan
                                             </a>
                                         @else
-                                            <a href="{{ route('booking.payment', $pembayaran->id) }}" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-2.5 bg-brand-600 text-white font-bold rounded-lg hover:bg-brand-700 shadow-lg shadow-brand-600/30 transition">
-                                                <i class="fas fa-wallet mr-2"></i> Bayar Sekarang
+                                            <a href="{{ route('booking.payment', $pembayaran->id) }}" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary-hover shadow-lg shadow-primary/30 transition-all">
+                                                <i data-lucide="credit-card" class="size-4 mr-2"></i> Bayar Sekarang
                                             </a>
                                         @endif
                                     </div>
@@ -206,74 +222,76 @@
                     </div>
 
                 @else
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-10 text-center">
-                        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-home text-slate-300 text-4xl"></i>
+                    <div class="bg-white rounded-3xl shadow-sm border border-border p-12 text-center flex flex-col items-center justify-center">
+                        <div class="size-24 bg-primary/10 rounded-full flex items-center justify-center mb-5">
+                            <i data-lucide="home" class="size-12 text-primary"></i>
                         </div>
-                        <h2 class="text-xl font-bold text-slate-800 mb-2">Anda Belum Menyewa Kamar</h2>
-                        <p class="text-slate-500 mb-6 max-w-md mx-auto">Silakan cari kamar yang sesuai dengan keinginan Anda dan lakukan pemesanan sekarang.</p>
-                        <a href="{{ route('home') }}#kamar" class="inline-flex items-center px-6 py-3 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 shadow-lg transition">
-                            <i class="fas fa-search mr-2"></i> Cari Kamar Kos
+                        <h2 class="text-2xl font-bold text-foreground mb-2">Belum Ada Kamar Aktif</h2>
+                        <p class="text-secondary max-w-md mx-auto mb-8">Anda belum memiliki pesanan kamar yang aktif. Silakan lihat daftar kamar yang tersedia dan lakukan pemesanan.</p>
+                        <a href="{{ route('home') }}#kamar" class="inline-flex items-center px-8 py-3.5 bg-primary text-white font-bold rounded-xl hover:bg-primary-hover shadow-lg shadow-primary/30 transition-all">
+                            <i data-lucide="search" class="size-5 mr-2"></i> Cari Kamar Kos
                         </a>
                     </div>
                 @endif
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="p-6 border-b border-slate-100">
-                        <h2 class="font-bold text-slate-800">Riwayat Pesanan</h2>
+                <div class="bg-white rounded-3xl shadow-sm border border-border overflow-hidden">
+                    <div class="p-6 border-b border-border">
+                        <h2 class="font-bold text-foreground flex items-center gap-2">
+                            <i data-lucide="history" class="size-5 text-secondary"></i> Riwayat Pesanan
+                        </h2>
                     </div>
                     
-                    @if($bookingHistory->count() > 0)
+                    @if(isset($bookingHistory) && $bookingHistory->count() > 0)
                         <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left">
-                                <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-100">
+                            <table class="min-w-full divide-y divide-border">
+                                <thead class="bg-muted/50">
                                     <tr>
-                                        <th class="px-6 py-4">ID Pesanan</th>
-                                        <th class="px-6 py-4">Kamar</th>
-                                        <th class="px-6 py-4">Tanggal</th>
-                                        <th class="px-6 py-4">Status</th>
-                                        <th class="px-6 py-4 text-right">Total</th>
-                                        <th class="px-6 py-4 text-center">Aksi</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary uppercase tracking-wider">ID Ref</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Kamar</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Tanggal</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-4 text-right text-xs font-semibold text-secondary uppercase tracking-wider">Total</th>
+                                        <th class="px-6 py-4 text-center text-xs font-semibold text-secondary uppercase tracking-wider">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-100">
+                                <tbody class="divide-y divide-border bg-white">
                                     @foreach($bookingHistory as $booking)
-                                    <tr class="hover:bg-slate-50 transition">
-                                        <td class="px-6 py-4 font-mono text-xs text-slate-500">
-                                            #{{ $booking->pembayaran->kode_pembayaran ?? '-' }}
+                                    <tr class="hover:bg-muted/30 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-xs font-mono font-bold text-foreground">
+                                            #{{ $booking->pembayaran->kode_pembayaran ?? str_pad($booking->id, 5, '0', STR_PAD_LEFT) }}
                                         </td>
-                                        <td class="px-6 py-4">
-                                            <div class="font-bold text-slate-800">Kamar {{ $booking->kamar->nomor_kamar }}</div>
-                                            <div class="text-xs text-slate-500">{{ ucfirst($booking->kamar->tipe_kamar) }}</div>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <p class="font-bold text-foreground text-sm">Kamar {{ $booking->kamar->nomor_kamar }}</p>
+                                            <p class="text-[11px] text-secondary mt-0.5">{{ ucfirst($booking->kamar->tipe_kamar) }}</p>
                                         </td>
-                                        <td class="px-6 py-4 text-slate-600">
-                                            {{ $booking->created_at->format('d/m/Y') }}
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
+                                            {{ $booking->created_at->format('d M Y') }}
                                         </td>
-                                        <td class="px-6 py-4">
+                                        <td class="px-6 py-4 whitespace-nowrap">
                                             @php
                                                 $status = $booking->status;
                                                 $badges = [
-                                                    'pending' => 'bg-yellow-100 text-yellow-700',
-                                                    'confirmed' => 'bg-green-100 text-green-700',
-                                                    'checked_in' => 'bg-blue-100 text-blue-700',
-                                                    'cancelled' => 'bg-red-100 text-red-700',
+                                                    'pending' => 'bg-warning-light text-warning-dark',
+                                                    'confirmed' => 'bg-success-light text-success',
+                                                    'checked_in' => 'bg-primary/10 text-primary',
+                                                    'cancelled' => 'bg-error-light text-error',
                                                 ];
-                                                $badgeClass = $badges[$status] ?? 'bg-gray-100 text-gray-700';
+                                                $badgeClass = $badges[$status] ?? 'bg-muted text-secondary';
                                             @endphp
-                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold {{ $badgeClass }}">
-                                                {{ ucfirst($status) }}
+                                            <span class="inline-flex px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider {{ $badgeClass }}">
+                                                {{ $status }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 text-right font-bold text-slate-700">
+                                        <td class="px-6 py-4 whitespace-nowrap text-right font-bold text-foreground">
                                             Rp {{ number_format($booking->total_harga, 0, ',', '.') }}
                                         </td>
-                                        <td class="px-6 py-4 text-center">
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
                                             @if($booking->pembayaran && $booking->pembayaran->status == 'paid')
-                                                <a href="{{ route('booking.receipt', $booking->pembayaran->id) }}" class="text-brand-600 hover:text-brand-800 text-xs font-bold border border-brand-200 px-3 py-1 rounded hover:bg-brand-50 transition">
-                                                    Lihat Struk
+                                                <a href="{{ route('booking.receipt', $booking->pembayaran->id) }}" class="inline-flex items-center justify-center p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors" title="Lihat Struk">
+                                                    <i data-lucide="receipt" class="size-4"></i>
                                                 </a>
                                             @else
-                                                <span class="text-slate-400 text-xs">-</span>
+                                                <span class="text-secondary opacity-50"><i data-lucide="minus" class="size-4 mx-auto"></i></span>
                                             @endif
                                         </td>
                                     </tr>
@@ -282,9 +300,10 @@
                             </table>
                         </div>
                     @else
-                        <div class="p-8 text-center text-slate-500">
-                            <i class="fas fa-history text-3xl mb-3 text-slate-300"></i>
-                            <p>Belum ada riwayat pesanan.</p>
+                        <div class="p-10 text-center flex flex-col items-center">
+                            <i data-lucide="history" class="size-12 text-muted mb-3"></i>
+                            <p class="font-semibold text-foreground">Riwayat Kosong</p>
+                            <p class="text-sm text-secondary mt-1">Belum ada riwayat transaksi masa lalu.</p>
                         </div>
                     @endif
                 </div>
