@@ -3,145 +3,140 @@
 @section('title', 'Laporan Statistik')
 
 @section('content')
-<!-- Page Header -->
-<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-    <div class="mb-4 md:mb-0">
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Laporan Statistik</h1>
-        <p class="text-gray-600 mt-2">Analisis data dan trend KOSTKU</p>
+<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+    <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-foreground">Laporan Statistik</h1>
+        <p class="text-secondary mt-1">Analisis performa, tren, dan data penghuni KOSTKU</p>
     </div>
     <div class="flex space-x-3">
-        <button class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200">
-            <i class="fas fa-calendar mr-2"></i>Pilih Periode
+        <button class="inline-flex items-center px-4 py-2.5 bg-white border border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-colors shadow-sm">
+            <i data-lucide="calendar" class="size-4 mr-2 text-secondary"></i> Pilih Periode Analisis
         </button>
     </div>
 </div>
 
-<!-- Key Metrics -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium opacity-90">Total Penghuni</p>
-                <p class="text-2xl font-bold mt-1">{{ $totalPenghuni }}</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="flex flex-col rounded-2xl border border-border p-6 bg-white shadow-sm">
+        <div class="size-10 bg-primary/10 rounded-xl flex items-center justify-center mb-3">
+            <i data-lucide="users" class="size-5 text-primary"></i>
+        </div>
+        <p class="font-medium text-sm text-secondary">Total Penghuni Aktif</p>
+        <p class="font-bold text-3xl text-foreground mt-1">{{ $totalPenghuni ?? 0 }}</p>
+    </div>
+
+    <div class="flex flex-col rounded-2xl border border-border p-6 bg-white shadow-sm relative overflow-hidden">
+        <div class="size-10 bg-success-light rounded-xl flex items-center justify-center mb-3">
+            <i data-lucide="pie-chart" class="size-5 text-success"></i>
+        </div>
+        <p class="font-medium text-sm text-secondary">Occupancy Rate</p>
+        <div class="flex items-end gap-2 mt-1">
+            <p class="font-bold text-3xl text-foreground">{{ $occupancyRate ?? 0 }}%</p>
+        </div>
+        <div class="absolute bottom-0 left-0 h-1.5 bg-success/20 w-full">
+            <div class="h-full bg-success" style="width: {{ $occupancyRate ?? 0 }}%"></div>
+        </div>
+    </div>
+
+    <div class="flex flex-col rounded-2xl border border-border p-6 bg-white shadow-sm">
+        <div class="size-10 bg-purple-100 rounded-xl flex items-center justify-center mb-3">
+            <i data-lucide="calendar-check" class="size-5 text-purple-600"></i>
+        </div>
+        <p class="font-medium text-sm text-secondary">Booking Bulan Ini</p>
+        <p class="font-bold text-3xl text-foreground mt-1">{{ $bookingBulanIni ?? 0 }}</p>
+    </div>
+
+    <div class="flex flex-col rounded-2xl border border-border p-6 bg-white shadow-sm">
+        <div class="size-10 bg-warning-light rounded-xl flex items-center justify-center mb-3">
+            <i data-lucide="refresh-cw" class="size-5 text-warning-dark"></i>
+        </div>
+        <p class="font-medium text-sm text-secondary">Retention Rate</p>
+        <p class="font-bold text-3xl text-foreground mt-1">{{ $retentionRate ?? 0 }}%</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <div class="lg:col-span-1 space-y-6">
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-border p-6">
+            <h3 class="font-bold text-foreground mb-4 flex items-center gap-2">
+                <i data-lucide="contact" class="size-5 text-primary"></i> Data Demografi User
+            </h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center p-3.5 bg-muted/50 rounded-xl border border-border">
+                    <span class="text-sm font-semibold text-secondary">Total Seluruh User</span>
+                    <span class="text-base font-bold text-foreground">{{ $totalUser ?? 0 }}</span>
+                </div>
+                <div class="flex justify-between items-center p-3.5 bg-muted/50 rounded-xl border border-border">
+                    <span class="text-sm font-semibold text-secondary">Penyewa Aktif</span>
+                    <span class="text-base font-bold text-primary">{{ $userAktif ?? 0 }}</span>
+                </div>
+                <div class="flex justify-between items-center p-3.5 bg-muted/50 rounded-xl border border-border">
+                    <span class="text-sm font-semibold text-secondary">Pendaftar Baru Bulan Ini</span>
+                    <span class="text-base font-bold text-success">+{{ $userBaru ?? 0 }}</span>
+                </div>
             </div>
-            <div class="p-3 rounded-full bg-white bg-opacity-20">
-                <i class="fas fa-users text-xl"></i>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-border p-6">
+            <h3 class="font-bold text-foreground mb-4 flex items-center gap-2">
+                <i data-lucide="activity" class="size-5 text-warning-dark"></i> Analisis Kinerja
+            </h3>
+            <div class="space-y-4">
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium text-secondary">Avg. Lama Menginap</span>
+                        <span class="font-bold text-foreground">{{ $avgStay ?? 0 }} Bulan</span>
+                    </div>
+                    <div class="h-2 w-full bg-muted rounded-full overflow-hidden">
+                        <div class="h-full bg-warning-dark rounded-full" style="width: 70%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium text-secondary">Booking Conversion</span>
+                        <span class="font-bold text-success">{{ $conversionRate ?? 0 }}%</span>
+                    </div>
+                    <div class="h-2 w-full bg-muted rounded-full overflow-hidden">
+                        <div class="h-full bg-success rounded-full" style="width: {{ $conversionRate ?? 0 }}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium text-secondary">Cancellation Rate</span>
+                        <span class="font-bold text-error">{{ $cancellationRate ?? 0 }}%</span>
+                    </div>
+                    <div class="h-2 w-full bg-muted rounded-full overflow-hidden">
+                        <div class="h-full bg-error rounded-full" style="width: {{ $cancellationRate ?? 0 }}%"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium opacity-90">Occupancy Rate</p>
-                <p class="text-2xl font-bold mt-1">{{ $occupancyRate }}%</p>
-            </div>
-            <div class="p-3 rounded-full bg-white bg-opacity-20">
-                <i class="fas fa-chart-pie text-xl"></i>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium opacity-90">Booking Bulan Ini</p>
-                <p class="text-2xl font-bold mt-1">{{ $bookingBulanIni }}</p>
-            </div>
-            <div class="p-3 rounded-full bg-white bg-opacity-20">
-                <i class="fas fa-calendar-check text-xl"></i>
+    <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-border p-6 h-[350px] flex flex-col">
+            <h3 class="font-bold text-foreground mb-4">Trend Pertumbuhan Booking (6 Bulan Terakhir)</h3>
+            <div class="flex-1 bg-muted/30 border border-dashed border-border rounded-xl flex flex-col items-center justify-center">
+                <i data-lucide="line-chart" class="size-12 text-secondary/50 mb-3"></i>
+                <p class="text-sm font-semibold text-secondary">Area Grafik Trend Booking</p>
+                <p class="text-xs text-secondary/70 mt-1">Gunakan Chart.js untuk menampilkan visualisasi data di sini.</p>
             </div>
         </div>
-    </div>
 
-    <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white shadow-lg">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium opacity-90">Retention Rate</p>
-                <p class="text-2xl font-bold mt-1">{{ $retentionRate }}%</p>
-            </div>
-            <div class="p-3 rounded-full bg-white bg-opacity-20">
-                <i class="fas fa-sync text-xl"></i>
+        <div class="bg-white rounded-2xl shadow-sm border border-border p-6 h-[320px] flex flex-col">
+            <h3 class="font-bold text-foreground mb-4">Distribusi Status Kamar Saat Ini</h3>
+            <div class="flex-1 bg-muted/30 border border-dashed border-border rounded-xl flex flex-col items-center justify-center">
+                <i data-lucide="pie-chart" class="size-12 text-secondary/50 mb-3"></i>
+                <p class="text-sm font-semibold text-secondary">Area Grafik Pie/Doughnut</p>
+                <p class="text-xs text-secondary/70 mt-1">Perbandingan Terisi vs Tersedia vs Maintenance.</p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Charts Section -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-    <!-- Booking Trend -->
-    <div class="card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Trend Booking 6 Bulan</h3>
-        <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-            <div class="text-center text-gray-500">
-                <i class="fas fa-chart-line text-4xl mb-2"></i>
-                <p>Grafik trend booking</p>
-                <p class="text-sm">(Data visualisasi)</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Room Type Distribution -->
-    <div class="card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Distribusi Tipe Kamar</h3>
-        <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-            <div class="text-center text-gray-500">
-                <i class="fas fa-chart-pie text-4xl mb-2"></i>
-                <p>Pie chart distribusi</p>
-                <p class="text-sm">(Data visualisasi)</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Detailed Statistics -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-    <!-- User Demographics -->
-    <div class="card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Demografi User</h3>
-        <div class="space-y-4">
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span class="text-sm font-medium text-gray-700">Total User</span>
-                <span class="text-sm font-semibold text-gray-900">{{ $totalUser }}</span>
-            </div>
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span class="text-sm font-medium text-gray-700">User Aktif</span>
-                <span class="text-sm font-semibold text-gray-900">{{ $userAktif }}</span>
-            </div>
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span class="text-sm font-medium text-gray-700">User Baru (Bulan Ini)</span>
-                <span class="text-sm font-semibold text-gray-900">{{ $userBaru }}</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Performance Metrics -->
-    <div class="card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Metrik Kinerja</h3>
-        <div class="space-y-4">
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span class="text-sm font-medium text-gray-700">Avg. Length of Stay</span>
-                <span class="text-sm font-semibold text-gray-900">{{ $avgStay }} bulan</span>
-            </div>
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span class="text-sm font-medium text-gray-700">Booking Conversion Rate</span>
-                <span class="text-sm font-semibold text-gray-900">{{ $conversionRate }}%</span>
-            </div>
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span class="text-sm font-medium text-gray-700">Cancellation Rate</span>
-                <span class="text-sm font-semibold text-gray-900">{{ $cancellationRate }}%</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-    .card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .card:hover {
-        transform: translateY(-2px);
-    }
-</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
 @endsection

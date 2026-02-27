@@ -9,6 +9,9 @@ use App\Http\Controllers\Admin\KamarController as AdminKamarController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\BookingController as AdminBookingController;
 use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
+use App\Http\Controllers\Admin\PembayaranController as AdminPembayaranController;
+use App\Http\Controllers\Admin\SettingController as AdminSettingController;
+
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -75,12 +78,16 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::resource('kamar', AdminKamarController::class)->names('admin.kamar');
     Route::resource('user', AdminUserController::class)->names('admin.user');
     Route::resource('booking', AdminBookingController::class)->names('admin.booking');
+    Route::resource('pembayaran', AdminPembayaranController::class)->names('admin.pembayaran');
 
     Route::get('/laporan/keuangan', [AdminLaporanController::class, 'keuangan'])->name('admin.laporan.keuangan');
     Route::get('/laporan/keuangan/export-pdf', [AdminLaporanController::class, 'exportPDF'])->name('admin.laporan.export-pdf');
     Route::get('/laporan/keuangan/export-excel', [AdminLaporanController::class, 'exportExcel'])->name('admin.laporan.export-excel');
 
     Route::get('/laporan/statistik', [AdminLaporanController::class, 'statistik'])->name('admin.laporan.statistik');
+    
+    Route::get('/settings', [AdminSettingController::class, 'index'])->name('admin.settings.index');
+    Route::put('/settings', [AdminSettingController::class, 'update'])->name('admin.settings.update');
 });
 
 // API Routes

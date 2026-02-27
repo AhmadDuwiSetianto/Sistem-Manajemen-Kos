@@ -2,293 +2,296 @@
 
 @section('title', 'Dashboard Admin')
 
+@push('styles')
+<link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style type="text/tailwindcss">
+    :root {
+        --primary: #165DFF;
+        --primary-hover: #0E4BD9;
+        --foreground: #080C1A;
+        --secondary: #6A7686;
+        --muted: #EFF2F7;
+        --border: #F3F4F3;
+        --success: #30B22D;
+        --success-light: #DCFCE7;
+        --error: #ED6B60;
+        --error-light: #FEE2E2;
+        --warning: #FED71F;
+        --warning-light: #FEF9C3;
+        --font-sans: 'Lexend Deca', sans-serif;
+    }
+    @theme inline {
+        --color-primary: var(--primary);
+        --color-primary-hover: var(--primary-hover);
+        --color-foreground: var(--foreground);
+        --color-secondary: var(--secondary);
+        --color-muted: var(--muted);
+        --color-border: var(--border);
+        --color-success: var(--success);
+        --color-success-light: var(--success-light);
+        --color-error: var(--error);
+        --color-error-light: var(--error-light);
+        --color-warning: var(--warning);
+        --color-warning-light: var(--warning-light);
+        --font-sans: var(--font-sans);
+    }
+    body { font-family: var(--font-sans); }
+</style>
+@endpush
+
 @section('content')
-<!-- Page Header -->
-<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-    <div class="mb-4 md:mb-0">
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Dashboard Admin</h1>
-        <p class="text-gray-600 mt-2">Overview dan statistik sistem MyKos</p>
-    </div>
-    <div class="flex items-center space-x-3">
-        <span class="text-sm text-gray-500">Terakhir update: {{ now()->format('d/m/Y H:i') }}</span>
-    </div>
-</div>
-
-<!-- Stats Grid -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Total Kamar -->
-    <div class="card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center">
-            <div class="p-3 bg-blue-100 rounded-lg mr-4">
-                <i class="fas fa-door-open text-blue-600 text-xl"></i>
+<div class="flex-1 p-5 md:p-8">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-foreground">Dashboard Overview</h1>
+            <p class="text-secondary mt-1">Statistik real-time sistem manajemen Inna Kos</p>
+        </div>
+        <div class="flex items-center gap-3 bg-white p-3 rounded-2xl border border-border shadow-sm">
+            <div class="size-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                <i data-lucide="clock" class="size-5 text-primary"></i>
             </div>
-            <div>
-                <p class="text-sm text-blue-600 font-medium">Total Kamar</p>
-                <p class="text-2xl font-bold text-blue-800">{{ $totalKamar ?? 0 }}</p>
+            <div class="text-right">
+                <p class="text-xs text-secondary font-medium uppercase tracking-wider">Update Terakhir</p>
+                <p class="text-sm font-bold text-foreground">{{ now()->format('d/m/Y H:i') }}</p>
             </div>
         </div>
     </div>
 
-    <!-- Kamar Tersedia -->
-    <div class="card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center">
-            <div class="p-3 bg-green-100 rounded-lg mr-4">
-                <i class="fas fa-check-circle text-green-600 text-xl"></i>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white hover:ring-1 hover:ring-primary transition-all duration-300">
+            <div class="flex items-center gap-3">
+                <div class="size-11 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                    <i data-lucide="home" class="size-6 text-primary"></i>
+                </div>
+                <p class="font-medium text-secondary">Total Kamar</p>
             </div>
-            <div>
-                <p class="text-sm text-green-600 font-medium">Kamar Tersedia</p>
-                <p class="text-2xl font-bold text-green-800">{{ $kamarTersedia ?? 0 }}</p>
+            <p class="font-bold text-3xl text-foreground">{{ $totalKamar ?? 0 }}</p>
+        </div>
+
+        <div class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white hover:ring-1 hover:ring-success transition-all duration-300">
+            <div class="flex items-center gap-3">
+                <div class="size-11 bg-success-light rounded-xl flex items-center justify-center shrink-0">
+                    <i data-lucide="check-circle" class="size-6 text-success"></i>
+                </div>
+                <p class="font-medium text-secondary">Tersedia</p>
             </div>
+            <p class="font-bold text-3xl text-foreground">{{ $kamarTersedia ?? 0 }}</p>
+        </div>
+
+        <div class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white hover:ring-1 hover:ring-primary transition-all duration-300">
+            <div class="flex items-center gap-3">
+                <div class="size-11 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
+                    <i data-lucide="users" class="size-6 text-blue-600"></i>
+                </div>
+                <p class="font-medium text-secondary">Penghuni</p>
+            </div>
+            <p class="font-bold text-3xl text-foreground">{{ $totalPenghuni ?? 0 }}</p>
+        </div>
+
+        <div class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white hover:ring-1 hover:ring-warning transition-all duration-300">
+            <div class="flex items-center gap-3">
+                <div class="size-11 bg-warning-light rounded-xl flex items-center justify-center shrink-0">
+                    <i data-lucide="timer" class="size-6 text-orange-500"></i>
+                </div>
+                <p class="font-medium text-secondary">Pending Bookings</p>
+            </div>
+            <p class="font-bold text-3xl text-foreground">{{ $pendingBookingsCount ?? 0 }}</p>
+        </div>
+
+        <div class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white hover:ring-1 hover:ring-primary transition-all duration-300">
+            <div class="flex items-center gap-3">
+                <div class="size-11 bg-muted rounded-xl flex items-center justify-center shrink-0">
+                    <i data-lucide="bed" class="size-6 text-foreground"></i>
+                </div>
+                <p class="font-medium text-secondary">Kamar Terisi</p>
+            </div>
+            <p class="font-bold text-3xl text-foreground">{{ $kamarTerisi ?? 0 }}</p>
+        </div>
+
+        <div class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white hover:ring-1 hover:ring-success transition-all duration-300">
+            <div class="flex items-center gap-3">
+                <div class="size-11 bg-success-light rounded-xl flex items-center justify-center shrink-0">
+                    <i data-lucide="calendar-check" class="size-6 text-success"></i>
+                </div>
+                <p class="font-medium text-secondary">Confirmed</p>
+            </div>
+            <p class="font-bold text-3xl text-foreground">{{ $confirmedBookingsCount ?? 0 }}</p>
+        </div>
+
+        <div class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white hover:ring-1 hover:ring-primary transition-all duration-300">
+            <div class="flex items-center gap-3">
+                <div class="size-11 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                    <i data-lucide="key" class="size-6 text-primary"></i>
+                </div>
+                <p class="font-medium text-secondary">Checked In</p>
+            </div>
+            <p class="font-bold text-3xl text-foreground">{{ $checkedInBookingsCount ?? 0 }}</p>
+        </div>
+
+        <div class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white hover:ring-1 hover:ring-error transition-all duration-300">
+            <div class="flex items-center gap-3">
+                <div class="size-11 bg-error-light rounded-xl flex items-center justify-center shrink-0">
+                    <i data-lucide="credit-card" class="size-6 text-error"></i>
+                </div>
+                <p class="font-medium text-secondary">Pending Pay</p>
+            </div>
+            <p class="font-bold text-3xl text-foreground">{{ $pendingPaymentsCount ?? 0 }}</p>
         </div>
     </div>
 
-    <!-- Total Penghuni -->
-    <div class="card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center">
-            <div class="p-3 bg-purple-100 rounded-lg mr-4">
-                <i class="fas fa-users text-purple-600 text-xl"></i>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div class="lg:col-span-2 flex flex-col rounded-2xl border border-border p-6 bg-white shadow-sm">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="font-bold text-lg text-foreground">Booking Terbaru</h3>
+                    <p class="text-sm text-secondary">Aktivitas pemesanan kamar terkini</p>
+                </div>
+                <a href="{{ route('admin.booking.index') }}" class="px-4 py-2 rounded-xl bg-muted text-primary font-semibold text-sm hover:bg-primary hover:text-white transition-all">Lihat Semua</a>
             </div>
-            <div>
-                <p class="text-sm text-purple-600 font-medium">Total Penghuni</p>
-                <p class="text-2xl font-bold text-purple-800">{{ $totalPenghuni ?? 0 }}</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pending Bookings -->
-    <div class="card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center">
-            <div class="p-3 bg-yellow-100 rounded-lg mr-4">
-                <i class="fas fa-clock text-yellow-600 text-xl"></i>
-            </div>
-            <div>
-                <p class="text-sm text-yellow-600 font-medium">Pending Bookings</p>
-                <p class="text-2xl font-bold text-yellow-800">{{ $pendingBookingsCount ?? 0 }}</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Second Row Stats -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Kamar Terisi -->
-    <div class="card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center">
-            <div class="p-3 bg-orange-100 rounded-lg mr-4">
-                <i class="fas fa-bed text-orange-600 text-xl"></i>
-            </div>
-            <div>
-                <p class="text-sm text-orange-600 font-medium">Kamar Terisi</p>
-                <p class="text-2xl font-bold text-orange-800">{{ $kamarTerisi ?? 0 }}</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Confirmed Bookings -->
-    <div class="card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center">
-            <div class="p-3 bg-green-100 rounded-lg mr-4">
-                <i class="fas fa-calendar-check text-green-600 text-xl"></i>
-            </div>
-            <div>
-                <p class="text-sm text-green-600 font-medium">Confirmed</p>
-                <p class="text-2xl font-bold text-green-800">{{ $confirmedBookingsCount ?? 0 }}</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Checked In -->
-    <div class="card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center">
-            <div class="p-3 bg-blue-100 rounded-lg mr-4">
-                <i class="fas fa-key text-blue-600 text-xl"></i>
-            </div>
-            <div>
-                <p class="text-sm text-blue-600 font-medium">Checked In</p>
-                <p class="text-2xl font-bold text-blue-800">{{ $checkedInBookingsCount ?? 0 }}</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pending Payments -->
-    <div class="card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center">
-            <div class="p-3 bg-red-100 rounded-lg mr-4">
-                <i class="fas fa-money-bill-wave text-red-600 text-xl"></i>
-            </div>
-            <div>
-                <p class="text-sm text-red-600 font-medium">Pending Payments</p>
-                <p class="text-2xl font-bold text-red-800">{{ $pendingPaymentsCount ?? 0 }}</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Recent Bookings & Users -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <!-- Recent Bookings -->
-    <div class="card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-800">Booking Terbaru</h3>
-            <a href="{{ route('admin.booking.index') }}" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
-                Lihat Semua
-            </a>
-        </div>
-        <div class="space-y-4">
-            @forelse($recentBookings ?? [] as $booking)
-            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-calendar text-gray-600"></i>
+            
+            <div class="flex flex-col gap-1">
+                @forelse($recentBookings ?? [] as $booking)
+                <div class="flex items-center gap-4 py-4 border-b border-border last:border-0 hover:bg-muted/30 -mx-2 px-2 rounded-xl transition-all">
+                    <div class="size-11 bg-muted rounded-full flex items-center justify-center shrink-0 ring-1 ring-border text-secondary">
+                        <i data-lucide="calendar"></i>
                     </div>
-                    <div>
-                        <p class="font-medium text-gray-800">{{ $booking->user->name ?? 'N/A' }}</p>
-                        <p class="text-sm text-gray-600">Kamar {{ $booking->kamar->nomor_kamar ?? 'N/A' }}</p>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <p class="font-semibold text-foreground text-sm truncate">{{ $booking->user->name ?? 'N/A' }}</p>
+                            <span class="text-xs text-secondary shrink-0">{{ $booking->created_at->diffForHumans() }}</span>
+                        </div>
+                        <p class="text-sm text-secondary">Kamar {{ $booking->kamar->nomor_kamar ?? 'N/A' }} • {{ $booking->created_at->format('d M Y') }}</p>
+                    </div>
+                    <div class="shrink-0">
+                        @php
+                            $statusMap = [
+                                'pending' => ['bg' => 'bg-warning-light', 'text' => 'text-orange-600'],
+                                'confirmed' => ['bg' => 'bg-success-light', 'text' => 'text-success'],
+                                'checked_in' => ['bg' => 'bg-primary/10', 'text' => 'text-primary'],
+                                'completed' => ['bg' => 'bg-muted', 'text' => 'text-secondary'],
+                                'cancelled' => ['bg' => 'bg-error-light', 'text' => 'text-error'],
+                            ];
+                            $currStatus = $statusMap[$booking->status] ?? ['bg' => 'bg-muted', 'text' => 'text-secondary'];
+                        @endphp
+                        <span class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider {{ $currStatus['bg'] }} {{ $currStatus['text'] }}">
+                            {{ str_replace('_', ' ', $booking->status) }}
+                        </span>
                     </div>
                 </div>
-                <div class="text-right">
+                @empty
+                <div class="text-center py-10">
+                    <i data-lucide="calendar-x" class="size-10 text-muted mx-auto mb-3"></i>
+                    <p class="text-secondary">Tidak ada data booking</p>
+                </div>
+                @endforelse
+            </div>
+        </div>
+
+        <div class="flex flex-col rounded-2xl border border-border p-6 bg-white shadow-sm">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-lg text-foreground">User Baru</h3>
+                <a href="{{ route('admin.user.index') }}" class="size-9 flex items-center justify-center rounded-xl hover:bg-muted transition-colors">
+                    <i data-lucide="external-link" class="size-5 text-secondary"></i>
+                </a>
+            </div>
+            
+            <div class="flex flex-col gap-4">
+                @forelse($recentUsers ?? [] as $user)
+                <div class="flex items-center gap-3 p-3 rounded-2xl border border-border hover:border-primary/30 transition-all">
+                    <div class="size-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0 font-bold text-primary">
+                        {{ substr($user->name, 0, 1) }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-sm text-foreground truncate">{{ $user->name }}</p>
+                        <p class="text-xs text-secondary truncate">{{ $user->email }}</p>
+                    </div>
                     @php
-                        $statusColors = [
-                            'pending' => 'bg-yellow-100 text-yellow-800',
-                            'confirmed' => 'bg-green-100 text-green-800',
-                            'checked_in' => 'bg-blue-100 text-blue-800',
-                            'completed' => 'bg-gray-100 text-gray-800',
-                            'cancelled' => 'bg-red-100 text-red-800'
+                        $roleMap = [
+                            'admin' => 'bg-purple-100 text-purple-700',
+                            'penghuni' => 'bg-green-100 text-green-700',
+                            'calon_penghuni' => 'bg-blue-100 text-blue-700',
                         ];
                     @endphp
-                    <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full {{ $statusColors[$booking->status] ?? 'bg-gray-100 text-gray-800' }}">
-                        {{ ucfirst($booking->status) }}
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $roleMap[$user->role] ?? 'bg-muted text-secondary' }}">
+                        {{ $user->role == 'penghuni' ? 'Warga' : ($user->role == 'admin' ? 'Admin' : 'Calon') }}
                     </span>
-                    <p class="text-sm text-gray-600 mt-1">
-                        {{ $booking->created_at->format('d/m/Y') }}
-                    </p>
                 </div>
+                @empty
+                <p class="text-center text-secondary text-sm">Belum ada user.</p>
+                @endforelse
             </div>
-            @empty
-            <div class="text-center py-8 text-gray-500">
-                <i class="fas fa-calendar-times text-3xl mb-3"></i>
-                <p class="text-gray-600">Tidak ada booking terbaru</p>
-            </div>
-            @endforelse
         </div>
     </div>
 
-    <!-- Recent Users -->
-    <div class="card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-800">User Terbaru</h3>
-            <a href="{{ route('admin.user.index') }}" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
-                Lihat Semua
-            </a>
-        </div>
-        <div class="space-y-4">
-            @forelse($recentUsers ?? [] as $user)
-            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user text-gray-600"></i>
-                    </div>
-                    <div>
-                        <p class="font-medium text-gray-800">{{ $user->name }}</p>
-                        <p class="text-sm text-gray-600">{{ $user->email }}</p>
-                    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="group bg-white rounded-3xl p-1 border border-border hover:shadow-xl transition-all duration-300">
+            <div class="bg-primary rounded-[22px] p-6 text-white h-full relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                    <i data-lucide="home" class="size-32"></i>
                 </div>
-                <div class="text-right">
-                    @php
-                        $roleColors = [
-                            'penghuni' => 'bg-green-100 text-green-800',
-                            'calon_penghuni' => 'bg-blue-100 text-blue-800',
-                            'admin' => 'bg-purple-100 text-purple-800'
-                        ];
-                    @endphp
-                    <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full {{ $roleColors[$user->role] ?? 'bg-gray-100 text-gray-800' }}">
-                        {{ $user->role == 'penghuni' ? 'Penghuni' : ($user->role == 'admin' ? 'Admin' : 'Calon Penghuni') }}
-                    </span>
-                    <p class="text-sm text-gray-600 mt-1">
-                        {{ $user->created_at->format('d/m/Y') }}
-                    </p>
-                </div>
-            </div>
-            @empty
-            <div class="text-center py-8 text-gray-500">
-                <i class="fas fa-users text-3xl mb-3"></i>
-                <p class="text-gray-600">Tidak ada user terbaru</p>
-            </div>
-            @endforelse
-        </div>
-    </div>
-</div>
-
-<!-- Quick Actions --><!-- Quick Actions -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
-        <div class="flex items-center justify-between">
-            <div class="flex-1">
-                <h3 class="text-lg font-semibold mb-2">Kelola Kamar</h3>
-                <p class="text-blue-100 text-sm mb-4">Tambah, edit, / hapus kamar kos</p>
-                <a href="{{ route('admin.kamar.index') }}" class="inline-flex items-center px-4 py-2 bg-white text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-colors duration-200 shadow-md">
-                    <i class="fas fa-door-open mr-2"></i>Kelola Kamar
+                <h3 class="text-xl font-bold mb-2">Kelola Kamar</h3>
+                <p class="text-white/80 text-sm mb-6 pr-10">Atur ketersediaan, harga, dan fasilitas kamar kos.</p>
+                <a href="{{ route('admin.kamar.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-primary font-bold rounded-xl hover:bg-muted transition-colors shadow-lg shadow-primary/20">
+                    <i data-lucide="door-open" class="size-4"></i> Masuk Menu
                 </a>
             </div>
-            <div class="ml-4">
-                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-home text-xl"></i>
-                </div>
-            </div>
         </div>
-    </div>
 
-    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
-        <div class="flex items-center justify-between">
-            <div class="flex-1">
-                <h3 class="text-lg font-semibold mb-2">Lihat Laporan</h3>
-                <p class="text-green-100 text-sm mb-4">Analisis keuangan dan statistik</p>
-                <a href="{{ route('admin.laporan.keuangan') }}" class="inline-flex items-center px-4 py-2 bg-white text-green-600 font-medium rounded-lg hover:bg-green-50 transition-colors duration-200 shadow-md">
-                    <i class="fas fa-chart-bar mr-2"></i>Lihat Laporan
+        <div class="group bg-white rounded-3xl p-1 border border-border hover:shadow-xl transition-all duration-300">
+            <div class="bg-success rounded-[22px] p-6 text-white h-full relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                    <i data-lucide="bar-chart-3" class="size-32"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Laporan</h3>
+                <p class="text-white/80 text-sm mb-6 pr-10">Pantau arus kas dan statistik penghuni bulanan.</p>
+                <a href="{{ route('admin.laporan.keuangan') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-success font-bold rounded-xl hover:bg-muted transition-colors shadow-lg shadow-success/20">
+                    <i data-lucide="trending-up" class="size-4"></i> Buka Laporan
                 </a>
             </div>
-            <div class="ml-4">
-                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-chart-line text-xl"></i>
-                </div>
-            </div>
         </div>
-    </div>
 
-    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
-        <div class="flex items-center justify-between">
-            <div class="flex-1">
-                <h3 class="text-lg font-semibold mb-2">Kelola User</h3>
-                <p class="text-purple-100 text-sm mb-4">Kelola data penghuni dan admin</p>
-                <a href="{{ route('admin.user.index') }}" class="inline-flex items-center px-4 py-2 bg-white text-purple-600 font-medium rounded-lg hover:bg-purple-50 transition-colors duration-200 shadow-md">
-                    <i class="fas fa-users mr-2"></i>Kelola User
-                </a>
-            </div>
-            <div class="ml-4">
-                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-user-cog text-xl"></i>
+        <div class="group bg-white rounded-3xl p-1 border border-border hover:shadow-xl transition-all duration-300">
+            <div class="bg-foreground rounded-[22px] p-6 text-white h-full relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                    <i data-lucide="user-cog" class="size-32"></i>
                 </div>
+                <h3 class="text-xl font-bold mb-2">Manajemen User</h3>
+                <p class="text-white/80 text-sm mb-6 pr-10">Kelola hak akses admin dan verifikasi calon penghuni.</p>
+                <a href="{{ route('admin.user.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-foreground font-bold rounded-xl hover:bg-muted transition-colors shadow-lg">
+                    <i data-lucide="users" class="size-4"></i> Kelola User
+                </a>
             </div>
         </div>
     </div>
 </div>
-
 @endsection
 
 @push('scripts')
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Add animation to cards
-        const cards = document.querySelectorAll('.card');
-        cards.forEach((card, index) => {
+        lucide.createIcons();
+        
+        // Stagger animation for cards
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.flex.flex-col.rounded-2xl').forEach((card) => {
             card.style.opacity = '0';
             card.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                card.style.transition = 'all 0.5s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 100);
+            card.style.transition = 'all 0.5s ease-out';
+            observer.observe(card);
         });
     });
 </script>

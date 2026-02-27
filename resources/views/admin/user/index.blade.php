@@ -3,192 +3,190 @@
 @section('title', 'Kelola User')
 
 @section('content')
-<!-- Page Header -->
-<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-    <div class="mb-4 md:mb-0">
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Kelola User</h1>
-        <p class="text-gray-600 mt-2">Kelola data penghuni dan administrator</p>
+<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+    <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-foreground">Kelola User</h1>
+        <p class="text-secondary mt-1">Kelola data penghuni dan administrator</p>
     </div>
-<a href="{{ route('admin.user.create') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-lg shadow-md transition-all duration-200 transform hover:-translate-y-0.5">
-    <i class="fas fa-plus mr-2"></i>Tambah User
-</a>
+    <a href="{{ route('admin.user.create') }}" class="inline-flex items-center px-5 py-2.5 bg-primary hover:bg-primary-hover text-white font-semibold rounded-xl transition-all shadow-sm shadow-primary/30">
+        <i data-lucide="plus" class="size-5 mr-2"></i> Tambah User
+    </a>
 </div>
 
-<!-- Success Message -->
 @if(session('success'))
-<div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-lg shadow-sm">
-    <div class="flex items-center">
-        <div class="flex-shrink-0">
-            <i class="fas fa-check-circle text-green-500 text-lg"></i>
-        </div>
-        <div class="ml-3">
-            <p class="text-green-700 font-medium">{{ session('success') }}</p>
-        </div>
+<div class="bg-success-light border border-success/20 p-4 mb-6 rounded-2xl flex items-center gap-3">
+    <div class="size-8 bg-success/20 rounded-full flex items-center justify-center shrink-0">
+        <i data-lucide="check-circle" class="size-5 text-success"></i>
     </div>
+    <p class="text-success font-medium">{{ session('success') }}</p>
 </div>
 @endif
 
 @if(session('error'))
-<div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg shadow-sm">
-    <div class="flex items-center">
-        <div class="flex-shrink-0">
-            <i class="fas fa-exclamation-circle text-red-500 text-lg"></i>
-        </div>
-        <div class="ml-3">
-            <p class="text-red-700 font-medium">{{ session('error') }}</p>
-        </div>
+<div class="bg-error-light border border-error/20 p-4 mb-6 rounded-2xl flex items-center gap-3">
+    <div class="size-8 bg-error/20 rounded-full flex items-center justify-center shrink-0">
+        <i data-lucide="alert-circle" class="size-5 text-error"></i>
     </div>
+    <p class="text-error font-medium">{{ session('error') }}</p>
 </div>
 @endif
 
-<!-- User List -->
-<div class="card bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <h2 class="text-lg font-semibold text-gray-800">Daftar User</h2>
-            <div class="mt-2 sm:mt-0 flex space-x-4">
-                <!-- Filter Role -->
-                <div class="relative">
-                    <select id="roleFilter" class="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 appearance-none bg-white">
-                        <option value="">Semua Role</option>
-                        <option value="admin">Admin</option>
-                        <option value="penghuni">Penghuni</option>
-                        <option value="calon_penghuni">Calon Penghuni</option>
-                    </select>
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-user-tag text-gray-400"></i>
-                    </div>
-                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                        <i class="fas fa-chevron-down text-gray-400"></i>
-                    </div>
-                </div>
-                
-                <!-- Search -->
-                <div class="relative">
-                    <input type="text" id="searchInput" placeholder="Cari user..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 w-full sm:w-64">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-gray-400"></i>
-                    </div>
-                </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="flex flex-col rounded-2xl border border-border p-5 bg-white">
+        <div class="flex items-center gap-3 mb-2">
+            <div class="size-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                <i data-lucide="users" class="size-5 text-primary"></i>
+            </div>
+            <p class="font-medium text-secondary">Total User</p>
+        </div>
+        <p class="font-bold text-3xl text-foreground">{{ $totalUsers ?? $users->count() }}</p>
+    </div>
+    <div class="flex flex-col rounded-2xl border border-border p-5 bg-white">
+        <div class="flex items-center gap-3 mb-2">
+            <div class="size-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                <i data-lucide="shield" class="size-5 text-purple-600"></i>
+            </div>
+            <p class="font-medium text-secondary">Admin</p>
+        </div>
+        <p class="font-bold text-3xl text-foreground">{{ $adminCount ?? $users->where('role', 'admin')->count() }}</p>
+    </div>
+    <div class="flex flex-col rounded-2xl border border-border p-5 bg-white">
+        <div class="flex items-center gap-3 mb-2">
+            <div class="size-10 bg-success-light rounded-xl flex items-center justify-center">
+                <i data-lucide="user-check" class="size-5 text-success"></i>
+            </div>
+            <p class="font-medium text-secondary">Penghuni</p>
+        </div>
+        <p class="font-bold text-3xl text-foreground">{{ $penghuniCount ?? $users->where('role', 'penghuni')->count() }}</p>
+    </div>
+    <div class="flex flex-col rounded-2xl border border-border p-5 bg-white">
+        <div class="flex items-center gap-3 mb-2">
+            <div class="size-10 bg-warning-light rounded-xl flex items-center justify-center">
+                <i data-lucide="clock" class="size-5 text-warning-dark"></i>
+            </div>
+            <p class="font-medium text-secondary">Calon Penghuni</p>
+        </div>
+        <p class="font-bold text-3xl text-foreground">{{ $calonPenghuniCount ?? $users->where('role', 'calon_penghuni')->count() }}</p>
+    </div>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
+    <div class="px-6 py-5 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h2 class="text-lg font-bold text-foreground">Daftar User</h2>
+        <div class="flex flex-col sm:flex-row gap-3">
+            <div class="relative w-full sm:w-48">
+                <i data-lucide="filter" class="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-secondary"></i>
+                <select id="roleFilter" class="w-full pl-10 pr-8 py-2.5 bg-muted border-none rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm appearance-none text-foreground cursor-pointer">
+                    <option value="">Semua Role</option>
+                    <option value="administrator">Admin</option>
+                    <option value="penghuni">Penghuni</option>
+                    <option value="calon penghuni">Calon Penghuni</option>
+                </select>
+                <i data-lucide="chevron-down" class="absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-secondary pointer-events-none"></i>
+            </div>
+            
+            <div class="relative w-full sm:w-64">
+                <input type="text" id="searchInput" placeholder="Cari nama/email..." class="w-full pl-10 pr-4 py-2.5 bg-muted border-none rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm placeholder:text-secondary text-foreground">
+                <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-secondary"></i>
             </div>
         </div>
     </div>
 
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+        <table class="min-w-full divide-y divide-border">
+            <thead class="bg-muted/50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kontak & Identitas</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Booking</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bergabung</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-secondary uppercase tracking-wider">User</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Role</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Kontak & Identitas</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Status Booking</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Bergabung</th>
+                    <th class="px-6 py-4 text-right text-xs font-semibold text-secondary uppercase tracking-wider">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="bg-white divide-y divide-border">
                 @forelse($users as $user)
-                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                <tr class="hover:bg-muted/30 transition-colors">
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center shadow-sm">
-                                <span class="text-primary-600 font-semibold text-lg">
-                                    {{ substr($user->name, 0, 1) }}
-                                </span>
+                        <div class="flex items-center gap-3">
+                            <div class="size-11 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-lg shrink-0">
+                                {{ substr($user->name, 0, 1) }}
                             </div>
-                            <div class="ml-4">
-                                <div class="text-sm font-semibold text-gray-900">{{ $user->name }}</div>
-                                <div class="text-sm text-gray-500 mt-1">ID: {{ $user->id }}</div>
+                            <div>
+                                <p class="text-sm font-bold text-foreground">{{ $user->name }}</p>
+                                <p class="text-xs text-secondary mt-0.5">ID: {{ $user->id }}</p>
                             </div>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         @php
-                            $roleColors = [
-                                'admin' => 'bg-purple-100 text-purple-800 border border-purple-200',
-                                'penghuni' => 'bg-green-100 text-green-800 border border-green-200',
-                                'calon_penghuni' => 'bg-blue-100 text-blue-800 border border-blue-200'
+                            $roleMap = [
+                                'admin' => ['bg' => 'bg-purple-100', 'text' => 'text-purple-700', 'label' => 'Administrator'],
+                                'penghuni' => ['bg' => 'bg-success-light', 'text' => 'text-success', 'label' => 'Penghuni'],
+                                'calon_penghuni' => ['bg' => 'bg-warning-light', 'text' => 'text-warning-dark', 'label' => 'Calon Penghuni']
                             ];
-                            $roleIcons = [
-                                'admin' => 'fa-user-shield',
-                                'penghuni' => 'fa-user-check',
-                                'calon_penghuni' => 'fa-user-clock'
-                            ];
+                            $currRole = $roleMap[$user->role] ?? ['bg' => 'bg-muted', 'text' => 'text-secondary', 'label' => 'Unknown'];
                         @endphp
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $roleColors[$user->role] ?? 'bg-gray-100 text-gray-800' }}">
-                            <i class="fas {{ $roleIcons[$user->role] ?? 'fa-user' }} mr-1.5"></i>
-                            {{ $user->isAdmin() ? 'Administrator' : ($user->isPenghuni() ? 'Penghuni' : 'Calon Penghuni') }}
+                        <span class="inline-flex px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider {{ $currRole['bg'] }} {{ $currRole['text'] }}">
+                            {{ $currRole['label'] }}
                         </span>
                     </td>
                     <td class="px-6 py-4">
-                        <div class="text-sm font-medium text-gray-900">{{ $user->email }}</div>
-                        <div class="text-sm text-gray-500 mt-1">{{ $user->phone ?? '-' }}</div>
+                        <p class="text-sm font-medium text-foreground">{{ $user->email }}</p>
+                        <p class="text-xs text-secondary mt-0.5">{{ $user->phone ?? '-' }}</p>
                         @if($user->identity_number)
-                        <div class="text-xs text-gray-400 mt-1">ID: {{ $user->identity_number }}</div>
+                        <p class="text-[10px] text-secondary mt-1 bg-muted inline-block px-1.5 py-0.5 rounded">KTP: {{ $user->identity_number }}</p>
                         @endif
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-4 whitespace-nowrap">
                         @php
                             $activeBooking = $user->getActiveBooking();
                             $pendingBooking = $user->getPendingBooking();
                         @endphp
                         
                         @if($activeBooking)
-                        <div class="flex items-center text-green-600 text-sm">
-                            <i class="fas fa-home mr-2"></i>
-                            <span>Menempati Kamar {{ $activeBooking->kamar->nomor_kamar ?? '-' }}</span>
+                        <div class="flex items-center gap-2 text-sm font-semibold text-success">
+                            <i data-lucide="home" class="size-4"></i> Kamar {{ $activeBooking->kamar->nomor_kamar ?? '-' }}
                         </div>
                         @elseif($pendingBooking)
-                        <div class="flex items-center text-yellow-600 text-sm">
-                            <i class="fas fa-clock mr-2"></i>
-                            <span>Booking Pending</span>
+                        <div class="flex items-center gap-2 text-sm font-semibold text-warning-dark">
+                            <i data-lucide="clock" class="size-4"></i> Pending
                         </div>
                         @elseif($user->isPenghuni())
-                        <div class="flex items-center text-blue-600 text-sm">
-                            <i class="fas fa-user mr-2"></i>
-                            <span>Penghuni Aktif</span>
+                        <div class="flex items-center gap-2 text-sm font-semibold text-primary">
+                            <i data-lucide="user-check" class="size-4"></i> Aktif
                         </div>
                         @else
-                        <div class="flex items-center text-gray-500 text-sm">
-                            <i class="fas fa-user mr-2"></i>
-                            <span>{{ $user->isCalonPenghuni() ? 'Calon Penghuni' : 'Tidak Aktif' }}</span>
+                        <div class="flex items-center gap-2 text-sm font-medium text-secondary">
+                            <i data-lucide="minus" class="size-4"></i> Tidak Ada
                         </div>
                         @endif
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{ $user->created_at->format('d/m/Y') }}
-                        <div class="text-xs text-gray-500">{{ $user->created_at->diffForHumans() }}</div>
-                    </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center space-x-2">
-                            <button class="inline-flex items-center p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-                                    title="Edit User"
-                                    onclick="editUser({{ $user->id }})">
-                                <i class="fas fa-edit text-sm"></i>
+                        <p class="text-sm font-medium text-foreground">{{ $user->created_at->format('d/m/Y') }}</p>
+                        <p class="text-xs text-secondary mt-0.5">{{ $user->created_at->diffForHumans() }}</p>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="window.location.href='/admin/user/{{ $user->id }}'" class="size-8 flex items-center justify-center rounded-lg bg-success/10 text-success hover:bg-success hover:text-white transition-colors" title="Detail">
+                                <i data-lucide="eye" class="size-4"></i>
                             </button>
-                            
-                            <button class="inline-flex items-center p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors duration-200"
-                                    title="Lihat Detail"
-                                    onclick="viewUser({{ $user->id }})">
-                                <i class="fas fa-eye text-sm"></i>
+                            <button onclick="window.location.href='/admin/user/{{ $user->id }}/edit'" class="size-8 flex items-center justify-center rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors" title="Edit">
+                                <i data-lucide="pencil" class="size-4"></i>
                             </button>
                             
                             @if($user->id !== Auth::id() && !$user->hasActiveBooking())
                             <form action="{{ route('admin.user.destroy', $user) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" 
-                                        class="inline-flex items-center p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                                        onclick="return confirm('Apakah Anda yakin ingin menghapus user {{ $user->name }}?')"
-                                        title="Hapus User">
-                                    <i class="fas fa-trash text-sm"></i>
+                                <button type="submit" class="size-8 flex items-center justify-center rounded-lg bg-error-light text-error hover:bg-error hover:text-white transition-colors" onclick="return confirm('Hapus user {{ $user->name }}?')" title="Hapus">
+                                    <i data-lucide="trash-2" class="size-4"></i>
                                 </button>
                             </form>
                             @else
-                            <span class="inline-flex items-center p-2 text-gray-400 cursor-not-allowed"
-                                  title="{{ $user->id === Auth::id() ? 'Tidak dapat menghapus akun sendiri' : 'User memiliki booking aktif' }}">
-                                <i class="fas fa-trash text-sm"></i>
-                            </span>
+                            <button class="size-8 flex items-center justify-center rounded-lg bg-muted text-secondary cursor-not-allowed" title="Akses Ditolak">
+                                <i data-lucide="trash-2" class="size-4"></i>
+                            </button>
                             @endif
                         </div>
                     </td>
@@ -196,10 +194,10 @@
                 @empty
                 <tr>
                     <td colspan="6" class="px-6 py-12 text-center">
-                        <div class="flex flex-col items-center justify-center text-gray-400">
-                            <i class="fas fa-users text-4xl mb-3"></i>
-                            <p class="text-lg font-medium text-gray-500">Belum ada data user</p>
-                            <p class="text-sm mt-1 text-gray-400">User akan muncul setelah mendaftar</p>
+                        <div class="flex flex-col items-center justify-center">
+                            <i data-lucide="users" class="size-12 text-muted mb-3"></i>
+                            <p class="text-sm font-semibold text-foreground">Belum ada data user</p>
+                            <p class="text-xs text-secondary mt-1">User akan muncul di sini setelah mendaftar.</p>
                         </div>
                     </td>
                 </tr>
@@ -208,97 +206,29 @@
         </table>
     </div>
 
-    <!-- Pagination -->
     @if(method_exists($users, 'links'))
-    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-        <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-700">
-                @if($users->total() > 0)
-                Menampilkan {{ $users->firstItem() }} - {{ $users->lastItem() }} dari {{ $users->total() }} user
-                @else
-                Tidak ada data user
-                @endif
-            </div>
-            <div class="flex space-x-2">
-                @if($users->onFirstPage())
-                <span class="px-3 py-1 bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed">
-                    <i class="fas fa-chevron-left mr-1"></i> Sebelumnya
-                </span>
-                @else
-                <a href="{{ $users->previousPageUrl() }}" class="px-3 py-1 bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200">
-                    <i class="fas fa-chevron-left mr-1"></i> Sebelumnya
-                </a>
-                @endif
-
-                @if($users->hasMorePages())
-                <a href="{{ $users->nextPageUrl() }}" class="px-3 py-1 bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200">
-                    Selanjutnya <i class="fas fa-chevron-right ml-1"></i>
-                </a>
-                @else
-                <span class="px-3 py-1 bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed">
-                    Selanjutnya <i class="fas fa-chevron-right ml-1"></i>
-                </span>
-                @endif
-            </div>
+    <div class="px-6 py-4 border-t border-border bg-white flex items-center justify-between">
+        <p class="text-xs text-secondary font-medium">
+            @if($users->total() > 0)
+            Menampilkan {{ $users->firstItem() }} - {{ $users->lastItem() }} dari {{ $users->total() }} user
+            @endif
+        </p>
+        <div class="flex gap-2">
+            @if(!$users->onFirstPage())
+            <a href="{{ $users->previousPageUrl() }}" class="px-3 py-1.5 rounded-lg border border-border text-xs font-semibold text-foreground hover:bg-muted transition-colors">Prev</a>
+            @endif
+            @if($users->hasMorePages())
+            <a href="{{ $users->nextPageUrl() }}" class="px-3 py-1.5 rounded-lg border border-border text-xs font-semibold text-foreground hover:bg-muted transition-colors">Next</a>
+            @endif
         </div>
     </div>
     @endif
 </div>
 
-<!-- Quick Stats -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
-    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium opacity-90">Total User</p>
-                <p class="text-2xl font-bold mt-1">{{ $totalUsers ?? $users->count() }}</p>
-            </div>
-            <div class="p-3 rounded-full bg-white bg-opacity-20">
-                <i class="fas fa-users text-xl"></i>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium opacity-90">Admin</p>
-                <p class="text-2xl font-bold mt-1">{{ $adminCount ?? $users->where('role', 'admin')->count() }}</p>
-            </div>
-            <div class="p-3 rounded-full bg-white bg-opacity-20">
-                <i class="fas fa-user-shield text-xl"></i>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium opacity-90">Penghuni</p>
-                <p class="text-2xl font-bold mt-1">{{ $penghuniCount ?? $users->where('role', 'penghuni')->count() }}</p>
-            </div>
-            <div class="p-3 rounded-full bg-white bg-opacity-20">
-                <i class="fas fa-user-check text-xl"></i>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white shadow-lg">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium opacity-90">Calon Penghuni</p>
-                <p class="text-2xl font-bold mt-1">{{ $calonPenghuniCount ?? $users->where('role', 'calon_penghuni')->count() }}</p>
-            </div>
-            <div class="p-3 rounded-full bg-white bg-opacity-20">
-                <i class="fas fa-user-clock text-xl"></i>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
-    // Search functionality
     document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+        
         const searchInput = document.getElementById('searchInput');
         const roleFilter = document.getElementById('roleFilter');
         
@@ -315,41 +245,12 @@
                 const matchesSearch = text.includes(searchTerm);
                 const matchesRole = !selectedRole || role.includes(selectedRole);
                 
-                if (matchesSearch && matchesRole) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = (matchesSearch && matchesRole) ? '' : 'none';
             });
         }
         
-        if (searchInput) {
-            searchInput.addEventListener('input', filterUsers);
-        }
-        
-        if (roleFilter) {
-            roleFilter.addEventListener('change', filterUsers);
-        }
+        if (searchInput) searchInput.addEventListener('input', filterUsers);
+        if (roleFilter) roleFilter.addEventListener('change', filterUsers);
     });
-
-    function editUser(userId) {
-        // Redirect to edit page or show modal
-        window.location.href = `/admin/user/${userId}/edit`;
-    }
-
-    function viewUser(userId) {
-        // Redirect to detail page or show modal
-        window.location.href = `/admin/user/${userId}`;
-    }
 </script>
-
-<style>
-    .card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .card:hover {
-        transform: translateY(-2px);
-    }
-</style>
 @endsection
