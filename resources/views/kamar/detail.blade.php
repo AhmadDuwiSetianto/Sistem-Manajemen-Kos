@@ -3,153 +3,213 @@
 @section('title', 'Detail Kamar ' . $kamar->nomor_kamar . ' - MyKos')
 
 @section('content')
-<div class="bg-slate-50 min-h-screen pt-8 pb-20">
+<div class="bg-slate-50 min-h-screen pt-6 pb-28">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <nav class="flex mb-6 text-sm font-medium text-slate-500">
-            <a href="{{ route('home') }}" class="hover:text-brand-600 transition">Beranda</a>
-            <span class="mx-2 text-slate-300">/</span>
-            <a href="{{ route('kamar.index') }}" class="hover:text-brand-600 transition">Kamar</a>
-            <span class="mx-2 text-slate-300">/</span>
-            <span class="text-brand-600 font-bold">Detail Kamar {{ $kamar->nomor_kamar }}</span>
+        <nav class="flex items-center gap-1.5 mb-6 text-[11px] sm:text-sm font-medium text-slate-500 overflow-x-auto whitespace-nowrap hide-scrollbar pb-1">
+            <a href="{{ route('home') }}" class="hover:text-brand-600 transition-colors flex items-center gap-1.5 shrink-0">
+                <i data-lucide="home" class="size-3.5 sm:size-4"></i> Beranda
+            </a>
+            <i data-lucide="chevron-right" class="size-3.5 text-slate-300 shrink-0"></i>
+            <a href="{{ route('kamar.index') }}" class="hover:text-brand-600 transition-colors shrink-0">Katalog Kamar</a>
+            <i data-lucide="chevron-right" class="size-3.5 text-slate-300 shrink-0"></i>
+            <span class="text-brand-600 font-bold bg-brand-50 border border-brand-100 px-2 py-1 rounded-md shrink-0">Detail Kamar {{ $kamar->nomor_kamar }}</span>
         </nav>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
+            
             <div class="lg:col-span-2 space-y-6">
                 
-                <div class="bg-white rounded-2xl p-2 shadow-sm border border-slate-100">
-                    <div class="relative h-[300px] lg:h-[400px] rounded-xl overflow-hidden group">
+                <div class="bg-white rounded-3xl p-2 shadow-sm border border-slate-200">
+                    <div class="relative h-[250px] sm:h-[350px] lg:h-[400px] rounded-[1.25rem] overflow-hidden group bg-slate-100">
                         @if($kamar->gambar)
-                            <img src="{{ asset('storage/' . $kamar->gambar) }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                            <img src="{{ asset('storage/' . $kamar->gambar) }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                         @else
-                            <img src="https://images.unsplash.com/photo-1522771753035-4a5046216955?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                            <img src="https://images.unsplash.com/photo-1522771753035-4a5046216955?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-700">
                         @endif
-                        <div class="absolute bottom-4 right-4 bg-black/50 backdrop-blur px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-lg">
-                            <i class="fas fa-expand mr-1"></i> Klik untuk perbesar
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl p-6 lg:p-8 shadow-sm border border-slate-100">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-6 border-b border-slate-100">
-                        <div>
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-brand-600 font-bold tracking-wide text-[10px] uppercase bg-brand-50 px-2 py-0.5 rounded">
-                                    {{ $kamar->tipe_kamar }}
-                                </span>
-                                <span class="text-slate-500 font-bold tracking-wide text-[10px] uppercase bg-slate-100 px-2 py-0.5 rounded">
-                                    Lantai {{ $kamar->lantai }}
-                                </span>
-                            </div>
-                            <h1 class="text-2xl lg:text-3xl font-extrabold text-slate-900">Kamar Nomor {{ $kamar->nomor_kamar }}</h1>
-                            <p class="text-slate-500 mt-1 text-sm">
-                                Luas kamar {{ $kamar->ukuran ?? 'Standar' }} m² • Sirkulasi udara baik
-                            </p>
-                        </div>
-                        <div class="mt-4 md:mt-0 text-right">
-                             <div class="text-2xl lg:text-3xl font-bold text-brand-600">Rp {{ number_format($kamar->harga, 0, ',', '.') }}</div>
-                             <div class="text-xs text-slate-400 font-medium">/ bulan</div>
-                        </div>
-                    </div>
-
-                    <div class="mb-8">
-                        <h3 class="text-lg font-bold text-slate-900 mb-3">Deskripsi Kamar</h3>
-                        <div class="text-slate-600 leading-relaxed text-sm bg-slate-50 p-4 rounded-xl border border-slate-100">
-                            {{ $kamar->deskripsi ?? 'Kamar ini didesain untuk kenyamanan maksimal dengan pencahayaan alami yang baik dan sirkulasi udara yang lancar. Cocok untuk mahasiswa maupun karyawan.' }}
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-900 mb-4">Fasilitas Termasuk</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            @php
-                                $fasilitasDetail = [];
-                                if(is_string($kamar->fasilitas)) {
-                                    $fasilitasDetail = array_map('trim', explode(',', $kamar->fasilitas));
-                                } elseif(is_array($kamar->fasilitas)) {
-                                    $fasilitasDetail = $kamar->fasilitas;
-                                }
-                            @endphp
-
-                            @if(count($fasilitasDetail) > 0)
-                                @foreach($fasilitasDetail as $item)
-                                <div class="flex items-center p-3 rounded-xl bg-white border border-slate-200">
-                                    <div class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center text-brand-600 shadow-sm mr-3">
-                                        <i class="fas fa-check text-xs"></i>
-                                    </div>
-                                    <span class="font-medium text-slate-700 text-sm">
-                                        {{ is_object($item) ? ($item->nama_fasilitas ?? $item->nama) : $item }}
-                                    </span>
-                                </div>
-                                @endforeach
+                        
+                        <div class="absolute top-4 left-4 {{ $kamar->status == 'tersedia' ? 'bg-success/90 border-success text-white' : 'bg-slate-800/90 border-slate-600 text-slate-200' }} px-3 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold shadow-lg flex items-center gap-1.5 backdrop-blur-sm border uppercase tracking-wider">
+                            @if($kamar->status == 'tersedia')
+                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> TERSA HUNI
                             @else
-                                <p class="text-slate-400 italic text-sm">Tidak ada data fasilitas spesifik.</p>
+                                <i data-lucide="lock" class="size-3"></i> SEDANG TERISI
                             @endif
                         </div>
                     </div>
                 </div>
+
+                <div class="bg-white rounded-3xl p-6 lg:p-8 shadow-sm border border-slate-200">
+                    
+                    <div class="flex flex-col md:flex-row justify-between items-start mb-6 pb-6 border-b border-slate-100">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-brand-600 font-bold tracking-wider text-[10px] uppercase bg-brand-50 border border-brand-100 px-2.5 py-1 rounded-md">
+                                    Tipe {{ $kamar->tipe_kamar }}
+                                </span>
+                                <span class="text-slate-500 font-bold tracking-wider text-[10px] uppercase bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md flex items-center gap-1.5">
+                                    <i data-lucide="layers" class="size-3"></i> Lantai {{ $kamar->lantai }}
+                                </span>
+                            </div>
+                            
+                            <h1 class="text-2xl lg:text-3xl font-extrabold text-slate-800 tracking-tight mt-1">Kamar {{ $kamar->nomor_kamar }}</h1>
+                            
+                            <p class="text-slate-500 mt-2 text-xs sm:text-sm flex flex-wrap items-center gap-3 sm:gap-4">
+                                <span class="flex items-center gap-1.5"><i data-lucide="ruler" class="size-4"></i> {{ $kamar->ukuran ?? 'Standar' }} m²</span>
+                                <span class="flex items-center gap-1.5"><i data-lucide="wind" class="size-4"></i> Sirkulasi Baik</span>
+                            </p>
+                        </div>
+                        
+                        <div class="mt-5 md:hidden w-full bg-slate-50 p-4 rounded-xl border border-slate-200 flex justify-between items-center">
+                             <div class="text-[11px] text-slate-500 font-bold uppercase tracking-widest">Sewa per Bulan</div>
+                             <div class="text-xl font-black text-brand-600">Rp {{ number_format($kamar->harga, 0, ',', '.') }}</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
+                            <i data-lucide="file-text" class="size-4 text-brand-500"></i> Tentang Kamar Ini
+                        </h3>
+                        <div class="text-slate-600 leading-relaxed text-sm bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-100">
+                            {{ $kamar->deskripsi ?? 'Kamar didesain untuk kenyamanan maksimal penghuninya. Memiliki pencahayaan alami yang baik serta sirkulasi udara yang lancar. Sangat ideal untuk mahasiswa maupun karyawan yang membutuhkan tempat istirahat tenang.' }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i data-lucide="sparkles" class="size-4 text-brand-500"></i> Fasilitas Termasuk
+                        </h3>
+                        
+                        @php
+                            $rawFasilitas = is_array($kamar->fasilitas) ? implode(',', $kamar->fasilitas) : ($kamar->fasilitas ?? '');
+                            $cleanFasilitas = str_replace(['[', ']', '"', '\\'], '', $rawFasilitas);
+                            $fasilitasDetail = array_filter(array_map('trim', explode(',', $cleanFasilitas)));
+                        @endphp
+
+                        @if(count($fasilitasDetail) > 0)
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                @foreach($fasilitasDetail as $item)
+                                <div class="flex items-center p-3 rounded-xl bg-white border border-slate-200 shadow-sm">
+                                    <div class="size-6 rounded-md bg-brand-50 flex items-center justify-center text-brand-600 shrink-0 mr-3">
+                                        <i data-lucide="check" class="size-3.5 stroke-[3]"></i>
+                                    </div>
+                                    <span class="font-medium text-slate-600 text-sm">
+                                        {{ $item }}
+                                    </span>
+                                </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="bg-slate-50 p-5 rounded-xl border border-dashed border-slate-300 text-center">
+                                <i data-lucide="info" class="size-6 text-slate-400 mx-auto mb-2"></i>
+                                <p class="text-slate-500 text-sm">Kamar ini dilengkapi dengan fasilitas standar kos.</p>
+                            </div>
+                        @endif
+                    </div>
+
+                </div>
             </div>
 
-            <div class="lg:col-span-1">
-                <div class="sticky top-24 space-y-6">
-                    <div class="bg-white rounded-2xl p-6 shadow-xl shadow-brand-900/5 border border-slate-100">
-                        <div class="text-center mb-6 pb-6 border-b border-slate-50">
-                            <p class="text-slate-400 text-xs uppercase tracking-wider font-bold mb-1">Total Sewa</p>
-                            <h3 class="text-3xl font-bold text-slate-900">Rp {{ number_format($kamar->harga, 0, ',', '.') }}</h3>
-                            <span class="inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide {{ $kamar->status == 'tersedia' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                                {{ $kamar->status == 'tersedia' ? 'Tersedia Sekarang' : 'Sudah Terisi' }}
-                            </span>
+            <div class="lg:col-span-1 hidden lg:block">
+                <div class="sticky top-28 space-y-6">
+                    <div class="bg-white rounded-3xl p-6 lg:p-8 shadow-lg shadow-slate-200/40 border border-slate-200">
+                        
+                        <div class="text-center mb-6 pb-6 border-b border-slate-100">
+                            <p class="text-slate-400 text-[10px] uppercase tracking-widest font-bold mb-1">Total Sewa Bulanan</p>
+                            <h3 class="text-3xl lg:text-4xl font-black text-brand-600 tracking-tight">Rp {{ number_format($kamar->harga, 0, ',', '.') }}</h3>
+                            
+                            <div class="mt-3">
+                                @if($kamar->status == 'tersedia')
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-success-light/50 border border-success/30 text-success text-[10px] font-bold uppercase tracking-widest">
+                                        Siap Dihuni
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-error-light/50 border border-error/30 text-error text-[10px] font-bold uppercase tracking-widest">
+                                        Kamar Terisi
+                                    </span>
+                                @endif
+                            </div>
                         </div>
 
-                        <div class="space-y-3 mb-6 text-sm">
-                            <div class="flex justify-between text-slate-500">
-                                <span>Deposit Awal</span>
-                                <span class="font-bold text-slate-900">Rp 500.000</span>
+                        <div class="space-y-3 mb-6 text-sm font-medium text-slate-500">
+                            <div class="flex justify-between pb-3 border-b border-dashed border-slate-100">
+                                <span class="flex items-center gap-2"><i data-lucide="shield" class="size-4 text-slate-400"></i> Deposit Awal</span>
+                                <span class="font-semibold text-slate-800">Rp 500.000</span>
                             </div>
-                            <div class="flex justify-between text-slate-500">
-                                <span>Minimal Sewa</span>
-                                <span class="font-bold text-slate-900">3 Bulan</span>
+                            <div class="flex justify-between pb-3 border-b border-dashed border-slate-100">
+                                <span class="flex items-center gap-2"><i data-lucide="calendar-clock" class="size-4 text-slate-400"></i> Min. Sewa</span>
+                                <span class="font-semibold text-slate-800">3 Bulan</span>
                             </div>
-                            <div class="flex justify-between text-slate-500">
-                                <span>Biaya Listrik</span>
-                                <span class="font-bold text-slate-900">Token Sendiri</span>
+                            <div class="flex justify-between">
+                                <span class="flex items-center gap-2"><i data-lucide="zap" class="size-4 text-slate-400"></i> Listrik</span>
+                                <span class="font-semibold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">Token Sendiri</span>
                             </div>
                         </div>
 
                         <div class="space-y-3">
                             @if($kamar->status == 'tersedia')
                                 @auth
-                                    @if(Auth::user()->isCalonPenghuni())
+                                    @if(Auth::user()->isCalonPenghuni() || Auth::user()->role == 'penghuni')
                                     <a href="{{ route('booking.create', $kamar->id) }}" 
-                                       class="w-full py-3.5 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2 transform active:scale-95">
-                                        Booking Sekarang
+                                       class="w-full py-3.5 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-all shadow-md shadow-brand-600/20 flex items-center justify-center gap-2 transform active:scale-95 group text-sm">
+                                        <i data-lucide="bookmark" class="size-4 group-hover:-rotate-12 transition-transform"></i> Pesan Kamar Ini
                                     </a>
                                     @endif
                                 @else
                                 <a href="{{ route('login') }}" 
-                                   class="w-full py-3.5 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2">
-                                    Login untuk Booking
+                                   class="w-full py-3.5 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-900 transition-colors flex items-center justify-center gap-2 text-sm">
+                                    <i data-lucide="log-in" class="size-4"></i> Login Untuk Pesan
                                 </a>
                                 @endauth
+                            @else
+                                <button disabled class="w-full py-3.5 bg-slate-100 border border-slate-200 text-slate-400 rounded-xl font-bold cursor-not-allowed flex items-center justify-center gap-2 text-sm">
+                                    <i data-lucide="lock" class="size-4"></i> Tidak Tersedia
+                                </button>
                             @endif
                             
-                            <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20Kamar%20{{ $kamar->nomor_kamar }}" target="_blank"
-                               class="w-full py-3.5 bg-white border border-green-500 text-green-600 rounded-xl font-bold hover:bg-green-50 transition flex items-center justify-center gap-2">
-                                <i class="fab fa-whatsapp text-lg"></i> Chat Admin
+                            <a href="https://wa.me/6281234567890?text=Halo,%20Admin%20Inna%20Kos.%20Saya%20tertarik%20dengan%20Kamar%20{{ $kamar->nomor_kamar }}" target="_blank"
+                               class="w-full py-3 bg-white border border-success/30 text-success rounded-xl font-bold hover:bg-success-light/30 transition-colors flex items-center justify-center gap-2 text-sm">
+                                <i class="fab fa-whatsapp text-base"></i> Chat Admin
                             </a>
                         </div>
                     </div>
-
-                    <div class="bg-brand-900 rounded-2xl p-6 text-white text-center relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-white opacity-5 rounded-full -mr-10 -mt-10"></div>
-                        <i class="fas fa-headset text-2xl mb-3 opacity-80"></i>
-                        <h4 class="font-bold text-base mb-1">Butuh Bantuan?</h4>
-                        <p class="text-brand-100 text-xs mb-3">Tim kami siap membantu Anda 24/7 jika ada pertanyaan.</p>
-                        <a href="#" class="text-xs font-bold text-white underline hover:text-brand-200">Hubungi CS</a>
-                    </div>
                 </div>
             </div>
+
+            <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.08)] z-40 flex items-center justify-between gap-4">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Sewa</p>
+                    <p class="text-xl font-black text-brand-600 leading-none mt-0.5">Rp {{ number_format($kamar->harga / 1000, 0) }}k</p>
+                </div>
+                
+                @if($kamar->status == 'tersedia')
+                    @auth
+                        <a href="{{ route('booking.create', $kamar->id) }}" class="flex-1 max-w-[220px] py-3.5 bg-brand-600 text-white rounded-xl font-bold text-sm text-center shadow-md shadow-brand-600/30 active:scale-95 transition-transform">Pesan Sekarang</a>
+                    @else
+                        <a href="{{ route('login') }}" class="flex-1 max-w-[220px] py-3.5 bg-slate-800 text-white rounded-xl font-bold text-sm text-center active:scale-95 transition-transform">Login & Pesan</a>
+                    @endauth
+                @else
+                    <button disabled class="flex-1 max-w-[220px] py-3.5 bg-slate-100 text-slate-400 font-bold rounded-xl text-sm text-center">Sedang Penuh</button>
+                @endif
+            </div>
+
         </div>
     </div>
 </div>
+
+<style>
+    /* Sembunyikan scrollbar pada nav breadcrumb agar terlihat rapi di HP */
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
 @endsection

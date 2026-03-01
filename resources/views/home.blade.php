@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'MyKos Premium Living - Solusi Kos Modern')
+@section('title', 'Inna Kos Pekalongan - Solusi Kos Modern')
 
 @section('content')
 

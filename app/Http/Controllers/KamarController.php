@@ -9,9 +9,10 @@ class KamarController extends Controller
 {
     public function index()
     {
-        // Ambil semua kamar yang tersedia dari database
-        $semuaKamar = Kamar::where('status', 'tersedia')
-                          ->orderBy('harga', 'asc')
+        // Ambil SEMUA kamar dari database (baik yang tersedia maupun terisi)
+        // Diurutkan berdasarkan status (Tersedia tampil duluan), lalu berdasarkan nomor kamar
+        $semuaKamar = Kamar::orderByRaw("FIELD(status, 'tersedia', 'terisi')")
+                          ->orderBy('nomor_kamar', 'asc')
                           ->get();
 
         return view('kamar.index', compact('semuaKamar'));
