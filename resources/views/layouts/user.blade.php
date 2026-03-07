@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard Penghuni') - MyKos</title>
-    <link rel="shortcut icon" href="{{ asset('images/mykos.png') }}" type="image/png">
+    <title>@yield('title', 'Dashboard Penghuni') - InnaKos</title>
+    <link rel="shortcut icon" href="{{ asset('images/innakos.png') }}" type="image/png">
     
     <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
@@ -43,7 +43,7 @@
                     <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-sm shadow-primary/30">
                         <i data-lucide="home" class="w-5 h-5 text-white"></i>
                     </div>
-                    <span class="font-bold text-xl tracking-tight hidden sm:block">MyKos <span class="text-primary">User</span></span>
+                    <span class="font-bold text-xl tracking-tight hidden sm:block">Inna Kos <span class="text-primary">User</span></span>
                 </a>
 
                 <div class="flex items-center gap-4 h-full">

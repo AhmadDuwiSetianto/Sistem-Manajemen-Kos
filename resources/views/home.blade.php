@@ -320,7 +320,7 @@
             </div>
             
             <div class="lg:w-1/2 min-h-[400px] lg:min-h-full bg-slate-200 relative border-l-8 border-slate-850">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.916186981882!2d109.6685412!3d-6.9005934!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwNTQnMDIuMSJTIDEwOcKwNDAnMDYuOCJF!5e0!3m2!1sen!2sid!4v1634567890123!5m2!1sen!2sid" 
+                <iframe src="https://www.google.com/maps/place/INNA+Kost/@-7.046949,109.5612765,25726m/data=!3m1!1e3!4m16!1m9!4m8!1m0!1m6!1m2!1s0x2e702191df1b9a5b:0x992f1f5ab81a56c4!2sINNA+Kost,+Jl.+Perum+Sinar+Muncar,+Perum+Villa+Pisma+Asri,+Podo,+Kec.+Kedungwuni,+Kabupaten+Pekalongan,+Jawa+Tengah+51173!2m2!1d109.6544513!2d-6.9626482!3m5!1s0x2e702191df1b9a5b:0x992f1f5ab81a56c4!8m2!3d-6.9626482!4d109.6544513!16s%2Fg%2F11vqhpzhgr?entry=ttu&g_ep=EgoyMDI2MDMwNC4xIKXMDSoASAFQAw%3D%3D" 
                          width="100%" height="100%" style="border:0; position:absolute; inset:0;" 
                          allowfullscreen="" loading="lazy" class="grayscale-[20%] contrast-[110%]"></iframe>
             </div>

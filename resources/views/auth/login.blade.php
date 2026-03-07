@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masuk Akun | MyKos</title>
-    <link rel="shortcut icon" href="{{ asset('images/mykos.png') }}" type="image/png">
+    <link rel="shortcut icon" href="{{ asset('images/innakos.png') }}" type="image/png">
     
     <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
     
@@ -43,8 +43,8 @@
         
         <div class="text-center mb-8">
             <a href="{{ route('home') }}" class="inline-block mb-5 transition-transform hover:-translate-y-1 duration-300">
-                @if(file_exists(public_path('images/mykos.png')))
-                    <img src="{{ asset('images/mykos.png') }}" alt="MyKos Logo" class="h-14 md:h-16 w-auto mx-auto object-contain drop-shadow-md">
+                @if(file_exists(public_path('images/innakos.png')))
+                    <img src="{{ asset('images/innakos.png') }}" alt="MyKos Logo" class="h-14 md:h-16 w-auto mx-auto object-contain drop-shadow-md">
                 @else
                     <div class="w-14 h-14 bg-brand-600 rounded-2xl flex items-center justify-center shadow-lg mx-auto">
                         <i data-lucide="home" class="w-7 h-7 text-white"></i>

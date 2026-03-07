@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>@yield('title', 'MyKos Premium Living')</title>
-    <link rel="shortcut icon" href="{{ asset('images/mykos.png') }}" type="image/png">
+    <title>@yield('title', 'Inna Kos Premium Living')</title>
+    <link rel="shortcut icon" href="{{ asset('images/innakos.png') }}" type="image/png">
     
     <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
     
@@ -85,15 +85,15 @@
             
             <a href="{{ route('home') }}" class="flex items-center gap-3 group">
                 <div class="flex items-center justify-center transition-transform duration-300 group-hover:-translate-y-0.5">
-                    @if(file_exists(public_path('images/mykos.png')))
-                        <img src="{{ asset('images/mykos.png') }}" alt="MyKos Logo" class="h-10 w-auto object-contain">
+                    @if(file_exists(public_path('images/innakos.png')))
+                        <img src="{{ asset('images/innakos.png') }}" alt="Inna Kos Logo" class="h-10 w-auto object-contain">
                     @elseif(file_exists(public_path('images/logo.svg')))
-                        <img src="{{ asset('images/logo.svg') }}" alt="MyKos Logo" class="h-10 w-auto object-contain">
+                        <img src="{{ asset('images/logo.svg') }}" alt="Inna Kos Logo" class="h-10 w-auto object-contain">
                     @else
                         <i data-lucide="home" class="w-8 h-8 text-brand-600"></i>
                     @endif
                 </div>
-                <span class="text-2xl font-extrabold text-slate-800 tracking-tight">My<span class="text-brand-600">Kos</span></span>
+                <span class="text-2xl font-extrabold text-slate-800 tracking-tight">Inna<span class="text-brand-600">Kos</span></span>
             </a>
 
             <nav class="hidden md:flex gap-10 text-sm font-medium text-slate-500">
@@ -202,10 +202,10 @@
                 <div class="col-span-1 md:col-span-2 shrink-0">
                     <div class="flex items-center gap-3 mb-5">
                         <div class="flex items-center justify-center">
-                            @if(file_exists(public_path('images/mykos.png')))
-                                <img src="{{ asset('images/mykos.png') }}" alt="MyKos Logo" class="h-10 w-auto object-contain">
+                            @if(file_exists(public_path('images/innakos.png')))
+                                <img src="{{ asset('images/innakos.png') }}" alt="Inna Kos Logo" class="h-10 w-auto object-contain">
                             @elseif(file_exists(public_path('images/logo.svg')))
-                                <img src="{{ asset('images/logo.svg') }}" alt="MyKos Logo" class="h-10 w-auto object-contain">
+                                <img src="{{ asset('images/logo.svg') }}" alt="Inna Kos Logo" class="h-10 w-auto object-contain">
                             @else
                                 <i data-lucide="home" class="w-8 h-8 text-brand-600"></i>
                             @endif
@@ -242,7 +242,7 @@
                             <div class="w-8 h-8 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center shrink-0">
                                 <i data-lucide="mail" class="w-4 h-4"></i>
                             </div>
-                            <span class="text-slate-600 font-semibold">hello@mykos.id</span>
+                            <span class="text-slate-600 font-semibold">hello@Inna Kos.id</span>
                         </li>
                     </ul>
                 </div>
@@ -250,7 +250,7 @@
             
             <div class="border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-center text-sm font-medium text-slate-400">
-                    &copy; {{ date('Y') }} MyKos Management. Hak Cipta Dilindungi.
+                    &copy; {{ date('Y') }} Inna Kos Management. Hak Cipta Dilindungi.
                 </p>
                 <div class="flex gap-4">
                     <a href="#" class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 hover:bg-brand-50 hover:text-brand-600 flex items-center justify-center transition-all"><i class="fab fa-instagram text-lg"></i></a>
