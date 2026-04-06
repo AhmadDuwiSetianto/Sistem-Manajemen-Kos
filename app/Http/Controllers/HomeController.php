@@ -9,10 +9,13 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $kamarTersedia = Kamar::where('status', 'tersedia')
-                             ->orderBy('created_at', 'desc')
-                             ->get();
+        // Ambil SEMUA kamar (Tersedia maupun Terisi) untuk ditampilkan di Landing Page
+        // Diurutkan: yang 'tersedia' tampil lebih dulu, baru yang 'terisi'
+        $semuaKamar = Kamar::orderByRaw("FIELD(status, 'tersedia', 'terisi')")
+                           ->orderBy('created_at', 'desc')
+                           ->get();
 
-        return view('home', compact('kamarTersedia'));
+        // Kirim variabel $semuaKamar ke view 'home'
+        return view('home', compact('semuaKamar'));
     }
 }
