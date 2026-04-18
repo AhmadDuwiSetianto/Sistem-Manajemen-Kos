@@ -80,6 +80,16 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::resource('booking', AdminBookingController::class)->names('admin.booking');
     Route::resource('pembayaran', AdminPembayaranController::class)->names('admin.pembayaran');
 
+    // Profil Admin
+    Route::get('/profile', [AdminDashboardController::class, 'profile'])->name('admin.profile');
+    Route::put('/profile', [AdminDashboardController::class, 'updateProfile'])->name('admin.profile.update');
+    Route::put('/profile/password', [AdminDashboardController::class, 'updatePassword'])->name('admin.profile.password'); // ✅ Rute ini yang ditambahkan
+
+    // Notifikasi Admin
+    Route::get('/notifications', [AdminDashboardController::class, 'notifications'])->name('admin.notifications.index');
+    Route::post('/notifications/mark-all-read', [AdminDashboardController::class, 'markAllRead'])->name('admin.notifications.markAllRead');
+    Route::get('/api/notifications/latest', [AdminDashboardController::class, 'latestNotifications'])->name('admin.api.notifications.latest');
+
     Route::get('/laporan/keuangan', [AdminLaporanController::class, 'keuangan'])->name('admin.laporan.keuangan');
     Route::get('/laporan/keuangan/export-pdf', [AdminLaporanController::class, 'exportPDF'])->name('admin.laporan.export-pdf');
     Route::get('/laporan/keuangan/export-excel', [AdminLaporanController::class, 'exportExcel'])->name('admin.laporan.export-excel');

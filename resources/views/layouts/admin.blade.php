@@ -147,81 +147,97 @@
         <main class="flex-1 lg:ml-[280px] flex flex-col bg-white min-h-screen overflow-hidden transition-all duration-300">
             
             <header class="flex items-center justify-between w-full h-[90px] shrink-0 border-b border-border bg-white px-5 md:px-8 z-30">
-                <div class="flex items-center gap-4">
-                    <button onclick="toggleSidebar()" class="lg:hidden size-11 flex items-center justify-center rounded-xl border border-border hover:bg-muted transition-colors">
-                        <i data-lucide="menu" class="size-5 text-foreground"></i>
-                    </button>
-                    <div class="hidden md:flex items-center gap-2 bg-muted rounded-xl px-4 py-2.5 w-72">
-                        <i data-lucide="search" class="size-4 text-secondary"></i>
-                        <input type="text" placeholder="Cari data..." class="bg-transparent border-none outline-none text-sm w-full placeholder:text-secondary text-foreground">
-                    </div>
-                </div>
-                
-                <div class="flex items-center gap-3 relative">
-                    <button onclick="toggleDropdown('notificationDropdown')" class="relative size-11 flex items-center justify-center rounded-xl border border-border hover:bg-muted transition-colors">
-                        <i data-lucide="bell" class="size-5 text-secondary"></i>
-                        <span class="absolute 1 top-2 right-2.5 size-2 bg-error rounded-full ring-2 ring-white"></span>
-                    </button>
+    <div class="flex items-center gap-4">
+        <button onclick="toggleSidebar()" class="lg:hidden size-11 flex items-center justify-center rounded-xl border border-border hover:bg-muted transition-colors">
+            <i data-lucide="menu" class="size-5 text-foreground"></i>
+        </button>
+        <div class="hidden md:flex items-center gap-2 bg-muted rounded-xl px-4 py-2.5 w-72">
+            <i data-lucide="search" class="size-4 text-secondary"></i>
+            <input type="text" placeholder="Cari data..." class="bg-transparent border-none outline-none text-sm w-full placeholder:text-secondary text-foreground">
+        </div>
+    </div>
+    
+    <div class="flex items-center gap-3 relative">
+        <button onclick="toggleDropdown('notificationDropdown')" class="relative size-11 flex items-center justify-center rounded-xl border border-border hover:bg-muted transition-colors">
+            <i data-lucide="bell" class="size-5 text-secondary"></i>
+            @if(Auth::check() && Auth::user()->unreadNotifications->count() > 0)
+                <span id="notif-badge" class="absolute top-2 right-2.5 size-2 bg-error rounded-full ring-2 ring-white"></span>
+            @endif
+        </button>
 
-                    <button onclick="toggleDropdown('userDropdown')" class="hidden md:flex items-center gap-3 pl-3 ml-2 border-l border-border hover:opacity-80 transition-opacity">
-                        <div class="text-right">
-                            <p class="font-semibold text-foreground text-sm">{{ Auth::user()->name ?? 'Administrator' }}</p>
-                            <p class="text-secondary text-xs">Super Admin</p>
-                        </div>
-                        <div class="size-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
-                            {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
-                        </div>
-                        <i data-lucide="chevron-down" class="size-4 text-secondary"></i>
-                    </button>
+        <button onclick="toggleDropdown('userDropdown')" class="hidden md:flex items-center gap-3 pl-3 ml-2 border-l border-border hover:opacity-80 transition-opacity">
+            <div class="text-right">
+                <p class="font-semibold text-foreground text-sm">{{ Auth::user()->name ?? 'Administrator' }}</p>
+                <p class="text-secondary text-xs">Super Admin</p>
+            </div>
+            <div class="size-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+                {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+            </div>
+            <i data-lucide="chevron-down" class="size-4 text-secondary"></i>
+        </button>
 
-                    <button onclick="toggleDropdown('userDropdown')" class="md:hidden size-11 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
-                        {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
-                    </button>
+        <button onclick="toggleDropdown('userDropdown')" class="md:hidden size-11 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+            {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+        </button>
 
-                    <div id="notificationDropdown" class="hidden absolute top-14 right-14 w-80 bg-white border border-border rounded-2xl shadow-xl z-50 overflow-hidden">
-                        <div class="p-4 border-b border-border flex justify-between items-center">
-                            <h3 class="font-bold text-sm text-foreground">Notifikasi</h3>
-                            <span class="text-xs text-primary font-semibold cursor-pointer">Tandai dibaca</span>
-                        </div>
-                        <div class="max-h-[300px] overflow-y-auto">
-                            <a href="#" class="flex gap-3 p-4 hover:bg-muted/50 border-b border-border transition-colors">
-                                <div class="size-9 rounded-full bg-success-light flex items-center justify-center shrink-0">
-                                    <i data-lucide="check-circle" class="size-4 text-success"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-foreground">Booking Kamar 102</p>
-                                    <p class="text-xs text-secondary mt-0.5">Pembayaran telah dikonfirmasi.</p>
-                                    <p class="text-[10px] text-secondary mt-1">2 menit yang lalu</p>
-                                </div>
-                            </a>
-                        </div>
-                        <a href="#" class="block p-3 text-center text-sm font-semibold text-primary hover:bg-muted transition-colors">Lihat Semua</a>
-                    </div>
-
-                    <div id="userDropdown" class="hidden absolute top-14 right-0 w-56 bg-white border border-border rounded-2xl shadow-xl z-50 overflow-hidden py-2">
-                        <div class="px-4 py-2 mb-2 border-b border-border md:hidden">
-                            <p class="font-bold text-sm text-foreground">{{ Auth::user()->name ?? 'Administrator' }}</p>
-                            <p class="text-xs text-secondary">Super Admin</p>
-                        </div>
-                        <a href="#" class="flex items-center gap-3 px-4 py-2.5 hover:bg-muted transition-colors">
-                            <i data-lucide="user" class="size-4 text-secondary"></i>
-                            <span class="text-sm font-medium text-foreground">Profil Saya</span>
+        <div id="notificationDropdown" class="hidden absolute top-14 right-14 w-80 bg-white border border-border rounded-2xl shadow-xl z-50 overflow-hidden">
+            <div class="p-4 border-b border-border flex justify-between items-center">
+                <h3 class="font-bold text-sm text-foreground">Notifikasi</h3>
+                @if(Auth::check() && Auth::user()->unreadNotifications->count() > 0)
+                    <form action="{{ route('admin.notifications.markAllRead') ?? '#' }}" method="POST" class="m-0 p-0">
+                        @csrf
+                        <button type="submit" class="text-xs text-primary font-semibold cursor-pointer hover:underline">Tandai dibaca</button>
+                    </form>
+                @endif
+            </div>
+            <div class="max-h-[300px] overflow-y-auto" id="notification-list-container">
+                @if(Auth::check() && Auth::user()->notifications->count() > 0)
+                    @foreach(Auth::user()->unreadNotifications->take(5) as $notification)
+                        <a href="{{ $notification->data['url'] ?? '#' }}" class="flex gap-3 p-4 hover:bg-muted/50 border-b border-border transition-colors {{ is_null($notification->read_at) ? 'bg-primary/5' : '' }}">
+                            <div class="size-9 rounded-full {{ isset($notification->data['type']) && $notification->data['type'] == 'payment' ? 'bg-success-light' : 'bg-primary/10' }} flex items-center justify-center shrink-0">
+                                <i data-lucide="{{ isset($notification->data['icon']) ? $notification->data['icon'] : 'bell' }}" class="size-4 {{ isset($notification->data['type']) && $notification->data['type'] == 'payment' ? 'text-success' : 'text-primary' }}"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-foreground">{{ $notification->data['title'] ?? 'Notifikasi Baru' }}</p>
+                                <p class="text-xs text-secondary mt-0.5">{{ $notification->data['message'] ?? 'Ada pembaruan sistem.' }}</p>
+                                <p class="text-[10px] text-secondary mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                            </div>
                         </a>
-                        <a href="#" class="flex items-center gap-3 px-4 py-2.5 hover:bg-muted transition-colors">
-                            <i data-lucide="settings" class="size-4 text-secondary"></i>
-                            <span class="text-sm font-medium text-foreground">Pengaturan</span>
-                        </a>
-                        <div class="my-1 border-t border-border"></div>
-                        <form method="POST" action="{{ route('logout') ?? '#' }}">
-                            @csrf
-                            <button type="submit" class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-error-light transition-colors text-error cursor-pointer">
-                                <i data-lucide="log-out" class="size-4"></i>
-                                <span class="text-sm font-medium">Keluar</span>
-                            </button>
-                        </form>
+                    @endforeach
+                @else
+                    <div class="p-6 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="bell-off" class="size-8 text-secondary/50 mb-2"></i>
+                        <p class="text-sm font-medium text-secondary">Belum ada notifikasi</p>
                     </div>
-                </div>
-            </header>
+                @endif
+            </div>
+            <a href="{{ route('admin.notifications.index') ?? '#' }}" class="block p-3 text-center text-sm font-semibold text-primary hover:bg-muted transition-colors">Lihat Semua</a>
+        </div>
+
+        <div id="userDropdown" class="hidden absolute top-14 right-0 w-56 bg-white border border-border rounded-2xl shadow-xl z-50 overflow-hidden py-2">
+            <div class="px-4 py-2 mb-2 border-b border-border md:hidden">
+                <p class="font-bold text-sm text-foreground">{{ Auth::user()->name ?? 'Administrator' }}</p>
+                <p class="text-xs text-secondary">Super Admin</p>
+            </div>
+            <a href="{{ route('admin.profile') ?? '#' }}" class="flex items-center gap-3 px-4 py-2.5 hover:bg-muted transition-colors">
+                <i data-lucide="user" class="size-4 text-secondary"></i>
+                <span class="text-sm font-medium text-foreground">Profil Saya</span>
+            </a>
+            <a href="{{ route('admin.settings.index') ?? '#' }}" class="flex items-center gap-3 px-4 py-2.5 hover:bg-muted transition-colors">
+                <i data-lucide="settings" class="size-4 text-secondary"></i>
+                <span class="text-sm font-medium text-foreground">Pengaturan</span>
+            </a>
+            <div class="my-1 border-t border-border"></div>
+            <form method="POST" action="{{ route('logout') ?? '#' }}">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-error-light transition-colors text-error cursor-pointer">
+                    <i data-lucide="log-out" class="size-4"></i>
+                    <span class="text-sm font-medium">Keluar</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</header>
 
             <div class="flex-1 overflow-y-auto bg-muted/30 p-4 md:p-6 lg:p-8">
                 @yield('content')

@@ -88,7 +88,7 @@ class BookingController extends Controller
         }
     }
 
-    // ✅ METHOD CANCEL - Batalkan Booking dan Bebaskan Kamar
+    //  METHOD CANCEL - Batalkan Booking dan Bebaskan Kamar
     public function cancel(Booking $booking)
     {
         DB::beginTransaction();
@@ -117,7 +117,7 @@ class BookingController extends Controller
         }
     }
 
-    // ✅ METHOD CHECK-IN - Tamu Datang
+    // METHOD CHECK-IN - Tamu Datang
     public function checkin(Booking $booking)
     {
         try {
@@ -137,7 +137,7 @@ class BookingController extends Controller
         }
     }
 
-    // ✅ METHOD CHECK-OUT - Tamu Pulang (Kamar jadi kosong)
+    // METHOD CHECK-OUT - Tamu Pulang (Kamar jadi kosong)
     public function checkout(Booking $booking)
     {
         DB::beginTransaction();

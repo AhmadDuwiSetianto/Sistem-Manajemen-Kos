@@ -270,6 +270,77 @@
 @push('scripts')
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
+    // Method untuk menampilkan halaman profil admin
+    public function profile()
+    {
+        return view('admin.profile'); // Pastikan kamu membuat file resources/views/admin/profile.blade.php
+    }
+
+    // Method untuk mengupdate data profil admin (opsional jika ada form update)
+    public function updateProfile(\Illuminate\Http\Request $request)
+    {
+        // Logika update profil (validasi & simpan)
+        // ...
+        return back()->with('success', 'Profil berhasil diperbarui.');
+    }
+
+    // Method untuk melihat semua halaman notifikasi
+    public function notifications()
+    {
+        $notifications = auth()->user()->notifications()->paginate(10);
+        return view('admin.notifications.index', compact('notifications')); 
+    }
+
+    // Method untuk menandai semua notifikasi sudah dibaca
+    public function markAllRead()
+    {
+        auth()->user()->unreadNotifications->markAsRead();
+        return back()->with('success', 'Semua notifikasi telah ditandai dibaca.');
+    }
+
+    // Method API untuk AJAX Polling Notifikasi
+    public function latestNotifications()
+    {
+        $user = auth()->user();
+        $unreadCount = $user->unreadNotifications->count();
+        
+        // Opsional: Mereturn HTML list notifikasi untuk di-replace secara otomatis (agar dinamis)
+        $html = '';
+        if($unreadCount > 0) {
+            foreach($user->unreadNotifications->take(5) as $notification) {
+                $typeClass = (isset($notification->data['type']) && $notification->data['type'] == 'payment') ? 'bg-success-light' : 'bg-primary/10';
+                $iconClass = (isset($notification->data['type']) && $notification->data['type'] == 'payment') ? 'text-success' : 'text-primary';
+                $icon = $notification->data['icon'] ?? 'bell';
+                $title = $notification->data['title'] ?? 'Notifikasi Baru';
+                $message = $notification->data['message'] ?? 'Ada pembaruan sistem.';
+                $time = $notification->created_at->diffForHumans();
+                $url = $notification->data['url'] ?? '#';
+
+                $html .= '
+                <a href="'.$url.'" class="flex gap-3 p-4 hover:bg-muted/50 border-b border-border transition-colors bg-primary/5">
+                    <div class="size-9 rounded-full '.$typeClass.' flex items-center justify-center shrink-0">
+                        <i data-lucide="'.$icon.'" class="size-4 '.$iconClass.'"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-foreground">'.$title.'</p>
+                        <p class="text-xs text-secondary mt-0.5">'.$message.'</p>
+                        <p class="text-[10px] text-secondary mt-1">'.$time.'</p>
+                    </div>
+                </a>';
+            }
+        } else {
+            $html = '
+            <div class="p-6 flex flex-col items-center justify-center text-center">
+                <i data-lucide="bell-off" class="size-8 text-secondary/50 mb-2"></i>
+                <p class="text-sm font-medium text-secondary">Belum ada notifikasi</p>
+            </div>';
+        }
+
+        return response()->json([
+            'unread_count' => $unreadCount,
+            'html' => $html
+        ]);
+    }
     document.addEventListener('DOMContentLoaded', function() {
         lucide.createIcons();
         
@@ -294,5 +365,6 @@
             observer.observe(card);
         });
     });
+    
 </script>
 @endpush
