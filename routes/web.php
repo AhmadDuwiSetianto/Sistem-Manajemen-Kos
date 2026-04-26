@@ -77,6 +77,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::resource('kamar', AdminKamarController::class)->names('admin.kamar');
     Route::resource('user', AdminUserController::class)->names('admin.user');
+    Route::patch('/admin/user/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('admin.user.toggle-status');
     Route::resource('booking', AdminBookingController::class)->names('admin.booking');
     Route::resource('pembayaran', AdminPembayaranController::class)->names('admin.pembayaran');
 

@@ -5,6 +5,20 @@ use Illuminate\Support\Str;
 @extends('layouts.admin')
 
 @section('title', 'Kelola Kamar')
+@push('styles')
+<style>
+    /* MEMAKSA SWEETALERT2 MENGIKUTI RADIUS NEXUS CRM */
+    div:where(.swal2-container) div:where(.swal2-popup) {
+        border-radius: 1.2rem !important; /* Setara dengan rounded-2xl/3xl */
+        padding: 1.5rem !important;
+    }
+    div:where(.swal2-container) button:where(.swal2-styled) {
+        border-radius: 0.75rem !important; /* Setara dengan rounded-xl */
+        font-weight: 600 !important;
+        padding: 0.6rem 1.5rem !important;
+    }
+</style>
+@endpush
 
 @section('content')
 <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
@@ -16,15 +30,6 @@ use Illuminate\Support\Str;
         <i data-lucide="plus" class="size-5 mr-2"></i> Tambah Kamar
     </a>
 </div>
-
-@if(session('success'))
-<div class="bg-success-light border border-success/20 p-4 mb-6 rounded-2xl flex items-center gap-3">
-    <div class="size-8 bg-success/20 rounded-full flex items-center justify-center shrink-0">
-        <i data-lucide="check-circle" class="size-5 text-success"></i>
-    </div>
-    <p class="text-success font-medium">{{ session('success') }}</p>
-</div>
-@endif
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
     <div class="flex flex-col rounded-2xl border border-border p-5 bg-white">
@@ -152,10 +157,11 @@ use Illuminate\Support\Str;
                             <a href="{{ route('admin.kamar.edit', $kamar) }}" class="size-8 flex items-center justify-center rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors" title="Edit">
                                 <i data-lucide="pencil" class="size-4"></i>
                             </a>
+                            
                             <form action="{{ route('admin.kamar.destroy', $kamar) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="size-8 flex items-center justify-center rounded-lg bg-error-light text-error hover:bg-error hover:text-white transition-colors cursor-pointer" onclick="return confirm('Hapus kamar {{ $kamar->nomor_kamar }}?')" title="Hapus">
+                                <button type="button" class="size-8 flex items-center justify-center rounded-lg bg-error-light text-error hover:bg-error hover:text-white transition-colors cursor-pointer" onclick="deleteConfirm(this, 'Kamar {{ $kamar->nomor_kamar }}')" title="Hapus">
                                     <i data-lucide="trash-2" class="size-4"></i>
                                 </button>
                             </form>
@@ -197,6 +203,7 @@ use Illuminate\Support\Str;
     @endif
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         lucide.createIcons();
@@ -212,5 +219,46 @@ use Illuminate\Support\Str;
             });
         }
     });
+
+    // FUNGSI UNTUK KONFIRMASI HAPUS
+    function deleteConfirm(button, itemName) {
+        Swal.fire({
+            title: 'Apakah Anda Yakin?',
+            text: `Anda akan menghapus data ${itemName}. Data yang dihapus tidak dapat dikembalikan!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ED6B60', // Warna merah error
+            cancelButtonColor: '#6A7686', // Warna abu-abu secondary
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Jika user klik "Ya, Hapus!", submit form tersebut
+                button.closest('form').submit();
+            }
+        });
+    }
+
+    // FUNGSI UNTUK MENAMPILKAN POP UP SUKSES/GAGAL DARI SESSION
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: "{{ session('success') }}",
+            showConfirmButton: false,
+            timer: 2500,
+            timerProgressBar: true
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: "{{ session('error') }}",
+            confirmButtonColor: '#165DFF' // Warna primary
+        });
+    @endif
 </script>
 @endsection
