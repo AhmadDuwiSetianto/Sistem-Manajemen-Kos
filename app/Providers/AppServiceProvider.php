@@ -6,7 +6,8 @@ use App\Models\Booking;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
-class ViewComposerServiceProvider extends ServiceProvider
+// NAMA CLASS UBAH MENJADI INI:
+class AppServiceProvider extends ServiceProvider
 {
     public function boot()
     {

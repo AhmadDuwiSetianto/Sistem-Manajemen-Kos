@@ -1,29 +1,25 @@
 <?php
 
-namespace App\Http;
+namespace App\Http\Middleware;
 
-use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
-class Kernel extends HttpKernel
+class AdminMiddleware
 {
     /**
-     * The application's route middleware aliases.
-     *
-     * @var array<string, class-string|string>
+     * Handle an incoming request.
      */
-    protected $middlewareAliases = [
-        'auth' => \App\Http\Middleware\Authenticate::class,
-        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
-        'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
-        'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
-        'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
-        'signed' => \App\Http\Middleware\ValidateSignature::class,
-        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        // Tambahkan ini
-        'admin' => \App\Http\Middleware\AdminMiddleware::class,
-    ];
+    public function handle(Request $request, Closure $next): Response
+    {
+        // Pastikan user sudah login dan memiliki role 'admin'
+        if (Auth::check() && Auth::user()->role === 'admin') {
+            return $next($request);
+        }
+        
+        // Jika bukan admin, tendang kembali ke halaman utama
+        return redirect('/')->with('error', 'Akses ditolak! Anda bukan administrator.');
+    }
 }

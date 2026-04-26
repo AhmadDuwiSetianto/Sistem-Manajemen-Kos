@@ -7,8 +7,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Contracts\Auth\MustVerifyEmail; // 1. TAMBAHKAN INI
 
-class User extends Authenticatable
+// 2. TAMBAHKAN "implements MustVerifyEmail"
+class User extends Authenticatable implements MustVerifyEmail 
 {
     use HasFactory, Notifiable;
 
@@ -193,16 +195,13 @@ class User extends Authenticatable
         $this->update(['last_login_at' => now()]);
     }
 
-    // ✅ FIX: VALIDASI DILONGGARKAN UNTUK TESTING
     public function canBookKamar(): bool
     {
-        // Izinkan Admin untuk test booking juga
         $allowedRoles = ['calon_penghuni', 'admin'];
 
         return in_array($this->role, $allowedRoles) && 
                !$this->hasActiveBooking() && 
                $this->isActive();
-               // && $this->isVerified(); // DISABLE sementara untuk local development
     }
 
     // ============ UTILITY METHODS ============

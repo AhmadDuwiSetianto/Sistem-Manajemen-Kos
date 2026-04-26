@@ -39,10 +39,14 @@ return [
         'is_3ds' => env('MIDTRANS_IS_3DS', true),
     ],
 
-    // ✅ CONFIG WHATSAPP
     'whatsapp' => [
         'api_url' => env('WHATSAPP_API_URL'),
         'api_key' => env('WHATSAPP_API_KEY'),
     ],
 
+    'google' => [
+    'client_id' => env('GOOGLE_CLIENT_ID'),
+    'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+    'redirect' => env('GOOGLE_REDIRECT_URI'),
+    ],
 ];
