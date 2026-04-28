@@ -47,58 +47,112 @@
             color: #080C1A; 
             -webkit-font-smoothing: antialiased;
         }
-        .nav-blur { 
-            background: rgba(255, 255, 255, 0.9); 
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px);
+
+        /* Transisi Default */
+        #main-header, .dynamic-text, .dynamic-logo, .dynamic-brand, .dynamic-btn, .dynamic-user, .dynamic-role, .dynamic-icon {
+            transition: all 0.3s ease-in-out;
         }
-        .nav-link.active { 
-            color: #165DFF; 
-            font-weight: 800; 
+
+        /* ---------------------------------------------------
+           STATE 1: HEADER TRANSPARAN (DI PALING ATAS)
+           --------------------------------------------------- */
+        .header-transparent {
+            background-color: transparent !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
-        .nav-link.active::after {
+        .header-transparent .dynamic-logo { color: #ffffff; }
+        .header-transparent .dynamic-brand { color: #ffffff; } /* Kata "Kos" jadi putih */
+        .header-transparent .dynamic-text { color: rgba(255, 255, 255, 0.9); }
+        .header-transparent .dynamic-text:hover { color: #ffffff; }
+        .header-transparent .dynamic-btn { background-color: #ffffff; color: #165DFF; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .header-transparent .dynamic-btn:hover { background-color: #f8fafc; transform: translateY(-2px); }
+        
+        /* Akun Login Info Transparan */
+        .header-transparent .dynamic-user { color: #ffffff; }
+        .header-transparent .dynamic-role { color: rgba(255, 255, 255, 0.7); }
+        .header-transparent .dynamic-icon { color: rgba(255, 255, 255, 0.9); }
+
+        /* Garis Active Menu Transparan */
+        .header-transparent .nav-link.active { color: #ffffff; font-weight: 800; }
+        .header-transparent .nav-link.active::after { background-color: #ffffff; }
+
+
+        /* ---------------------------------------------------
+           STATE 2: HEADER SCROLLED (SAAT TURUN KE BAWAH)
+           --------------------------------------------------- */
+        .header-scrolled {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6) !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+        }
+        .header-scrolled .dynamic-logo { color: #1e293b; }
+        .header-scrolled .dynamic-brand { color: #165DFF; } /* Kata "Kos" jadi biru */
+        .header-scrolled .dynamic-text { color: #64748b; }
+        .header-scrolled .dynamic-text:hover { color: #165DFF; }
+        .header-scrolled .dynamic-btn { background-color: #165DFF; color: #ffffff; }
+        .header-scrolled .dynamic-btn:hover { background-color: #0E4BD9; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(22, 93, 255, 0.3); }
+
+        /* Akun Login Info Scrolled */
+        .header-scrolled .dynamic-user { color: #1e293b; }
+        .header-scrolled .dynamic-role { color: #94a3b8; }
+        .header-scrolled .dynamic-icon { color: #94a3b8; }
+
+        /* Garis Active Menu Scrolled */
+        .header-scrolled .nav-link.active { color: #165DFF; font-weight: 800; }
+        .header-scrolled .nav-link.active::after { background-color: #165DFF; }
+
+        /* General Line Active Navigation */
+        .nav-link::after {
             content: '';
             position: absolute;
             bottom: -4px;
             left: 50%;
             transform: translateX(-50%);
-            width: 20px;
+            width: 0; /* Mulai dari 0 */
             height: 3px;
-            background-color: #165DFF;
             border-radius: 4px;
+            transition: all 0.3s ease-in-out;
+        }
+        .nav-link.active::after {
+            width: 20px; /* Lebar saat aktif */
         }
     </style>
 </head>
 <body class="flex flex-col min-h-screen antialiased selection:bg-brand-600 selection:text-white">
 
-    <header class="fixed w-full top-0 z-50 nav-blur border-b border-slate-200/60 transition-all duration-300">
+    <header id="main-header" class="fixed w-full top-0 z-50 header-transparent transition-all duration-300">
         <div class="container mx-auto px-4 sm:px-6 h-20 flex justify-between items-center">
             
-            <a href="{{ route('home') }}" class="flex items-center gap-3 group">
+            <a href="{{ route('home') }}" class="flex items-center gap-3 group lg:px-0 lg:py-0">
                 <div class="flex items-center justify-center transition-transform duration-300 group-hover:-translate-y-0.5">
                     @if(file_exists(public_path('images/innakos.png')))
                         <img src="{{ asset('images/innakos.png') }}" alt="Inna Kos Logo" class="h-10 w-auto object-contain">
                     @else
-                        <i data-lucide="home" class="size-8 text-brand-600"></i>
+                        <i data-lucide="home" class="size-8 dynamic-brand"></i>
                     @endif
                 </div>
-                <span class="text-2xl font-black text-slate-800 tracking-tight">Inna<span class="text-brand-600">Kos</span></span>
+                <span class="text-2xl font-black tracking-tight dynamic-logo">Inna<span class="dynamic-brand">Kos</span></span>
             </a>
 
-            <nav class="hidden md:flex gap-10 text-sm font-bold text-slate-500">
-                <a href="{{ route('home') }}#home" class="nav-link relative hover:text-brand-600 transition-colors py-2 {{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a>
-                <a href="{{ request()->routeIs('kamar.*') ? route('kamar.index') : route('home').'#kamar' }}" class="nav-link relative hover:text-brand-600 transition-colors py-2 {{ request()->routeIs('kamar.*') ? 'active' : '' }}">Kamar</a>
-                <a href="{{ route('home') }}#fasilitas" class="nav-link relative hover:text-brand-600 transition-colors py-2">Fasilitas</a>
-                <a href="{{ route('home') }}#lokasi" class="nav-link relative hover:text-brand-600 transition-colors py-2">Lokasi</a>
+            <nav class="hidden md:flex gap-10 text-sm font-bold lg:px-0 lg:py-0">
+                <a href="{{ route('home') }}#home" class="nav-link relative py-2 dynamic-text {{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a>
+                <a href="{{ route('home') }}#fasilitas" class="nav-link relative py-2 dynamic-text">Fasilitas</a>
+                <a href="{{ request()->routeIs('kamar.*') ? route('kamar.index') : route('home').'#kamar' }}" class="nav-link relative py-2 dynamic-text {{ request()->routeIs('kamar.*') ? 'active' : '' }}">Kamar</a>
+                <a href="{{ route('home') }}#lokasi" class="nav-link relative py-2 dynamic-text">Lokasi</a>
             </nav>
 
-            <div class="flex items-center gap-5">
+            <div class="flex items-center gap-5 lg:px-0 lg:py-0">
                 @auth
-                    <div class="relative group h-20 flex items-center">
-                        <button class="flex items-center gap-3 font-medium text-slate-700 hover:text-brand-600 transition focus:outline-none py-2 cursor-pointer">
+                    <div class="relative group h-12 lg:h-20 flex items-center">
+                        <button class="flex items-center gap-3 font-medium transition focus:outline-none py-2 cursor-pointer">
                             <div class="text-right hidden sm:block leading-tight">
-                                <div class="text-sm font-bold text-slate-800">{{ Auth::user()->name }}</div>
-                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+                                <div class="text-sm font-bold dynamic-user">{{ Auth::user()->name }}</div>
+                                <div class="text-[10px] font-bold uppercase tracking-wider mt-0.5 dynamic-role">
                                     {{ Auth::user()->role == 'penghuni' ? 'Penghuni' : (Auth::user()->role == 'admin' ? 'Admin' : 'Member') }}
                                 </div>
                             </div>
@@ -112,10 +166,10 @@
                                 <span class="absolute bottom-0 right-0 w-3 h-3 bg-success border-2 border-white rounded-full"></span>
                             </div>
                             
-                            <i data-lucide="chevron-down" class="size-4 text-slate-400 group-hover:rotate-180 transition-transform duration-300"></i>
+                            <i data-lucide="chevron-down" class="size-4 group-hover:rotate-180 transition-transform duration-300 dynamic-icon"></i>
                         </button>
                         
-                        <div class="absolute right-0 top-[75%] pt-4 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50">
+                        <div class="absolute right-0 top-[100%] lg:top-[75%] pt-4 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50">
                             <div class="bg-white rounded-2xl shadow-floating border border-slate-100 overflow-hidden ring-1 ring-black ring-opacity-5">
                                 
                                 <div class="px-5 py-4 border-b border-slate-100 bg-slate-50 sm:hidden">
@@ -173,14 +227,14 @@
                         </div>
                     </div>
                 @else
-                    <a href="{{ route('login') }}" class="hidden sm:block text-slate-600 font-bold text-sm hover:text-brand-600 transition cursor-pointer">Masuk</a>
-                    <a href="{{ route('register') }}" class="px-6 py-2.5 bg-brand-600 text-white text-sm font-bold rounded-full hover:bg-brand-700 transition shadow-lg shadow-brand-600/30 hover:-translate-y-0.5 transform duration-200 cursor-pointer">Daftar Sekarang</a>
+                    <a href="{{ route('login') }}" class="hidden sm:block font-bold text-sm cursor-pointer dynamic-text">Masuk</a>
+                    <a href="{{ route('register') }}" class="px-6 py-2.5 text-sm font-bold rounded-full transition shadow-lg cursor-pointer dynamic-btn">Daftar</a>
                 @endauth
             </div>
         </div>
     </header>
 
-    <main class="flex-grow pt-20">
+    <main class="flex-grow">
         @yield('content')
     </main>
 
@@ -188,23 +242,40 @@
         document.addEventListener('DOMContentLoaded', function() {
             lucide.createIcons();
 
+            const header = document.getElementById('main-header');
+            
+            function toggleHeader() {
+                if (window.scrollY > 50) {
+                    header.classList.remove('header-transparent');
+                    header.classList.add('header-scrolled');
+                } else {
+                    header.classList.add('header-transparent');
+                    header.classList.remove('header-scrolled');
+                }
+            }
+
+            // Inisialisasi posisi saat load
+            toggleHeader();
+            window.addEventListener('scroll', toggleHeader);
+
+            // Logika Scroll Spy (Menandai Menu Aktif)
             const isHomePage = document.getElementById('home');
             if (isHomePage) {
-                const sections = document.querySelectorAll('section');
+                const sections = document.querySelectorAll('#home, #fasilitas, #kamar, #lokasi');
                 const navLinks = document.querySelectorAll('.nav-link');
 
                 window.addEventListener('scroll', () => {
                     let current = '';
                     sections.forEach(section => {
                         const sectionTop = section.offsetTop;
-                        if (scrollY >= (sectionTop - 150)) {
+                        if (scrollY >= (sectionTop - 200)) {
                             current = section.getAttribute('id');
                         }
                     });
 
                     navLinks.forEach(link => {
                         link.classList.remove('active');
-                        if (link.getAttribute('href').includes('#' + current)) {
+                        if (current && link.getAttribute('href').includes('#' + current)) {
                             link.classList.add('active');
                         }
                     });

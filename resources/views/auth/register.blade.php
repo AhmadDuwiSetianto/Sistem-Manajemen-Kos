@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Akun | MyKos</title>
+    <title>Daftar Akun | Inna Kos</title>
     <link rel="shortcut icon" href="{{ asset('images/innakos.png') }}" type="image/png">
     
     <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
@@ -24,11 +24,11 @@
     </script>
     <style>
         body { background-color: #F8FAFC; color: #080C1A; }
-        .form-input:focus { border-color: #165DFF; box-shadow: 0 0 0 4px rgba(22, 93, 255, 0.1); }
+        .form-input:focus { border-color: #165DFF; box-shadow: 0 0 0 3px rgba(22, 93, 255, 0.1); }
         .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.5); }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4 py-10 relative">
+<body class="flex items-center justify-center min-h-screen p-4 py-8 relative">
 
     <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.02]"></div>
@@ -36,121 +36,119 @@
         <div class="absolute top-[40%] -left-[10%] w-[400px] h-[400px] rounded-full bg-emerald-500 blur-[120px] opacity-10"></div>
     </div>
 
-    <div class="w-full max-w-[460px] z-10 my-8">
+    <div class="w-full max-w-[300px] sm:max-w-[460px] z-10 my-4 sm:my-8">
         
-        <div class="text-center mb-8">
-            <a href="{{ route('home') }}" class="inline-block mb-5 transition-transform hover:-translate-y-1 duration-300">
-                @if(file_exists(public_path('images/innakos.png')))
-                    <img src="{{ asset('images/innakos.png') }}" alt="MyKos Logo" class="h-14 md:h-16 w-auto mx-auto object-contain drop-shadow-md">
-                @else
-                    <div class="w-14 h-14 bg-brand-600 rounded-2xl flex items-center justify-center shadow-lg mx-auto">
-                        <i data-lucide="home" class="w-7 h-7 text-white"></i>
-                    </div>
-                @endif
-            </a>
-            <h1 class="text-2xl font-black text-slate-800 tracking-tight">Buat Akun Baru</h1>
-            <p class="text-slate-500 text-sm mt-2 font-medium">Bergabunglah untuk mulai mencari kos impian Anda</p>
-        </div>
-
-        <div class="glass-panel rounded-3xl shadow-xl shadow-slate-200/50 p-8 sm:p-10">
+        <div class="glass-panel rounded-2xl sm:rounded-3xl shadow-xl shadow-slate-200/50 p-5 sm:p-10">
+            
+            <div class="text-center mb-4 sm:mb-8">
+                <a href="{{ route('home') }}" class="inline-block mb-2 sm:mb-5 transition-transform hover:-translate-y-1 duration-300">
+                    @if(file_exists(public_path('images/innakos.png')))
+                        <img src="{{ asset('images/innakos.png') }}" alt="Inna Kos Logo" class="h-9 sm:h-16 w-auto mx-auto object-contain drop-shadow-md">
+                    @else
+                        <div class="w-9 h-9 sm:w-14 sm:h-14 bg-brand-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg mx-auto">
+                            <i data-lucide="home" class="w-4 h-4 sm:w-7 sm:h-7 text-white"></i>
+                        </div>
+                    @endif
+                </a>
+                <h1 class="text-base sm:text-2xl font-black text-slate-800 tracking-tight">Buat Akun Baru</h1>
+                <p class="text-slate-500 text-[10px] sm:text-sm mt-0.5 sm:mt-2 font-medium">Mulai cari kos impian Anda</p>
+            </div>
+            
             @if($errors->any() || session('error'))
-            <div class="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
-                <i data-lucide="alert-circle" class="w-5 h-5 text-red-600 shrink-0"></i>
-                <div>
-                    <h3 class="text-sm font-bold text-red-800">Terjadi Kesalahan</h3>
-                    <ul class="text-xs text-red-700 mt-1 list-disc list-inside font-medium">
-                        @if(session('error')) 
-                            <li>{{ session('error') }}</li> 
-                        @endif
-                        
-                        @foreach($errors->all() as $error) 
-                            <li>{{ $error }}</li> 
-                        @endforeach
-                    </ul>
+            <div class="mb-4 sm:mb-6 p-2 sm:p-4 rounded-lg sm:rounded-xl bg-red-50 border border-red-200 flex items-start gap-2 sm:gap-3">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5 sm:w-5 sm:h-5 text-red-600 shrink-0 mt-0.5 sm:mt-0"></i>
+                <div class="text-[9px] sm:text-xs text-red-700 font-medium">
+                    <h3 class="text-[10px] sm:text-sm font-bold text-red-800 mb-0.5">Terjadi Kesalahan</h3>
+                    @if(session('error')) <p>{{ session('error') }}</p> @endif
+                    @if($errors->any()) 
+                        <ul class="list-disc list-inside">
+                            @foreach($errors->all() as $error) <li>{{ $error }}</li> @endforeach
+                        </ul>
+                    @endif
                 </div>
             </div>
             @endif
 
-            <form action="{{ route('register') }}" method="POST" id="registerForm" class="space-y-5">
+            <form action="{{ route('register') }}" method="POST" id="registerForm" class="space-y-3 sm:space-y-5">
                 @csrf
+                
                 <div>
-                    <label for="name" class="block text-sm font-bold text-slate-700 mb-2">Nama Lengkap</label>
+                    <label for="name" class="block text-[10px] sm:text-sm font-bold text-slate-700 mb-1 sm:mb-2">Nama Lengkap</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                            <i data-lucide="user" class="w-5 h-5"></i>
+                        <div class="absolute inset-y-0 left-0 pl-2.5 sm:pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="user" class="w-3.5 h-3.5 sm:w-5 sm:h-5"></i>
                         </div>
-                        <input type="text" id="name" name="name" required value="{{ old('name') }}" class="form-input w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all" placeholder="Sesuai kartu identitas">
+                        <input type="text" id="name" name="name" required value="{{ old('name') }}" class="form-input w-full h-8 sm:h-auto pl-8 sm:pl-12 pr-3 sm:pr-4 py-1.5 sm:py-3.5 bg-white border border-slate-200 rounded-md sm:rounded-xl text-[10px] sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all" placeholder="Masukan Nama Lengkap">
                     </div>
                 </div>
 
                 <div>
-                    <label for="email" class="block text-sm font-bold text-slate-700 mb-2">Alamat Email</label>
+                    <label for="email" class="block text-[10px] sm:text-sm font-bold text-slate-700 mb-1 sm:mb-2">Alamat Email</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                            <i data-lucide="mail" class="w-5 h-5"></i>
+                        <div class="absolute inset-y-0 left-0 pl-2.5 sm:pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="mail" class="w-3.5 h-3.5 sm:w-5 sm:h-5"></i>
                         </div>
-                        <input type="email" id="email" name="email" required value="{{ old('email') }}" class="form-input w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all" placeholder="contoh@email.com">
+                        <input type="email" id="email" name="email" required value="{{ old('email') }}" class="form-input w-full h-8 sm:h-auto pl-8 sm:pl-12 pr-3 sm:pr-4 py-1.5 sm:py-3.5 bg-white border border-slate-200 rounded-md sm:rounded-xl text-[10px] sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all" placeholder="Masukan Alamat Email">
                     </div>
                 </div>
 
                 <div>
-                    <label for="phone" class="block text-sm font-bold text-slate-700 mb-2">Nomor WhatsApp</label>
+                    <label for="phone" class="block text-[10px] sm:text-sm font-bold text-slate-700 mb-1 sm:mb-2">Nomor WhatsApp</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                            <i data-lucide="phone" class="w-5 h-5"></i>
+                        <div class="absolute inset-y-0 left-0 pl-2.5 sm:pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="phone" class="w-3.5 h-3.5 sm:w-5 sm:h-5"></i>
                         </div>
-                        <input type="tel" id="phone" name="phone" required value="{{ old('phone') }}" class="form-input w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all" placeholder="0812xxxxxxxx">
+                        <input type="tel" id="phone" name="phone" required value="{{ old('phone') }}" class="form-input w-full h-8 sm:h-auto pl-8 sm:pl-12 pr-3 sm:pr-4 py-1.5 sm:py-3.5 bg-white border border-slate-200 rounded-md sm:rounded-xl text-[10px] sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all" placeholder="Masukan Nomor Telepon">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5">
                     <div>
-                        <label for="password" class="block text-sm font-bold text-slate-700 mb-2">Kata Sandi</label>
+                        <label for="password" class="block text-[10px] sm:text-sm font-bold text-slate-700 mb-1 sm:mb-2">Kata Sandi</label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <i data-lucide="lock" class="w-4 h-4"></i>
+                            <div class="absolute inset-y-0 left-0 pl-2.5 sm:pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="lock" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                             </div>
-                            <input type="password" id="password" name="password" required class="form-input w-full pl-10 pr-10 py-3.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all" placeholder="Min. 8 karakter">
-                            <button type="button" onclick="togglePassword('password')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-brand-600 transition-colors cursor-pointer">
-                                <i data-lucide="eye" id="passwordToggle" class="w-4 h-4"></i>
+                            <input type="password" id="password" name="password" required class="form-input w-full h-8 sm:h-auto pl-8 sm:pl-10 pr-8 sm:pr-10 py-1.5 sm:py-3.5 bg-white border border-slate-200 rounded-md sm:rounded-xl text-[10px] sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all" placeholder="Min. 8 karakter">
+                            <button type="button" onclick="togglePassword('password')" class="absolute inset-y-0 right-0 pr-2.5 sm:pr-3.5 flex items-center text-slate-400 hover:text-brand-600 transition-colors cursor-pointer">
+                                <i data-lucide="eye" id="passwordToggle" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                             </button>
                         </div>
                     </div>
 
                     <div>
-                        <label for="password_confirmation" class="block text-sm font-bold text-slate-700 mb-2">Ulangi Sandi</label>
+                        <label for="password_confirmation" class="block text-[10px] sm:text-sm font-bold text-slate-700 mb-1 sm:mb-2">Ulangi Sandi</label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                            <div class="absolute inset-y-0 left-0 pl-2.5 sm:pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                             </div>
-                            <input type="password" id="password_confirmation" name="password_confirmation" required class="form-input w-full pl-10 pr-10 py-3.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all" placeholder="Ulangi sandi">
-                            <button type="button" onclick="togglePassword('password_confirmation')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-brand-600 transition-colors cursor-pointer">
-                                <i data-lucide="eye" id="password_confirmationToggle" class="w-4 h-4"></i>
+                            <input type="password" id="password_confirmation" name="password_confirmation" required class="form-input w-full h-8 sm:h-auto pl-8 sm:pl-10 pr-8 sm:pr-10 py-1.5 sm:py-3.5 bg-white border border-slate-200 rounded-md sm:rounded-xl text-[10px] sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all" placeholder="Ulangi sandi">
+                            <button type="button" onclick="togglePassword('password_confirmation')" class="absolute inset-y-0 right-0 pr-2.5 sm:pr-3.5 flex items-center text-slate-400 hover:text-brand-600 transition-colors cursor-pointer">
+                                <i data-lucide="eye" id="password_confirmationToggle" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex items-start gap-3 pt-2">
-                    <input type="checkbox" id="terms" name="terms" required class="mt-1 w-4 h-4 text-brand-600 border-slate-300 rounded cursor-pointer accent-brand-600">
-                    <label for="terms" class="text-xs text-slate-500 leading-relaxed font-medium">
-                        Dengan mendaftar, saya menyetujui <a href="#" class="text-brand-600 hover:text-brand-700 font-bold hover:underline">Syarat & Ketentuan</a> serta <a href="#" class="text-brand-600 hover:text-brand-700 font-bold hover:underline">Kebijakan Privasi</a>.
+                <div class="flex items-start pt-1 pb-1 sm:pt-2 sm:pb-0 gap-1.5 sm:gap-3">
+                    <input type="checkbox" id="terms" name="terms" required class="mt-0.5 sm:mt-1 h-2.5 w-2.5 sm:h-4 sm:w-4 shrink-0 text-brand-600 border-slate-300 rounded-[2px] sm:rounded cursor-pointer accent-brand-600">
+                    <label for="terms" class="text-[8px] sm:text-xs text-slate-500 leading-tight sm:leading-relaxed font-medium select-none">
+                        Mendaftar berarti setuju dengan <a href="#" class="text-brand-600 hover:text-brand-700 font-bold hover:underline">S&K</a> dan <a href="#" class="text-brand-600 hover:text-brand-700 font-bold hover:underline">Privasi</a>.
                     </label>
                 </div>
 
-                <button type="submit" id="submitBtn" class="w-full mt-2 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand-600/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer group">
-                    <span id="btnText">Daftar Sekarang</span>
-                    <i data-lucide="arrow-right" id="btnIcon" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                <button type="submit" id="submitBtn" class="w-full h-8 sm:h-auto mt-1 sm:mt-2 bg-brand-600 hover:bg-brand-700 text-white font-bold text-[10px] sm:text-sm py-2 sm:py-3.5 rounded-md sm:rounded-xl shadow-md sm:shadow-lg shadow-brand-600/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer group">
+                    <span id="btnText">Daftar</span>
                 </button>
             </form>
 
-            <div class="mt-6 mb-6 relative flex items-center justify-center">
+            <div class="mt-3 mb-3 sm:mt-6 sm:mb-6 relative flex items-center justify-center">
                 <div class="border-t border-slate-200 w-full absolute"></div>
-                <span class="bg-white/80 px-4 text-xs font-bold text-slate-400 relative z-10 uppercase tracking-wider backdrop-blur-sm">Atau</span>
+                <span class="bg-white/80 px-2 sm:px-4 text-[8px] sm:text-xs font-bold text-slate-400 relative z-10 uppercase tracking-wider backdrop-blur-sm">Atau</span>
             </div>
 
-            <a href="{{ route('auth.google') ?? '#' }}" class="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-3 shadow-sm group">
-                <svg class="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <a href="{{ route('auth.google') ?? '#' }}" class="w-full h-8 sm:h-auto bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-[10px] sm:text-sm font-bold py-2 sm:py-3.5 rounded-md sm:rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-3 shadow-sm group">
+                <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -161,9 +159,9 @@
 
         </div>
 
-        <p class="text-center text-slate-500 text-sm mt-8 font-medium pb-8">
+        <p class="text-center text-slate-500 text-[10px] sm:text-sm mt-4 sm:mt-8 font-medium pb-2 sm:pb-8">
             Sudah punya akun? 
-            <a href="{{ route('login') }}" class="text-brand-600 font-bold hover:text-brand-700 transition-colors ml-1 border-b border-transparent hover:border-brand-600">Masuk di sini</a>
+            <a href="{{ route('login') }}" class="text-brand-600 font-bold hover:text-brand-700 transition-colors ml-0.5 sm:ml-1 border-b border-transparent hover:border-brand-600">Masuk di sini</a>
         </p>
     </div>
 

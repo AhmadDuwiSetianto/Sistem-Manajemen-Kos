@@ -9,11 +9,11 @@ use Illuminate\Support\Str;
 <style>
     /* MEMAKSA SWEETALERT2 MENGIKUTI RADIUS NEXUS CRM */
     div:where(.swal2-container) div:where(.swal2-popup) {
-        border-radius: 1.2rem !important; /* Setara dengan rounded-2xl/3xl */
+        border-radius: 1.2rem !important;
         padding: 1.5rem !important;
     }
     div:where(.swal2-container) button:where(.swal2-styled) {
-        border-radius: 0.75rem !important; /* Setara dengan rounded-xl */
+        border-radius: 0.75rem !important;
         font-weight: 600 !important;
         padding: 0.6rem 1.5rem !important;
     }
