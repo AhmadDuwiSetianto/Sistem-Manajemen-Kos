@@ -55,7 +55,7 @@ class PaymentReminder extends Notification
         try {
             // Ganti URL dan Token sesuai provider WA Gateway Anda
             Http::withHeaders([
-                'Authorization' => env('FONNTE_TOKEN', 'TOKEN_API_ANDA_DISINI'),
+                'Authorization' => env('FONNTE_TOKEN', 'A1mfS41ATJCcB923cAXn'),
             ])->post('https://api.fonnte.com/send', [
                 'target' => $user->phone,
                 'message' => $pesan,

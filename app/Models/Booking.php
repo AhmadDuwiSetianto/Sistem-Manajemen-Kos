@@ -12,10 +12,12 @@ class Booking extends Model
 
     protected $table = 'bookings';
 
+    // ✅ PERBAIKAN 1: Menambahkan 'tanggal_keluar' ke fillable
     protected $fillable = [
         'user_id',
         'kamar_id',
         'tanggal_masuk',
+        'tanggal_keluar', // <-- Ini yang sebelumnya hilang
         'durasi',
         'total_harga',
         'catatan',
@@ -23,8 +25,10 @@ class Booking extends Model
         'alasan_pembatalan',
     ];
 
+    // ✅ PERBAIKAN 2: Menambahkan 'tanggal_keluar' ke tipe data tanggal
     protected $casts = [
         'tanggal_masuk' => 'date',
+        'tanggal_keluar' => 'date', // <-- Ini juga wajib ditambahkan
         'total_harga' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

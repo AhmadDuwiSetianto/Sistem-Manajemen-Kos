@@ -6,11 +6,8 @@
     <title>@yield('title', 'Inna Kos Premium Living')</title>
     
     <link rel="shortcut icon" href="{{ asset('images/innakos.png') }}" type="image/png">
-    
     <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
@@ -53,9 +50,7 @@
             transition: all 0.3s ease-in-out;
         }
 
-        /* ---------------------------------------------------
-           STATE 1: HEADER TRANSPARAN (DI PALING ATAS)
-           --------------------------------------------------- */
+        /* STATE 1: HEADER TRANSPARAN */
         .header-transparent {
             background-color: transparent !important;
             border-color: transparent !important;
@@ -64,25 +59,18 @@
             -webkit-backdrop-filter: none !important;
         }
         .header-transparent .dynamic-logo { color: #ffffff; }
-        .header-transparent .dynamic-brand { color: #ffffff; } /* Kata "Kos" jadi putih */
+        .header-transparent .dynamic-brand { color: #ffffff; } 
         .header-transparent .dynamic-text { color: rgba(255, 255, 255, 0.9); }
         .header-transparent .dynamic-text:hover { color: #ffffff; }
         .header-transparent .dynamic-btn { background-color: #ffffff; color: #165DFF; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .header-transparent .dynamic-btn:hover { background-color: #f8fafc; transform: translateY(-2px); }
-        
-        /* Akun Login Info Transparan */
         .header-transparent .dynamic-user { color: #ffffff; }
         .header-transparent .dynamic-role { color: rgba(255, 255, 255, 0.7); }
         .header-transparent .dynamic-icon { color: rgba(255, 255, 255, 0.9); }
-
-        /* Garis Active Menu Transparan */
         .header-transparent .nav-link.active { color: #ffffff; font-weight: 800; }
         .header-transparent .nav-link.active::after { background-color: #ffffff; }
 
-
-        /* ---------------------------------------------------
-           STATE 2: HEADER SCROLLED (SAAT TURUN KE BAWAH)
-           --------------------------------------------------- */
+        /* STATE 2: HEADER SCROLLED (ATAU BUKAN DI HOMEPAGE) */
         .header-scrolled {
             background: rgba(255, 255, 255, 0.95) !important;
             backdrop-filter: blur(12px) !important;
@@ -91,36 +79,29 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
         }
         .header-scrolled .dynamic-logo { color: #1e293b; }
-        .header-scrolled .dynamic-brand { color: #165DFF; } /* Kata "Kos" jadi biru */
+        .header-scrolled .dynamic-brand { color: #165DFF; } 
         .header-scrolled .dynamic-text { color: #64748b; }
         .header-scrolled .dynamic-text:hover { color: #165DFF; }
         .header-scrolled .dynamic-btn { background-color: #165DFF; color: #ffffff; }
         .header-scrolled .dynamic-btn:hover { background-color: #0E4BD9; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(22, 93, 255, 0.3); }
-
-        /* Akun Login Info Scrolled */
         .header-scrolled .dynamic-user { color: #1e293b; }
         .header-scrolled .dynamic-role { color: #94a3b8; }
         .header-scrolled .dynamic-icon { color: #94a3b8; }
-
-        /* Garis Active Menu Scrolled */
         .header-scrolled .nav-link.active { color: #165DFF; font-weight: 800; }
         .header-scrolled .nav-link.active::after { background-color: #165DFF; }
 
-        /* General Line Active Navigation */
         .nav-link::after {
             content: '';
             position: absolute;
             bottom: -4px;
             left: 50%;
             transform: translateX(-50%);
-            width: 0; /* Mulai dari 0 */
+            width: 0; 
             height: 3px;
             border-radius: 4px;
             transition: all 0.3s ease-in-out;
         }
-        .nav-link.active::after {
-            width: 20px; /* Lebar saat aktif */
-        }
+        .nav-link.active::after { width: 20px; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen antialiased selection:bg-brand-600 selection:text-white">
@@ -139,12 +120,14 @@
                 <span class="text-2xl font-black tracking-tight dynamic-logo">Inna<span class="dynamic-brand">Kos</span></span>
             </a>
 
+            @if(!request()->routeIs('booking.*'))
             <nav class="hidden md:flex gap-10 text-sm font-bold lg:px-0 lg:py-0">
                 <a href="{{ route('home') }}#home" class="nav-link relative py-2 dynamic-text {{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a>
                 <a href="{{ route('home') }}#fasilitas" class="nav-link relative py-2 dynamic-text">Fasilitas</a>
                 <a href="{{ request()->routeIs('kamar.*') ? route('kamar.index') : route('home').'#kamar' }}" class="nav-link relative py-2 dynamic-text {{ request()->routeIs('kamar.*') ? 'active' : '' }}">Kamar</a>
                 <a href="{{ route('home') }}#lokasi" class="nav-link relative py-2 dynamic-text">Lokasi</a>
             </nav>
+            @endif
 
             <div class="flex items-center gap-5 lg:px-0 lg:py-0">
                 @auth
@@ -153,7 +136,7 @@
                             <div class="text-right hidden sm:block leading-tight">
                                 <div class="text-sm font-bold dynamic-user">{{ Auth::user()->name }}</div>
                                 <div class="text-[10px] font-bold uppercase tracking-wider mt-0.5 dynamic-role">
-                                    {{ Auth::user()->role == 'penghuni' ? 'Penghuni' : (Auth::user()->role == 'admin' ? 'Admin' : 'Member') }}
+                                    {{ Auth::user()->role == 'penghuni' ? 'Penghuni' : (Auth::user()->role == 'admin' ? 'Admin' : 'Calon Penghuni') }}
                                 </div>
                             </div>
                             
@@ -244,8 +227,12 @@
 
             const header = document.getElementById('main-header');
             
+            // Cek apakah ini halaman beranda
+            const isHomePage = {{ request()->routeIs('home') ? 'true' : 'false' }};
+            
             function toggleHeader() {
-                if (window.scrollY > 50) {
+                // Jika BUKAN beranda ATAU sudah di-scroll ke bawah, jadikan header Solid (tidak transparan)
+                if (!isHomePage || window.scrollY > 50) {
                     header.classList.remove('header-transparent');
                     header.classList.add('header-scrolled');
                 } else {
@@ -254,12 +241,10 @@
                 }
             }
 
-            // Inisialisasi posisi saat load
             toggleHeader();
             window.addEventListener('scroll', toggleHeader);
 
             // Logika Scroll Spy (Menandai Menu Aktif)
-            const isHomePage = document.getElementById('home');
             if (isHomePage) {
                 const sections = document.querySelectorAll('#home, #fasilitas, #kamar, #lokasi');
                 const navLinks = document.querySelectorAll('.nav-link');

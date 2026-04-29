@@ -25,20 +25,23 @@ class AuthController extends Controller
         try {
             Log::info('Login attempt', ['email' => $request->email]);
 
+            // VALIDASI BACKEND: Mewajibkan checkbox 'remember' diisi
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email|max:255',
                 'password' => 'required|string',
+                'remember' => 'required', // Wajib diisi (dicentang)
             ], [
                 'email.required' => 'Email wajib diisi.',
                 'email.email' => 'Format email tidak valid.',
                 'password.required' => 'Password wajib diisi.',
+                'remember.required' => 'Anda wajib menceklis "Ingat saya di perangkat ini" untuk melanjutkan login.',
             ]);
 
             if ($validator->fails()) {
                 return redirect()->back()
                     ->withErrors($validator)
                     ->withInput($request->except('password'))
-                    ->with('error', 'Validasi gagal. Periksa data Anda.');
+                    ->with('error', 'Validasi gagal. Pastikan Anda mencentang Ingat Saya.');
             }
 
             $credentials = $request->only('email', 'password');
@@ -115,10 +118,10 @@ class AuthController extends Controller
             // 2. Mengirim Notifikasi WhatsApp
             $this->sendWhatsAppWelcome($user);
 
-            Auth::login($user);
+            // KODE Auth::login($user) DIHAPUS AGAR TIDAK OTOMATIS LOGIN
 
             return redirect()->route('login')
-                ->with('success', 'Registrasi berhasil! Silakan periksa email dan WA Anda untuk instruksi verifikasi.');
+                ->with('success', 'Registrasi berhasil! Silakan Login terlebih dahulu, lalu periksa email untuk verifikasi akun Anda.');
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
@@ -187,9 +190,8 @@ class AuthController extends Controller
         $pesan .= "Terima kasih!";
 
         try {
-            // Contoh menggunakan Fonnte API (Sesuaikan dengan provider Anda)
             Http::withHeaders([
-                'Authorization' => env('FONNTE_TOKEN', 'TOKEN_ANDA_DISINI'),
+                'Authorization' => env('FONNTE_TOKEN', 'A1mfS41ATJCcB923cAXn'),
             ])->post('https://api.fonnte.com/send', [
                 'target' => $user->phone,
                 'message' => $pesan,

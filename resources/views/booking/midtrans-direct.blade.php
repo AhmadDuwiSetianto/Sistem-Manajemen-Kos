@@ -1,57 +1,63 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memproses Pembayaran...</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script type="text/javascript"
-            src="{{ config('services.midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
-            data-client-key="{{ config('services.midtrans.client_key') }}">
-    </script>
-</head>
-<body class="bg-slate-50 h-screen flex items-center justify-center">
-    <div class="bg-white p-8 rounded-3xl shadow-xl text-center max-w-sm w-full mx-4 border border-slate-100">
-        <div class="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mx-auto mb-6"></div>
-        <h2 class="text-xl font-bold text-slate-800 mb-2">Menyiapkan Pembayaran</h2>
-        <p class="text-slate-500 text-sm mb-6">Harap tunggu, popup pembayaran akan segera muncul...</p>
+@extends('layouts.app')
+
+@section('title', 'Memproses Pembayaran...')
+
+@section('content')
+<div class="pt-28 pb-10 flex flex-col items-center justify-center min-h-[80vh] relative overflow-hidden">
+    <div class="absolute -top-10 -right-10 w-64 h-64 bg-brand-500 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
+
+    <div class="bg-white p-8 rounded-[2rem] shadow-2xl shadow-slate-200/50 text-center max-w-[320px] w-full mx-4 border border-slate-100 relative z-10">
+        <div class="relative w-20 h-20 mx-auto mb-6">
+            <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-brand-600 rounded-full border-t-transparent animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <i data-lucide="shield-check" class="w-8 h-8 text-brand-600 animate-pulse"></i>
+            </div>
+        </div>
         
-        <button onclick="pay()" class="text-blue-600 font-bold text-sm hover:underline">
+        <h2 class="text-xl font-black text-slate-800 tracking-tight mb-2">Menyiapkan Sistem</h2>
+        <p class="text-slate-500 text-sm font-medium mb-8 leading-relaxed">Sistem sedang membuka gerbang pembayaran yang aman untuk Anda...</p>
+        
+        <button onclick="pay()" class="w-full py-3.5 bg-brand-50 text-brand-600 font-bold text-sm rounded-xl hover:bg-brand-100 transition-colors">
             Klik jika popup tidak muncul
         </button>
     </div>
+</div>
 
-    <script type="text/javascript">
-        function pay() {
-            // Cek apakah snap token ada
-            var snapToken = '{{ $pembayaran->snap_token }}';
-            
-            if (!snapToken) {
-                alert('Token pembayaran belum siap. Halaman akan dimuat ulang.');
-                window.location.href = "{{ route('booking.payment', $pembayaran->id) }}";
-                return;
-            }
+<script src="https://unpkg.com/lucide@latest"></script>
+<script type="text/javascript" src="{{ config('services.midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
 
-            snap.pay(snapToken, {
-                onSuccess: function(result) {
-                    window.location.href = "{{ route('booking.receipt', $pembayaran->id) }}";
-                },
-                onPending: function(result) {
-                    window.location.href = "{{ route('booking.payment', $pembayaran->id) }}";
-                },
-                onError: function(result) {
-                    // Redirect kembali ke halaman payment agar bisa retry/cancel
-                    window.location.href = "{{ route('booking.payment', $pembayaran->id) }}?error=true";
-                },
-                onClose: function() {
-                    window.location.href = "{{ route('booking.payment', $pembayaran->id) }}";
-                }
-            });
-        }
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+
+    function pay() {
+        var snapToken = '{{ $pembayaran->snap_token }}';
         
-        // Auto trigger dengan sedikit delay untuk memastikan script load
-        setTimeout(pay, 500);
-    </script>
-</body>
-</html>
+        if (!snapToken) {
+            alert('Token pembayaran belum siap. Halaman akan dimuat ulang.');
+            window.location.href = "{{ route('booking.payment', $pembayaran->id) }}";
+            return;
+        }
+
+        snap.pay(snapToken, {
+            onSuccess: function(result) {
+                window.location.href = "{{ route('booking.receipt', $pembayaran->id) }}";
+            },
+            onPending: function(result) {
+                window.location.href = "{{ route('booking.payment', $pembayaran->id) }}";
+            },
+            onError: function(result) {
+                window.location.href = "{{ route('booking.payment', $pembayaran->id) }}?error=true";
+            },
+            onClose: function() {
+                window.location.href = "{{ route('booking.payment', $pembayaran->id) }}";
+            }
+        });
+    }
+    
+    // Auto trigger
+    setTimeout(pay, 800);
+</script>
+@endsection

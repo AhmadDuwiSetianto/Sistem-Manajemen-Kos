@@ -112,7 +112,7 @@
                 </div>
                 
                 <div class="flex items-center pt-0">
-                     <input id="remember" name="remember" type="checkbox" class="h-2.5 w-2.5 sm:h-4 sm:w-4 text-brand-600 border-slate-300 rounded-[3px] sm:rounded cursor-pointer accent-brand-600">
+                    <input id="remember" name="remember" type="checkbox" required class="h-2.5 w-2.5 sm:h-4 sm:w-4 text-brand-600 border-slate-300 rounded-[3px] sm:rounded cursor-pointer accent-brand-600">
                      <label for="remember" class="ml-1.5 sm:ml-2 block text-[9px] sm:text-sm text-slate-600 font-medium cursor-pointer select-none">
                         Ingat saya di perangkat ini
                     </label>
@@ -163,18 +163,19 @@
         }
 
         document.getElementById('loginForm').addEventListener('submit', function(e) {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            if (!email || !password) return;
+            // Validasi client-side: Jika required HTML5 (termasuk checkbox) tidak terpenuhi, hentikan efek loading
+            if (!this.checkValidity()) return;
 
             const btn = document.getElementById('submitBtn');
             const btnText = document.getElementById('btnText');
-            const btnIcon = document.getElementById('btnIcon');
+            const btnIcon = document.getElementById('btnIcon'); // (Jika ada id="btnIcon")
 
             btn.disabled = true;
             btnText.innerText = 'Memproses...';
-            btnIcon.setAttribute('data-lucide', 'loader-2');
-            btnIcon.classList.add('animate-spin');
+            if(btnIcon) {
+                btnIcon.setAttribute('data-lucide', 'loader-2');
+                btnIcon.classList.add('animate-spin');
+            }
             btn.classList.add('opacity-80', 'cursor-not-allowed');
             lucide.createIcons();
         });

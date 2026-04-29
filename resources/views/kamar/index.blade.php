@@ -4,8 +4,37 @@
 
 @section('content')
 
+{{-- ================= CSS OVERRIDE UNTUK HEADER ================= --}}
+<style>
+    /* Memaksa Header menjadi Solid (Putih) khusus di halaman ini */
+    #main-header {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(12px) !important;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.6) !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    /* Memaksa teks header menjadi gelap/biru, mengabaikan class transparent */
+    #main-header .dynamic-logo { color: #1e293b !important; }
+    #main-header .dynamic-brand { color: #165DFF !important; }
+    #main-header .dynamic-text { color: #64748b !important; }
+    #main-header .dynamic-text:hover { color: #165DFF !important; }
+    #main-header .dynamic-btn { background-color: #165DFF !important; color: #ffffff !important; }
+    #main-header .dynamic-user { color: #1e293b !important; }
+    #main-header .dynamic-role { color: #94a3b8 !important; }
+    #main-header .dynamic-icon { color: #94a3b8 !important; }
+    #main-header .nav-link.active { color: #165DFF !important; font-weight: 800 !important; }
+    #main-header .nav-link.active::after { background-color: #165DFF !important; }
+
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
+{{-- ================= Jarak agar tidak tertutup header ================= --}}
+<div class="pt-24 bg-white"></div>
+
 {{-- ================= ALERT SECTION ================= --}}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-white">
     @if(session('success'))
         <div class="bg-success-light/50 border border-success/30 text-success px-5 py-4 rounded-2xl relative mb-6 flex items-center gap-3">
             <i data-lucide="check-circle-2" class="size-5 shrink-0"></i>
@@ -45,7 +74,7 @@
 
 <div class="bg-slate-50 min-h-screen pb-24">
     
-    <div class="bg-white border-b border-slate-200 pb-12 pt-8 mb-8 md:mb-12 shadow-sm relative z-10">
+    <div class="bg-white border-b border-slate-200 pb-12 pt-4 mb-8 md:mb-12 shadow-sm relative z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <span class="inline-flex items-center gap-1.5 text-brand-600 font-bold tracking-widest uppercase text-[10px] sm:text-xs bg-brand-50 border border-brand-100 px-4 py-1.5 rounded-full mb-4">
                 <i data-lucide="layout-grid" class="size-3.5"></i> Daftar Keseluruhan
@@ -194,11 +223,6 @@
         @endif
     </div>
 </div>
-
-<style>
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

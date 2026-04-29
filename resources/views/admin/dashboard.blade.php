@@ -40,6 +40,46 @@
 </style>
 @endpush
 
+@php
+    // Mencari pembayaran pending milik user yang sedang login
+    $pendingPayment = auth()->user()->pembayarans()->where('status', 'pending')->first();
+@endphp
+
+@if($pendingPayment)
+    @php
+        $dueDate = \Carbon\Carbon::parse($pendingPayment->tanggal_jatuh_tempo);
+        $now = \Carbon\Carbon::now();
+        // Menghitung sisa jam
+        $diffHours = $now->diffInHours($dueDate, false);
+    @endphp
+
+    @if($diffHours > 0 && $diffHours <= 48)
+        <div class="mb-6 p-4 rounded-xl bg-orange-50 border border-orange-200 flex items-start gap-3 shadow-sm">
+            <i data-lucide="alert-triangle" class="w-6 h-6 text-orange-600 shrink-0"></i>
+            <div>
+                <h3 class="text-sm font-bold text-orange-800">Peringatan Pembayaran!</h3>
+                <p class="text-xs text-orange-700 mt-1 font-medium">
+                    Batas waktu pembayaran Anda tersisa <strong>{{ ceil($diffHours) }} jam</strong> lagi (Jatuh tempo: {{ $dueDate->format('d M Y, H:i') }}). 
+                </p>
+                <a href="{{ route('booking.payment', $pendingPayment->id) }}" class="inline-block mt-2 px-4 py-1.5 bg-orange-600 text-white text-xs font-bold rounded-lg hover:bg-orange-700 transition-colors">
+                    Bayar Sekarang
+                </a>
+            </div>
+        </div>
+    
+    @elseif($diffHours <= 0)
+        <div class="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 shadow-sm">
+            <i data-lucide="x-octagon" class="w-6 h-6 text-red-600 shrink-0"></i>
+            <div>
+                <h3 class="text-sm font-bold text-red-800">Pembayaran Melewati Batas Waktu</h3>
+                <p class="text-xs text-red-700 mt-1 font-medium">
+                    Sistem sedang memproses pembatalan. Jika tidak diselesaikan, akun Anda akan otomatis dinonaktifkan.
+                </p>
+            </div>
+        </div>
+    @endif
+@endif
+
 @section('content')
 <div class="flex-1 p-5 md:p-8">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
