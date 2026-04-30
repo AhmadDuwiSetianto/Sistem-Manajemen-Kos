@@ -102,6 +102,22 @@ Route::prefix('user')->middleware(['auth'])->group(function () {
     Route::put('/profile', [UserDashboardController::class, 'updateProfile'])->name('user.profile.update');
     Route::get('/bookings', [UserDashboardController::class, 'bookings'])->name('user.bookings');
     Route::get('/pembayaran', [UserDashboardController::class, 'pembayaran'])->name('user.pembayaran');
+
+    // User Dashboard
+Route::prefix('user')->middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('user.dashboard');
+    Route::get('/profile', [UserDashboardController::class, 'profile'])->name('user.profile');
+    Route::put('/profile', [UserDashboardController::class, 'updateProfile'])->name('user.profile.update');
+    Route::get('/bookings', [UserDashboardController::class, 'bookings'])->name('user.bookings');
+    
+    Route::get('/bookings/{id}', [UserDashboardController::class, 'showBooking'])->name('user.bookings.show');
+    
+    // Rute Perpanjangan Kamar
+    Route::get('/booking/{booking}/extend', [BookingController::class, 'extendForm'])->name('booking.extend');
+    Route::post('/booking/{booking}/extend', [BookingController::class, 'processExtend'])->name('booking.process-extend');
+    
+    Route::get('/pembayaran', [UserDashboardController::class, 'pembayaran'])->name('user.pembayaran');
+});
 });
 
 // Admin Dashboard

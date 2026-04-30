@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Kamar;
 use App\Models\Pembayaran;
+use App\Notifications\PaymentNotification; // Tambahkan ini
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Mail; // WAJIB DITAMBAHKAN UNTUK EMAIL
+use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Midtrans\Snap;
 use Midtrans\Config;
@@ -81,41 +81,32 @@ class BookingController extends Controller
     public function store(Request $request, Kamar $kamar)
     {
         $request->validate([
-            'durasi' => 'required|integer|min:1|max:24',
             'tanggal_masuk' => 'required|date|after_or_equal:today',
-            'identity_number' => 'required|string|max:20',
-            'address' => 'required|string|max:500',
+            'durasi' => 'required|integer|min:1|max:12',
         ]);
+
+        if ($kamar->status !== 'tersedia') {
+            return back()->with('error', 'Mohon maaf, kamar ini baru saja dipesan orang lain.');
+        }
 
         DB::beginTransaction();
         try {
             $user = Auth::user();
-
-            $user->update([
-                'identity_number' => $request->identity_number,
-                'address' => $request->address,
-                'phone' => $request->phone ?? $user->phone
-            ]);
-
-            $kamarLocked = Kamar::where('id', $kamar->id)->lockForUpdate()->first();
-            if ($kamarLocked->status !== 'tersedia') {
-                throw new \Exception('Kamar sudah tidak tersedia.');
-            }
-
-            $totalHarga = $kamar->harga * (int) $request->durasi;
+            $durasiBulan = (int) $request->durasi;
+            $totalHarga = $kamar->harga * $durasiBulan;
+            $tanggalKeluar = Carbon::parse($request->tanggal_masuk)->addMonths($durasiBulan);
 
             $booking = Booking::create([
                 'user_id' => $user->id,
                 'kamar_id' => $kamar->id,
                 'tanggal_masuk' => $request->tanggal_masuk,
-                'tanggal_keluar' => Carbon::parse($request->tanggal_masuk)->addMonths((int)$request->durasi),
-                'durasi' => $request->durasi,
+                'tanggal_keluar' => $tanggalKeluar,
+                'durasi' => $durasiBulan,
                 'total_harga' => $totalHarga,
-                'catatan' => $request->catatan,
                 'status' => Booking::STATUS_PENDING,
             ]);
 
-            $kodePembayaran = 'INV-' . time() . rand(100, 999);
+            $kodePembayaran = 'INV-KOS-' . time() . rand(100, 999);
             $pembayaran = Pembayaran::create([
                 'user_id' => $user->id,
                 'booking_id' => $booking->id,
@@ -128,13 +119,16 @@ class BookingController extends Controller
             $snapToken = $this->generateSnapToken($pembayaran, $user, $kamar);
             $pembayaran->update(['snap_token' => $snapToken]);
 
+            $kamar->update(['status' => 'booking']);
+
             DB::commit();
 
-            return redirect()->route('booking.payment', $pembayaran->id);
+            return redirect()->route('booking.payment', $pembayaran->id)
+                ->with('success', 'Pesanan berhasil dibuat, silakan lakukan pembayaran.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Booking Error: ' . $e->getMessage());
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return back()->with('error', 'Gagal memproses pesanan: ' . $e->getMessage());
         }
     }
 
@@ -159,7 +153,7 @@ class BookingController extends Controller
         }
 
         if ($pembayaran->status === Pembayaran::STATUS_EXPIRED) {
-            return redirect()->route('home')->with('error', 'Waktu pembayaran telah habis. Akun Anda ditangguhkan.');
+            return redirect()->route('home')->with('error', 'Waktu pembayaran telah habis.');
         }
 
         if (empty($pembayaran->snap_token)) {
@@ -184,12 +178,8 @@ class BookingController extends Controller
                 ->with('success', 'Pembayaran Berhasil! Terima kasih.');
         }
 
-        if ($pembayaran->status === Pembayaran::STATUS_EXPIRED) {
-            return redirect()->route('home')->with('error', 'Pembayaran kadaluwarsa.');
-        }
-
         return redirect()->route('booking.payment', $pembayaran->id)
-            ->with('info', 'Pembayaran sedang diproses. Silakan refresh halaman jika sudah transfer.');
+            ->with('info', 'Pembayaran sedang diproses.');
     }
 
     // =========================================================================
@@ -202,18 +192,13 @@ class BookingController extends Controller
         if ($pembayaran->status !== Pembayaran::STATUS_PAID) {
             $this->checkMidtransStatus($pembayaran);
             $pembayaran->refresh();
-
-            if ($pembayaran->status !== Pembayaran::STATUS_PAID) {
-                return redirect()->route('booking.payment', $pembayaran->id)
-                    ->with('warning', 'Pembayaran belum terkonfirmasi.');
-            }
         }
 
         return view('booking.receipt', compact('pembayaran'));
     }
 
     // =========================================================================
-    // 6. LOGIKA INTI: UPDATE STATUS DB & PICU NOTIFIKASI
+    // 6. LOGIKA INTI: UPDATE STATUS DB & PICU NOTIFIKASI REAL-TIME
     // =========================================================================
     private function checkMidtransStatus(Pembayaran $pembayaran)
     {
@@ -231,14 +216,10 @@ class BookingController extends Controller
                 } elseif (isset($status->permata_va_number)) {
                     $type = 'permata_va';
                 }
-            } elseif ($type == 'echannel') {
-                $type = 'mandiri_bill';
             }
 
             $newStatus = null;
-            if ($transactionStatus == 'capture') {
-                $newStatus = ($status->fraud_status == 'challenge') ? Pembayaran::STATUS_PENDING : Pembayaran::STATUS_PAID;
-            } else if ($transactionStatus == 'settlement') {
+            if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
                 $newStatus = Pembayaran::STATUS_PAID;
             } else if ($transactionStatus == 'pending') {
                 $newStatus = Pembayaran::STATUS_PENDING;
@@ -256,7 +237,6 @@ class BookingController extends Controller
 
     private function updatePaymentToDB(Pembayaran $pembayaran, $status, $method = null)
     {
-        // Cegah eksekusi berulang (jangan kirim email/WA 2x)
         if ($pembayaran->status === $status) return;
 
         DB::transaction(function () use ($pembayaran, $status, $method) {
@@ -271,7 +251,8 @@ class BookingController extends Controller
 
             $pembayaran->update($dataUpdate);
 
-            // LOGIKA PEMBAYARAN SUKSES
+            $isPerpanjangan = str_contains($pembayaran->booking->catatan ?? '', 'Perpanjangan');
+
             if ($status == Pembayaran::STATUS_PAID) {
                 $pembayaran->booking->update(['status' => Booking::STATUS_CONFIRMED]);
                 $pembayaran->booking->kamar->update(['status' => 'terisi']);
@@ -280,122 +261,81 @@ class BookingController extends Controller
                     $pembayaran->user->update(['role' => 'penghuni']);
                 }
 
-                // Kirim Notifikasi EMAIL dan WA
+                // Notifikasi Email & Real-time Reverb
                 $this->sendNotificationEmail($pembayaran, 'success');
-                $this->sendNotificationWA($pembayaran, 'success');
-            } 
-            // LOGIKA KADALUWARSA / GAGAL / AUTO-SUSPEND
-            else if ($status == Pembayaran::STATUS_EXPIRED || $status == 'cancelled') {
-                $pembayaran->booking->update(['status' => Booking::STATUS_CANCELLED]);
-                $pembayaran->booking->kamar->update(['status' => 'tersedia']);
-                $pembayaran->user->update(['is_active' => false]);
+                $pembayaran->user->notify(new PaymentNotification($pembayaran, 'success'));
 
-                // Kirim Notifikasi EMAIL dan WA
+            } else if ($status == Pembayaran::STATUS_EXPIRED || $status == 'cancelled') {
+                $pembayaran->booking->update(['status' => Booking::STATUS_CANCELLED]);
+                
+                if (!$isPerpanjangan) {
+                    $pembayaran->booking->kamar->update(['status' => 'tersedia']);
+                }
+                
+                $user = $pembayaran->user;
+                $hasActiveBooking = $user->bookings()->whereIn('status', [Booking::STATUS_CONFIRMED, Booking::STATUS_CHECKED_IN])->exists();
+                
+                if (!$hasActiveBooking && $user->role !== 'admin') {
+                    $user->update(['role' => 'calon_penghuni']);
+                }
+
+                // Notifikasi Email & Real-time Reverb
                 $this->sendNotificationEmail($pembayaran, 'expired');
-                $this->sendNotificationWA($pembayaran, 'expired');
+                $pembayaran->user->notify(new PaymentNotification($pembayaran, 'expired'));
             }
         });
     }
 
     // =========================================================================
-    // 7. FUNGSI PENGIRIMAN EMAIL (BERHASIL & KADALUWARSA)
+    // 7. FUNGSI PENGIRIMAN EMAIL (FOKUS UTAMA)
     // =========================================================================
     private function sendNotificationEmail(Pembayaran $pembayaran, $type)
     {
         $user = $pembayaran->user;
         $kamar = $pembayaran->booking->kamar;
-        
+        $isPerpanjangan = str_contains($pembayaran->booking->catatan ?? '', 'Perpanjangan');
+
         $subject = "";
         $htmlContent = "";
 
         if ($type === 'success') {
             $subject = "Pembayaran Berhasil - Inna Kos";
+            $statusText = $isPerpanjangan ? "diperpanjang" : "dipesan";
             $htmlContent = "
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;'>
                     <h2 style='color: #16a34a;'>Pembayaran Berhasil! 🎉</h2>
-                    <p>Halo <strong>{$user->name}</strong>,</p>
-                    <p>Terima kasih, pembayaran untuk pesanan kamar kos Anda telah kami terima.</p>
+                    <p>Halo <strong>{$user->name}</strong>, pembayaran kamar <strong>{$kamar->nomor_kamar}</strong> telah kami terima.</p>
+                    <p>Status sewa Anda telah resmi {$statusText}.</p>
                     <div style='background-color: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;'>
-                        <p style='margin: 5px 0;'><strong>No. Invoice:</strong> {$pembayaran->kode_pembayaran}</p>
-                        <p style='margin: 5px 0;'><strong>Kamar:</strong> {$kamar->nomor_kamar}</p>
-                        <p style='margin: 5px 0;'><strong>Durasi:</strong> {$pembayaran->booking->durasi} Bulan</p>
-                        <p style='margin: 5px 0;'><strong>Total:</strong> Rp " . number_format($pembayaran->jumlah, 0, ',', '.') . "</p>
+                        <p><strong>No. Invoice:</strong> {$pembayaran->kode_pembayaran}</p>
+                        <p><strong>Total:</strong> Rp " . number_format($pembayaran->jumlah, 0, ',', '.') . "</p>
                     </div>
-                    <p>Sekarang Anda resmi menjadi penghuni Inna Kos. Anda dapat melihat struk pembayaran di dashboard akun Anda.</p>
-                </div>
-            ";
-        } else if ($type === 'expired') {
-            $subject = "Peringatan: Akun Dinonaktifkan - Inna Kos";
+                </div>";
+        } else {
+            $subject = $isPerpanjangan ? "Tagihan Perpanjangan Dibatalkan" : "Pesanan Dibatalkan";
             $htmlContent = "
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;'>
-                    <h2 style='color: #dc2626;'>Waktu Pembayaran Habis</h2>
-                    <p>Halo <strong>{$user->name}</strong>,</p>
-                    <p>Sayang sekali, waktu untuk melakukan pembayaran pesanan <strong>Kamar {$kamar->nomor_kamar}</strong> telah berakhir (jatuh tempo).</p>
-                    <p>Sesuai dengan kebijakan Inna Kos, pesanan Anda telah dibatalkan secara otomatis dan status <strong>akun Anda saat ini telah dinonaktifkan</strong>.</p>
-                    <p>Silakan hubungi Admin jika Anda ingin mengaktifkan kembali akun Anda.</p>
-                </div>
-            ";
+                    <h2 style='color: #dc2626;'>Pemberitahuan Pembatalan</h2>
+                    <p>Halo <strong>{$user->name}</strong>, waktu pembayaran untuk Kamar <strong>{$kamar->nomor_kamar}</strong> telah habis atau dibatalkan.</p>
+                    <p>Silakan lakukan pengajuan ulang jika Anda masih berminat.</p>
+                </div>";
         }
 
         try {
             Mail::html($htmlContent, function($message) use ($user, $subject) {
-                $message->to($user->email)
-                        ->subject($subject);
+                $message->to($user->email)->subject($subject);
             });
         } catch (\Exception $e) {
-            Log::error("Gagal kirim Email Notification ($type): " . $e->getMessage());
+            Log::error("Gagal kirim Email: " . $e->getMessage());
         }
     }
 
     // =========================================================================
-    // 8. FUNGSI PENGIRIMAN WA (BERHASIL & KADALUWARSA)
-    // =========================================================================
-    private function sendNotificationWA(Pembayaran $pembayaran, $type)
-    {
-        $user = $pembayaran->user;
-        $kamar = $pembayaran->booking->kamar;
-
-        if (!$user->phone) return;
-
-        $pesan = "";
-        if ($type === 'success') {
-            $pesan = "*PEMBAYARAN BERHASIL - INNA KOS*\n\n";
-            $pesan .= "Halo {$user->name},\n";
-            $pesan .= "Pembayaran sewa Kamar {$kamar->nomor_kamar} sebesar Rp " . number_format($pembayaran->jumlah, 0, ',', '.') . " telah lunas.\n\n";
-            $pesan .= "Terima kasih telah bergabung menjadi penghuni Inna Kos!";
-        } else if ($type === 'expired') {
-            $pesan = "*PEMBATALAN OTOMATIS - INNA KOS*\n\n";
-            $pesan .= "Halo {$user->name},\n";
-            $pesan .= "Waktu pembayaran Kamar {$kamar->nomor_kamar} telah habis (jatuh tempo).\n\n";
-            $pesan .= "Pesanan Anda telah dibatalkan dan akun Anda dinonaktifkan. Hubungi Admin untuk info lebih lanjut.";
-        }
-
-        try {
-            $response = Http::withHeaders([
-                'Authorization' => env('FONNTE_TOKEN'),
-            ])->post('https://api.fonnte.com/send', [
-                'target' => $user->phone,
-                'message' => $pesan,
-                'countryCode' => '62', // Otomatis ubah 08 jadi 628
-            ]);
-
-            // Tambahkan log untuk melihat respon Fonnte jika WA tidak masuk
-            if (!$response->successful()) {
-                Log::error('Fonnte API Error: ' . $response->body());
-            }
-
-        } catch (\Exception $e) {
-            Log::error("Gagal kirim WA Notification ($type): " . $e->getMessage());
-        }
-    }
-
-    // =========================================================================
-    // 9. GENERATE SNAP TOKEN
+    // 8. GENERATE SNAP TOKEN & UTILS
     // =========================================================================
     private function generateSnapToken($pembayaran, $user, $kamar)
     {
         $this->_configureMidtrans();
-
         $params = [
             'transaction_details' => [
                 'order_id' => $pembayaran->kode_pembayaran,
@@ -404,7 +344,6 @@ class BookingController extends Controller
             'customer_details' => [
                 'first_name' => $user->name,
                 'email' => $user->email,
-                'phone' => $user->phone ?? '08123456789',
             ],
             'item_details' => [[
                 'id' => $kamar->id,
@@ -412,34 +351,9 @@ class BookingController extends Controller
                 'quantity' => (int) $pembayaran->booking->durasi,
                 'name' => 'Sewa Kamar ' . $kamar->nomor_kamar,
             ]],
-            'expiry' => [
-                'start_time' => Carbon::now()->format('Y-m-d H:i:s O'),
-                'unit' => 'day',
-                'duration' => 3
-            ],
-            'callbacks' => [
-                'finish' => route('booking.check-status', $pembayaran->id),
-            ]
+            'callbacks' => ['finish' => route('booking.check-status', $pembayaran->id)]
         ];
-
         return Snap::getSnapToken($params);
-    }
-
-    // =========================================================================
-    // 10. UTILS
-    // =========================================================================
-    public function retryPayment($id)
-    {
-        $pembayaran = Pembayaran::findOrFail($id);
-        $newKode = 'INV-' . time() . rand(100, 999);
-        $pembayaran->update([
-            'kode_pembayaran' => $newKode,
-            'status' => Pembayaran::STATUS_PENDING,
-            'snap_token' => null,
-            'tanggal_jatuh_tempo' => Carbon::now()->addDays(3)
-        ]);
-
-        return redirect()->route('booking.payment', $pembayaran->id);
     }
 
     public function cancelPayment($id)
@@ -452,5 +366,55 @@ class BookingController extends Controller
 
         $this->updatePaymentToDB($pembayaran, 'cancelled');
         return redirect()->route('home')->with('success', 'Pemesanan dibatalkan.');
+    }
+
+    public function extendForm(Booking $booking)
+    {
+        if ($booking->user_id !== Auth::id() || !$booking->isActive()) {
+            return redirect()->route('user.dashboard')->with('error', 'Tidak valid.');
+        }
+        return view('booking.extend', compact('booking'));
+    }
+
+    public function processExtend(Request $request, Booking $booking)
+    {
+        $request->validate(['durasi' => 'required|integer|min:1|max:12']);
+        $durasiBulan = (int) $request->durasi; 
+
+        DB::beginTransaction();
+        try {
+            $user = Auth::user();
+            $kamar = $booking->kamar;
+            $tanggalMasukBaru = Carbon::parse($booking->tanggal_keluar);
+            $totalHarga = $kamar->harga * $durasiBulan;
+
+            $newBooking = Booking::create([
+                'user_id' => $user->id,
+                'kamar_id' => $kamar->id,
+                'tanggal_masuk' => $tanggalMasukBaru,
+                'tanggal_keluar' => (clone $tanggalMasukBaru)->addMonths($durasiBulan),
+                'durasi' => $durasiBulan,
+                'total_harga' => $totalHarga,
+                'catatan' => 'Perpanjangan dari Booking #' . $booking->id,
+                'status' => Booking::STATUS_PENDING,
+            ]);
+
+            $pembayaran = Pembayaran::create([
+                'user_id' => $user->id,
+                'booking_id' => $newBooking->id,
+                'kode_pembayaran' => 'INV-EXT-' . time(),
+                'jumlah' => $totalHarga,
+                'status' => Pembayaran::STATUS_PENDING,
+                'tanggal_jatuh_tempo' => Carbon::now()->addDays(3),
+            ]);
+
+            $pembayaran->update(['snap_token' => $this->generateSnapToken($pembayaran, $user, $kamar)]);
+            DB::commit();
+
+            return redirect()->route('booking.payment', $pembayaran->id);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal.');
+        }
     }
 }

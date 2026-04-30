@@ -4,11 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'User Dashboard') - Inna Kos</title>
-    <link rel="shortcut icon" href="{{ asset('images/Inna Kos.png') }}" type="image/png">
+    
+    <!-- FAVICON UPDATE -->
+    <link rel="shortcut icon" href="{{ asset('images/innakos.png') }}" type="image/png">
     
     <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script> 
+    
+    <!-- VITE UNTUK LARAVEL ECHO & REVERB -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style type="text/tailwindcss">
         :root {
             --primary: #165DFF;
@@ -54,9 +60,10 @@
         
         <aside id="sidebar" class="flex flex-col w-[280px] shrink-0 h-screen fixed inset-y-0 left-0 z-50 bg-white border-r border-border transform -translate-x-full lg:translate-x-0 transition-transform duration-300 shadow-xl lg:shadow-none">
             <div class="flex items-center justify-between border-b border-border h-[90px] px-5 gap-3 shrink-0">
-                <a href="{{ route('home') ?? '#' }}" class="flex items-center gap-3">
-                    <div class="w-11 h-9 bg-primary rounded-xl flex items-center justify-center shadow-sm shadow-primary/30">
-                        <i data-lucide="home" class="size-5 text-white"></i>
+                <a href="{{ route('home') ?? '#' }}" class="flex items-center gap-2">
+                    <!-- LOGO SIDEBAR TANPA BACKGROUND -->
+                    <div class="w-12 h-10 shrink-0 flex items-center justify-center">
+                        <img src="{{ asset('images/innakos.png') }}" alt="Inna Kos" class="w-full h-full object-contain">
                     </div>
                     <div>
                         <h1 class="font-bold text-xl leading-tight">Inna Kos</h1>
@@ -76,12 +83,6 @@
                             <div class="flex items-center rounded-xl p-3.5 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all">
                                 <i data-lucide="layout-dashboard" class="size-5 text-secondary group-[.active]:text-primary group-hover:text-primary transition-colors"></i>
                                 <span class="font-medium text-secondary group-[.active]:font-semibold group-[.active]:text-primary group-hover:text-foreground">Dashboard</span>
-                            </div>
-                        </a>
-                        <a href="{{ route('home') ?? '#' }}" class="group">
-                            <div class="flex items-center rounded-xl p-3.5 gap-3 bg-white hover:bg-muted transition-all">
-                                <i data-lucide="search" class="size-5 text-secondary group-hover:text-primary transition-colors"></i>
-                                <span class="font-medium text-secondary group-hover:text-foreground">Cari Kamar</span>
                             </div>
                         </a>
                         <a href="{{ route('user.bookings') ?? '#' }}" class="group {{ request()->routeIs('user.bookings') ? 'active' : '' }}">
@@ -122,27 +123,70 @@
                     </button>
                 </div>
                 
-                <div class="flex items-center gap-3 relative">
-                    <button onclick="toggleDropdown('userDropdown')" class="hidden md:flex items-center gap-3 pl-3 ml-2 border-l border-border hover:opacity-80 transition-opacity">
+                <div class="flex items-center gap-4 md:gap-5 relative">
+                    
+                    <!-- FITUR NOTIFIKASI BELL (REAL-TIME) -->
+                    <div class="relative">
+                        <button onclick="toggleDropdown('notificationDropdown')" class="relative size-10 flex items-center justify-center text-secondary hover:bg-muted rounded-full transition-colors">
+                            <i data-lucide="bell" class="size-5"></i>
+                            
+                            <!-- Indikator Ping Real-Time -->
+                            <span id="notif-indicator" class="{{ Auth::user()->unreadNotifications->count() > 0 ? 'flex' : 'hidden' }} absolute top-2 right-2 size-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+                                <span class="relative inline-flex rounded-full size-2.5 bg-error border-2 border-white"></span>
+                            </span>
+                        </button>
+
+                        <div id="notificationDropdown" class="hidden absolute top-14 right-0 w-[320px] bg-white border border-border rounded-2xl shadow-xl z-50 overflow-hidden">
+                            <div class="px-4 py-3 border-b border-border flex justify-between items-center bg-slate-50">
+                                <p class="font-bold text-sm text-foreground">Notifikasi</p>
+                                <span class="text-[10px] font-bold text-primary" id="notif-count">{{ Auth::user()->unreadNotifications->count() }} Baru</span>
+                            </div>
+                            
+                            <div id="notif-list" class="max-h-[300px] overflow-y-auto">
+                                @forelse(Auth::user()->notifications()->take(5)->get() as $notification)
+                                    <a href="{{ $notification->data['url'] ?? '#' }}" class="flex gap-3 px-4 py-3 hover:bg-muted/50 border-b border-border transition-colors {{ $notification->read_at ? 'opacity-70' : 'bg-primary/5' }}">
+                                        <div class="size-8 rounded-full bg-{{ $notification->data['color'] ?? 'primary' }}-light text-{{ $notification->data['color'] ?? 'primary' }} flex items-center justify-center shrink-0">
+                                            <i data-lucide="{{ $notification->data['icon'] ?? 'bell' }}" class="size-4"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-foreground">{{ $notification->data['title'] }}</p>
+                                            <p class="text-[11px] text-secondary mt-0.5 leading-snug">{{ $notification->data['message'] }}</p>
+                                            <p class="text-[9px] text-secondary mt-1 font-medium">{{ $notification->created_at->diffForHumans() }}</p>
+                                        </div>
+                                    </a>
+                                @empty
+                                    <div id="empty-notif" class="p-6 text-center text-secondary">
+                                        <i data-lucide="bell-off" class="size-6 mx-auto mb-2 opacity-50"></i>
+                                        <p class="text-xs font-medium">Belum ada notifikasi.</p>
+                                    </div>
+                                @endforelse
+                            </div>
+                            <div class="p-2 border-t border-border bg-slate-50 text-center">
+                                <a href="#" class="text-xs font-bold text-primary hover:underline">Lihat Semua Notifikasi</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-8 w-px bg-border hidden md:block"></div>
+
+                    <!-- DROPDOWN USER -->
+                    <button onclick="toggleDropdown('userDropdown')" class="hidden md:flex items-center gap-3 hover:opacity-80 transition-opacity relative">
                         <div class="text-right">
                             <p class="font-semibold text-foreground text-sm">{{ Auth::user()->name ?? 'Penghuni' }}</p>
-                            <p class="text-secondary text-xs">{{ Auth::user()->isPenghuni() ? 'Warga Kos' : 'Calon Penghuni' }}</p>
+                            <p class="text-secondary text-xs">{{ Auth::user()->isPenghuni() ? 'Penghuni' : 'Calon Penghuni' }}</p>
                         </div>
-                        <div class="size-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+                        <div class="size-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold shadow-sm shadow-primary/10">
                             {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
                         </div>
                         <i data-lucide="chevron-down" class="size-4 text-secondary"></i>
                     </button>
 
-                    <button onclick="toggleDropdown('userDropdown')" class="md:hidden size-11 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
-                        {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
-                    </button>
-
                     <div id="userDropdown" class="hidden absolute top-14 right-0 w-56 bg-white border border-border rounded-2xl shadow-xl z-50 overflow-hidden py-2">
-                        <div class="px-4 py-2 mb-2 border-b border-border md:hidden">
-                            <p class="font-bold text-sm text-foreground">{{ Auth::user()->name ?? 'Penghuni' }}</p>
-                            <p class="text-xs text-secondary">{{ Auth::user()->isPenghuni() ? 'Warga Kos' : 'Calon Penghuni' }}</p>
-                        </div>
+                        <a href="{{ route('home') ?? '#' }}" class="flex items-center gap-3 px-4 py-2.5 hover:bg-muted transition-colors">
+                            <i data-lucide="home" class="size-4 text-secondary"></i>
+                            <span class="text-sm font-medium text-foreground">Ke Landing Page</span>
+                        </a>
                         <a href="{{ route('user.profile') ?? '#' }}" class="flex items-center gap-3 px-4 py-2.5 hover:bg-muted transition-colors">
                             <i data-lucide="user" class="size-4 text-secondary"></i>
                             <span class="text-sm font-medium text-foreground">Profil Saya</span>
@@ -150,7 +194,7 @@
                         <div class="my-1 border-t border-border"></div>
                         <form method="POST" action="{{ route('logout') ?? '#' }}">
                             @csrf
-                            <button type="submit" class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-error-light transition-colors text-error cursor-pointer">
+                            <button type="submit" class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-error-light transition-colors text-error cursor-pointer text-left">
                                 <i data-lucide="log-out" class="size-4"></i>
                                 <span class="text-sm font-medium">Keluar</span>
                             </button>
@@ -169,10 +213,49 @@
         document.addEventListener('DOMContentLoaded', function() {
             lucide.createIcons();
 
+            // LOGIKA LARAVEL ECHO (REVERB)
+            const userId = {{ Auth::id() ?? 'null' }};
+            if (userId && window.Echo) {
+                window.Echo.private(`App.Models.User.${userId}`)
+                    .notification((notification) => {
+                        const indicator = document.getElementById('notif-indicator');
+                        if (indicator) indicator.classList.replace('hidden', 'flex');
+
+                        const emptyNotif = document.getElementById('empty-notif');
+                        if (emptyNotif) emptyNotif.remove();
+
+                        const countEl = document.getElementById('notif-count');
+                        let count = parseInt(countEl.innerText) || 0;
+                        countEl.innerText = (count + 1) + " Baru";
+
+                        const notifList = document.getElementById('notif-list');
+                        const newNotifHTML = `
+                            <a href="${notification.url || '#'}" class="flex gap-3 px-4 py-3 hover:bg-muted/50 border-b border-border transition-colors bg-primary/5">
+                                <div class="size-8 rounded-full bg-${notification.color}-light text-${notification.color} flex items-center justify-center shrink-0">
+                                    <i data-lucide="${notification.icon}" class="size-4"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-foreground">${notification.title}</p>
+                                    <p class="text-[11px] text-secondary mt-0.5 leading-snug">${notification.message}</p>
+                                    <p class="text-[9px] text-primary mt-1 font-bold">Baru Saja</p>
+                                </div>
+                            </a>
+                        `;
+                        notifList.insertAdjacentHTML('afterbegin', newNotifHTML);
+                        lucide.createIcons();
+                    });
+            }
+
+            // Close dropdowns on outside click
             document.addEventListener('click', function(event) {
                 const userDropdown = document.getElementById('userDropdown');
-                if (!event.target.closest('#userDropdown') && !event.target.closest('[onclick="toggleDropdown(\'userDropdown\')"]')) {
-                    userDropdown.classList.add('hidden');
+                const notifDropdown = document.getElementById('notificationDropdown');
+                
+                if (!event.target.closest('#userDropdown') && !event.target.closest('[onclick*="userDropdown"]')) {
+                    if(userDropdown) userDropdown.classList.add('hidden');
+                }
+                if (!event.target.closest('#notificationDropdown') && !event.target.closest('[onclick*="notificationDropdown"]')) {
+                    if(notifDropdown) notifDropdown.classList.add('hidden');
                 }
             });
         });
@@ -186,7 +269,15 @@
         }
 
         function toggleDropdown(id) {
-            document.getElementById(id).classList.toggle('hidden');
+            const dropdowns = ['userDropdown', 'notificationDropdown'];
+            dropdowns.forEach(dropdownId => {
+                const el = document.getElementById(dropdownId);
+                if(dropdownId === id) {
+                    el.classList.toggle('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
         }
     </script>
     

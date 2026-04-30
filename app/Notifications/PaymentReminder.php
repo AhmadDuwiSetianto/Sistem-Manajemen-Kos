@@ -3,66 +3,63 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
-use App\Models\Pembayaran;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
-class PaymentReminder extends Notification
+class PaymentNotification extends Notification implements ShouldBroadcast
 {
     use Queueable;
 
-    protected $pembayaran;
+    public $pembayaran;
+    public $type;
 
-    public function __construct(Pembayaran $pembayaran)
+    /**
+     * @param $pembayaran
+     * @param string $type ('success' atau 'expired')
+     */
+    public function __construct($pembayaran, $type)
     {
         $this->pembayaran = $pembayaran;
+        $this->type = $type;
     }
 
-    public function via(object $notifiable): array
+    public function via($notifiable)
     {
-        // Menggunakan channel mail bawaan laravel
-        // Untuk WA kita eksekusi terpisah di method pengiriman
-        $this->sendWhatsApp($notifiable); 
+        // Menyimpan ke database dan memancarkan ke Reverb
+        return ['database', 'broadcast'];
+    }
+
+    public function toArray($notifiable)
+    {
+        $kamar = $this->pembayaran->booking->kamar->nomor_kamar ?? '-';
         
-        return ['mail'];
-    }
-
-    public function toMail(object $notifiable): MailMessage
-    {
-        return (new MailMessage)
-                    ->subject('Pengingat: Tagihan Inna Kos Jatuh Tempo Hari Ini')
-                    ->greeting('Halo ' . $notifiable->name . ',')
-                    ->line('Ini adalah pengingat bahwa tagihan pemesanan kamar Anda sebesar ' . $this->pembayaran->jumlah_formatted . ' akan jatuh tempo hari ini.')
-                    ->line('Batas waktu: ' . $this->pembayaran->tanggal_jatuh_tempo->format('d/m/Y H:i'))
-                    ->line('Penting: Jika tidak dibayar hingga H+2, akun Anda akan dinonaktifkan secara otomatis.')
-                    ->action('Bayar Sekarang', url('/user/pembayaran/' . $this->pembayaran->id))
-                    ->line('Terima kasih telah memilih Inna Kos!');
-    }
-
-    // Fungsi custom untuk kirim WA (Contoh menggunakan API Fonnte)
-    protected function sendWhatsApp($user)
-    {
-        if (!$user->phone) return;
-
-        $pesan = "*PENGINGAT INNA KOS*\n\n";
-        $pesan .= "Halo {$user->name},\n";
-        $pesan .= "Tagihan kamar Anda sebesar *{$this->pembayaran->jumlah_formatted}* jatuh tempo *HARI INI*.\n\n";
-        $pesan .= "Batas: {$this->pembayaran->tanggal_jatuh_tempo->format('d/m/Y H:i')}\n\n";
-        $pesan .= "Mohon segera bayar agar akun Anda tidak dinonaktifkan otomatis. Terima kasih.";
-
-        try {
-            // Ganti URL dan Token sesuai provider WA Gateway Anda
-            Http::withHeaders([
-                'Authorization' => env('FONNTE_TOKEN', 'A1mfS41ATJCcB923cAXn'),
-            ])->post('https://api.fonnte.com/send', [
-                'target' => $user->phone,
-                'message' => $pesan,
-                'countryCode' => '62', // Kode negara Indonesia
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Gagal kirim WA pengingat: ' . $e->getMessage());
+        if ($this->type === 'success') {
+            $title = 'Pembayaran Berhasil';
+            $message = "Tagihan Kamar {$kamar} telah lunas. Terima kasih!";
+            $icon = 'check-circle';
+            $color = 'success';
+        } else {
+            // Menangani status expired atau cancelled
+            $title = 'Tagihan Dibatalkan';
+            $message = "Pesanan/Perpanjangan Kamar {$kamar} telah dibatalkan atau kedaluwarsa.";
+            $icon = 'x-circle';
+            $color = 'error';
         }
+
+        return [
+            'title' => $title,
+            'message' => $message,
+            'icon' => $icon,
+            'color' => $color,
+            'url' => route('user.pembayaran')
+        ];
+    }
+
+    public function toBroadcast($notifiable)
+    {
+        return new BroadcastMessage([
+            'data' => $this->toArray($notifiable)
+        ]);
     }
 }
