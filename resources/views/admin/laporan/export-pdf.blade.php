@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Laporan Keuangan - KOSTKU</title>
+    <title>Laporan Keuangan - Inna Kos</title>
     <style>
         @page { margin: 40px 40px 60px 40px; }
         body { 
@@ -11,7 +11,6 @@
             line-height: 1.4;
         }
         
-        /* Header Dokumen */
         .header-doc {
             border-bottom: 2px solid #165DFF;
             padding-bottom: 15px;
@@ -25,12 +24,10 @@
         }
         .header-doc p { margin: 4px 0 0 0; color: #666; font-size: 10px; }
 
-        /* Judul Laporan */
         .title-section { text-align: center; margin-bottom: 25px; }
         .title-section h2 { font-size: 16px; margin: 0; text-transform: uppercase; }
         .title-section p { font-size: 11px; color: #555; margin-top: 5px; }
 
-        /* Grid Info & Summary */
         table.grid-layout { width: 100%; margin-bottom: 20px; border-collapse: collapse; }
         table.grid-layout td { vertical-align: top; width: 50%; }
 
@@ -87,8 +84,8 @@
 <body>
 
     <div class="header-doc">
-        <h1>KOSTKU</h1>
-        <p>Jl. Merdeka No. 123, Bandung, Jawa Barat 40123 | Telp: (022) 1234-5678</p>
+        <h1>Inna Kos</h1>
+        <p>Jl. Perum Sinar Muncar, Perum Villa Pisma Asri, Podo, Kec. Kedungwuni, Kabupaten Pekalongan, Jawa Tengah 51173 | Telepon: 0856-4276-3667</p>
     </div>
 
     <div class="title-section">
@@ -158,7 +155,7 @@
     </table>
 
     <div class="footer">
-        Dokumen Laporan Keuangan Sistem Informasi Manajemen Kostku | Digenerate secara otomatis pada {{ $waktuCetak }}
+        Dokumen Laporan Keuangan Sistem Informasi Manajemen Inna Kos | Digenerate secara otomatis pada {{ $waktuCetak }}
     </div>
 
 </body>

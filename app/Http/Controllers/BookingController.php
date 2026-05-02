@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Kamar;
 use App\Models\Pembayaran;
-use App\Notifications\PaymentNotification; // Tambahkan ini
+use App\Notifications\PaymentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -119,7 +119,8 @@ class BookingController extends Controller
             $snapToken = $this->generateSnapToken($pembayaran, $user, $kamar);
             $pembayaran->update(['snap_token' => $snapToken]);
 
-            $kamar->update(['status' => 'booking']);
+            // ✅ PERBAIKAN: Ubah kata 'booking' menjadi 'dipesan' agar sesuai ENUM Database
+            $kamar->update(['status' => 'dipesan']);
 
             DB::commit();
 
@@ -287,7 +288,7 @@ class BookingController extends Controller
     }
 
     // =========================================================================
-    // 7. FUNGSI PENGIRIMAN EMAIL (FOKUS UTAMA)
+    // 7. FUNGSI PENGIRIMAN EMAIL
     // =========================================================================
     private function sendNotificationEmail(Pembayaran $pembayaran, $type)
     {
@@ -414,7 +415,7 @@ class BookingController extends Controller
             return redirect()->route('booking.payment', $pembayaran->id);
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Gagal.');
+            return back()->with('error', 'Gagal memproses perpanjangan.');
         }
     }
 }
