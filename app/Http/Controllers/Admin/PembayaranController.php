@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Pembayaran; // Pastikan model Pembayaran sudah ada
-use App\Models\Booking;    // Pastikan model Booking sudah ada
+use App\Models\Pembayaran;
+use App\Models\Booking;
 
 class PembayaranController extends Controller
 {
@@ -14,28 +14,27 @@ class PembayaranController extends Controller
      */
     public function index(Request $request)
     {
-        // Menghitung Statistik Pembayaran
-        // (Asumsi kolom 'jumlah' untuk nominal dan 'status' untuk status bayar)
-        $totalPemasukan = Pembayaran::where('status', 'success')->sum('jumlah');
+        // PERBAIKAN: Sesuaikan query dengan status dari Midtrans
+        $totalPemasukan = Pembayaran::where('status', 'paid')->sum('jumlah');
         $pendingPembayaran = Pembayaran::where('status', 'pending')->count();
-        $suksesPembayaran = Pembayaran::where('status', 'success')->count();
-        $gagalPembayaran = Pembayaran::where('status', 'failed')->count();
+        $suksesPembayaran = Pembayaran::where('status', 'paid')->count();
+        $gagalPembayaran = Pembayaran::whereIn('status', ['expired', 'cancelled'])->count();
 
         // Query data pembayaran beserta relasi user dan kamar
         $query = Pembayaran::with(['user', 'booking.kamar'])->latest();
 
-        // Fitur Pencarian (Opsional - Backend filter)
+        // Fitur Pencarian 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('id', 'like', "%{$search}%")
+                $q->where('kode_pembayaran', 'like', "%{$search}%") // Lebih relevan cari pakai kode pembayaran
                   ->orWhereHas('user', function($userQuery) use ($search) {
                       $userQuery->where('name', 'like', "%{$search}%");
                   });
             });
         }
 
-        // Fitur Filter Status (Opsional - Backend filter)
+        // Fitur Filter Status
         if ($request->has('status') && $request->status != '') {
             $query->where('status', $request->status);
         }
@@ -57,45 +56,70 @@ class PembayaranController extends Controller
      */
     public function show($id)
     {
-        $pembayaran = Pembayaran::with(['user', 'kamar', 'booking'])->findOrFail($id);
+        $pembayaran = Pembayaran::with(['user', 'booking.kamar'])->findOrFail($id);
         
         return view('admin.pembayaran.show', compact('pembayaran'));
     }
 
     /**
-     * Verifikasi (Approve) pembayaran yang masuk
+     * Verifikasi (Approve) pembayaran yang masuk (Manual)
      */
     public function verify($id)
     {
         $pembayaran = Pembayaran::findOrFail($id);
         
-        // Update status pembayaran menjadi sukses
+        // PERBAIKAN: Update status pembayaran menjadi 'paid'
         $pembayaran->update([
-            'status' => 'success'
+            'status' => 'paid',
+            'tanggal_bayar' => now()
         ]);
 
-        // (Opsional) Update status booking yang terkait menjadi confirmed/active
+        // Update status booking menjadi 'confirmed' dan kamar menjadi 'terisi'
         if ($pembayaran->booking_id) {
-            Booking::where('id', $pembayaran->booking_id)->update([
-                'status' => 'confirmed' // sesuaikan dengan enum status di tabel bookings mu
-            ]);
+            $booking = Booking::with('kamar')->find($pembayaran->booking_id);
+            if ($booking) {
+                $booking->update(['status' => 'confirmed']);
+                
+                if ($booking->kamar) {
+                    $booking->kamar->update(['status' => 'terisi']);
+                }
+            }
+        }
+
+        // Ubah role user jadi penghuni jika sebelumnya masih calon
+        if ($pembayaran->user && $pembayaran->user->role === 'calon_penghuni') {
+            $pembayaran->user->update(['role' => 'penghuni']);
         }
 
         return redirect()->back()->with('success', 'Pembayaran berhasil diverifikasi & dikonfirmasi!');
     }
 
     /**
-     * Tolak (Reject) pembayaran jika bukti transfer tidak valid
+     * Tolak (Reject) pembayaran jika bukti transfer tidak valid (Manual)
      */
     public function reject($id)
     {
         $pembayaran = Pembayaran::findOrFail($id);
         
-        // Update status pembayaran menjadi gagal
+        // PERBAIKAN: Update status pembayaran menjadi 'cancelled'
         $pembayaran->update([
-            'status' => 'failed'
+            'status' => 'cancelled'
         ]);
 
-        return redirect()->back()->with('error', 'Pembayaran telah ditolak.');
+        // Batalkan booking dan kembalikan status kamar jadi tersedia
+        if ($pembayaran->booking_id) {
+            $booking = Booking::with('kamar')->find($pembayaran->booking_id);
+            if ($booking) {
+                $booking->update(['status' => 'cancelled']);
+                
+                // Pastikan kamar dikosongkan lagi JIKA ini bukan perpanjangan (extend)
+                $isPerpanjangan = str_contains($booking->catatan ?? '', 'Perpanjangan');
+                if ($booking->kamar && !$isPerpanjangan) {
+                    $booking->kamar->update(['status' => 'tersedia']);
+                }
+            }
+        }
+
+        return redirect()->back()->with('error', 'Pembayaran telah ditolak dan dibatalkan.');
     }
 }

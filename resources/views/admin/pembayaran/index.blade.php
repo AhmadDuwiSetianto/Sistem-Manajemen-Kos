@@ -5,7 +5,6 @@
 @section('content')
 <div class="flex-1 p-4 md:p-8">
     
-    <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold text-foreground">Transaksi Pembayaran</h1>
@@ -18,7 +17,6 @@
         </div>
     </div>
 
-    <!-- Alert Messages -->
     @if(session('success'))
     <div class="bg-success-light border border-success/20 p-3 md:p-4 mb-6 rounded-xl flex items-center gap-3">
         <div class="size-8 bg-success/20 rounded-full flex items-center justify-center shrink-0">
@@ -37,7 +35,6 @@
     </div>
     @endif
 
-    <!-- Cards Statistik (Mobile: 2 Kolom, Desktop: 4 Kolom) -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8">
         <div class="flex flex-col justify-between rounded-xl border border-border p-4 bg-white shadow-sm hover:ring-1 hover:ring-primary transition-all">
             <div class="flex items-center gap-2 mb-2">
@@ -83,7 +80,6 @@
         </div>
     </div>
 
-    <!-- Tabel Riwayat Transaksi -->
     <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
         <div class="px-5 py-4 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4">
             <h2 class="text-base md:text-lg font-bold text-foreground">Riwayat Transaksi</h2>
@@ -93,8 +89,8 @@
                     <select name="status" onchange="this.form.submit()" class="w-full pl-9 pr-8 py-2 bg-muted border-none rounded-xl text-xs outline-none appearance-none text-foreground cursor-pointer">
                         <option value="">Semua Status</option>
                         <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu Cek</option>
-                        <option value="success" {{ request('status') == 'success' ? 'selected' : '' }}>Lunas</option>
-                        <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Ditolak</option>
+                        <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Lunas</option>
+                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Batal/Kedaluwarsa</option>
                     </select>
                     <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-secondary pointer-events-none"></i>
                 </div>
@@ -122,15 +118,15 @@
                     @forelse($pembayarans ?? [] as $payment)
                     <tr class="hover:bg-muted/30 transition-colors">
                         <td class="px-5 py-3 whitespace-nowrap">
-                            <p class="text-xs md:text-sm font-bold text-foreground">#TRX-{{ str_pad($payment->id, 5, '0', STR_PAD_LEFT) }}</p>
-                            <p class="text-[10px] md:text-[11px] text-secondary mt-0.5">{{ $payment->created_at->format('d M Y, H:i') }}</p>
+                            <p class="text-[11px] md:text-xs font-mono font-bold text-foreground">{{ $payment->kode_pembayaran }}</p>
+                            <p class="text-[10px] text-secondary mt-0.5">{{ $payment->created_at->format('d M Y, H:i') }}</p>
                         </td>
                         <td class="px-5 py-3 whitespace-nowrap">
                             <p class="text-xs md:text-sm font-semibold text-primary">#BK-{{ str_pad($payment->booking_id, 5, '0', STR_PAD_LEFT) }}</p>
                             <p class="text-[10px] md:text-[11px] text-secondary mt-0.5">{{ $payment->user->name ?? 'User' }} • Kmr {{ $payment->booking->kamar->nomor_kamar ?? '-' }}</p>
                         </td>
                         <td class="px-5 py-3 whitespace-nowrap">
-                            <span class="text-xs font-medium text-foreground">{{ ucfirst($payment->metode ?? 'Transfer Bank') }}</span>
+                            <span class="text-xs font-medium text-foreground">{{ ucfirst($payment->metode_pembayaran ?? $payment->metode ?? 'Transfer Bank') }}</span>
                         </td>
                         <td class="px-5 py-3 whitespace-nowrap text-right">
                             <p class="text-xs md:text-sm font-bold text-foreground">{{ number_format($payment->jumlah, 0, ',', '.') }}</p>
@@ -139,27 +135,31 @@
                             @php
                                 $statusMap = [
                                     'pending' => ['bg' => 'bg-warning-light', 'text' => 'text-warning-dark', 'label' => 'Menunggu Cek'],
-                                    'success' => ['bg' => 'bg-success-light', 'text' => 'text-success', 'label' => 'Lunas'],
-                                    'failed' => ['bg' => 'bg-error-light', 'text' => 'text-error', 'label' => 'Ditolak']
+                                    'paid' => ['bg' => 'bg-success-light', 'text' => 'text-success', 'label' => 'Lunas'],
+                                    'expired' => ['bg' => 'bg-error-light', 'text' => 'text-error', 'label' => 'Kedaluwarsa'],
+                                    'cancelled' => ['bg' => 'bg-error-light', 'text' => 'text-error', 'label' => 'Dibatalkan']
                                 ];
-                                $currStatus = $statusMap[$payment->status] ?? ['bg' => 'bg-muted', 'text' => 'text-secondary', 'label' => 'Unknown'];
+                                $currStatus = $statusMap[$payment->status] ?? ['bg' => 'bg-muted', 'text' => 'text-secondary', 'label' => ucfirst($payment->status)];
                             @endphp
                             <span class="inline-flex px-2 py-1 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-wider {{ $currStatus['bg'] }} {{ $currStatus['text'] }}">
                                 {{ $currStatus['label'] }}
                             </span>
                         </td>
                         <td class="px-5 py-3 whitespace-nowrap text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                @if($payment->status == 'pending')
-                                <button onclick="openVerifyModal({{ $payment->id }}, '{{ $payment->user->name }}', '{{ number_format($payment->jumlah, 0, ',', '.') }}')" class="px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-[10px] md:text-xs font-bold hover:bg-primary hover:text-white transition-colors cursor-pointer">
-                                    Verifikasi
-                                </button>
-                                @endif
-                                <button onclick="openImageModal('{{ asset('images/default-bukti.jpg') }}')" class="size-7 md:size-8 flex items-center justify-center rounded-lg border border-border text-secondary hover:bg-muted transition-colors cursor-pointer" title="Lihat Bukti">
-                                    <i data-lucide="image" class="size-3.5 md:size-4"></i>
-                                </button>
-                            </div>
-                        </td>
+    <div class="flex items-center justify-end gap-2">
+        
+        <a href="/admin/pembayaran/{{ $payment->id }}" class="size-7 md:size-8 flex items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors" title="Lihat Detail & Invoice">
+            <i data-lucide="file-text" class="size-3.5 md:size-4"></i>
+        </a>
+
+        @if($payment->status == 'pending')
+        <button onclick="openVerifyModal({{ $payment->id }}, '{{ $payment->user->name ?? 'User' }}', '{{ number_format($payment->jumlah, 0, ',', '.') }}')" class="px-3 py-1.5 rounded-lg bg-warning/10 text-warning-dark text-[10px] md:text-xs font-bold hover:bg-warning hover:text-white transition-colors cursor-pointer flex items-center gap-1.5" title="Aksi Manual">
+            <i data-lucide="settings-2" class="size-3 md:size-3.5"></i> Kelola
+        </button>
+        @endif
+
+    </div>
+</td>
                     </tr>
                     @empty
                     <tr>
@@ -175,7 +175,6 @@
             </table>
         </div>
 
-        <!-- Pagination -->
         @if(isset($pembayarans) && method_exists($pembayarans, 'links'))
         <div class="px-5 py-3 border-t border-border bg-white flex flex-col md:flex-row items-center justify-between gap-3">
             <p class="text-[10px] md:text-xs text-secondary font-medium text-center md:text-left">
@@ -194,7 +193,6 @@
     </div>
 </div>
 
-<!-- Modal Bukti Gambar -->
 <div id="imageModal" class="fixed inset-0 bg-black/80 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
     <div class="relative max-w-2xl w-full">
         <button onclick="closeImageModal()" class="absolute -top-10 right-0 size-8 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer">
@@ -204,7 +202,6 @@
     </div>
 </div>
 
-<!-- Modal Verifikasi -->
 <div id="verifyModal" class="fixed inset-0 bg-black/60 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
         <div class="p-4 border-b border-border flex items-center justify-between">
