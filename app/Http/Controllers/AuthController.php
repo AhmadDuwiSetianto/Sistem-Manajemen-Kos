@@ -8,13 +8,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Auth\Events\Registered;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
+use Illuminate\Foundation\Auth\EmailVerificationRequest; // WAJIB DITAMBAHKAN
 
 class AuthController extends Controller
 {
+    // ==========================================
+    // 1. LOGIKA LOGIN
+    // ==========================================
     public function showLoginForm()
     {
         return view('auth.login');
@@ -23,43 +26,45 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         try {
-            Log::info('Login attempt', ['email' => $request->email]);
-
-            // VALIDASI BACKEND: Mewajibkan checkbox 'remember' diisi
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email|max:255',
                 'password' => 'required|string',
-                'remember' => 'required', // Wajib diisi (dicentang)
             ], [
                 'email.required' => 'Email wajib diisi.',
                 'email.email' => 'Format email tidak valid.',
                 'password.required' => 'Password wajib diisi.',
-                'remember.required' => 'Anda wajib menceklis "Ingat saya di perangkat ini" untuk melanjutkan login.',
             ]);
 
             if ($validator->fails()) {
                 return redirect()->back()
                     ->withErrors($validator)
                     ->withInput($request->except('password'))
-                    ->with('error', 'Validasi gagal. Pastikan Anda mencentang Ingat Saya.');
+                    ->with('error', 'Validasi gagal. Silakan periksa kembali input Anda.');
             }
 
             $credentials = $request->only('email', 'password');
-            $remember = $request->filled('remember');
-
-            if (Auth::attempt($credentials, $remember)) {
-                $request->session()->regenerate();
+            
+            // PAKSA FALSE: Sesi otomatis mati jika browser ditutup
+            if (Auth::attempt($credentials, false)) {
                 $user = Auth::user();
-
+                $request->session()->regenerate();
+                
                 Log::info('Login successful', ['user_id' => $user->id, 'email' => $user->email]);
 
+                // PENGALIHAN (REDIRECT) BERDASARKAN ROLE
                 if ($user->isAdmin()) {
                     return redirect()->intended(route('admin.dashboard'))
                         ->with('success', 'Selamat datang, Admin!');
                 }
 
+                if ($user->role === 'penghuni' || $user->hasActiveBooking()) {
+                    return redirect()->intended(route('user.dashboard'))
+                        ->with('success', 'Selamat datang kembali di Dashboard Kos Anda!');
+                }
+
+                // Jika hanya Calon Penghuni
                 return redirect()->intended(route('home'))
-                    ->with('success', 'Login berhasil! Selamat datang.');
+                    ->with('success', 'Login berhasil! Silakan cari kamar idaman Anda.');
             } else {
                 return back()
                     ->withErrors(['email' => 'Email atau password salah.'])
@@ -74,6 +79,9 @@ class AuthController extends Controller
         }
     }
 
+    // ==========================================
+    // 2. LOGIKA REGISTRASI
+    // ==========================================
     public function showRegisterForm()
     {
         return view('auth.register');
@@ -112,16 +120,12 @@ class AuthController extends Controller
                 'is_active' => true,
             ]);
 
-            // 1. Memicu pengiriman Email Verifikasi bawaan Laravel
+            // Memicu pengiriman Email Verifikasi (Otomatis dari Laravel)
             event(new Registered($user));
 
-            // 2. Mengirim Notifikasi WhatsApp
-            $this->sendWhatsAppWelcome($user);
-
-            // KODE Auth::login($user) DIHAPUS AGAR TIDAK OTOMATIS LOGIN
-
+            // Redirect ke halaman login tanpa Auth::login()
             return redirect()->route('login')
-                ->with('success', 'Registrasi berhasil! Silakan Login terlebih dahulu, lalu periksa email untuk verifikasi akun Anda.');
+                ->with('success', 'Registrasi berhasil! Kami telah mengirimkan link verifikasi ke email Anda. Silakan verifikasi email Anda sebelum login.');
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
@@ -129,16 +133,46 @@ class AuthController extends Controller
         }
     }
 
+    // ==========================================
+    // 3. LOGIKA VERIFIKASI EMAIL
+    // ==========================================
+    
+    // Menampilkan halaman peringatan untuk cek email
+    public function verifyNotice()
+    {
+        return view('auth.verify-email');
+    }
+
+    // Memproses saat user mengklik tautan dari kotak masuk email
+    public function verifyEmail(EmailVerificationRequest $request)
+    {
+        $request->fulfill(); // Mengubah status email_verified_at di database
+        
+        return redirect('/')->with('success', 'Email berhasil diverifikasi! Anda sekarang memiliki akses penuh untuk memesan kamar.');
+    }
+
+    // Memproses klik tombol "Kirim Ulang Email"
+    public function verifyResend(Request $request)
+    {
+        $request->user()->sendEmailVerificationNotification();
+        
+        return back()->with('message', 'Verification link sent!');
+    }
+
+    // ==========================================
+    // 4. LOGIKA LOGOUT
+    // ==========================================
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        
         return redirect('/')->with('success', 'Logout berhasil. Sampai jumpa lagi!');
     }
 
     // ==========================================
-    // LOGIKA LOGIN GOOGLE (SOCIALITE)
+    // 5. LOGIKA LOGIN GOOGLE (SOCIALITE)
     // ==========================================
     public function redirectToGoogle()
     {
@@ -150,22 +184,25 @@ class AuthController extends Controller
         try {
             $googleUser = Socialite::driver('google')->user();
 
-            // Cari user berdasarkan email, jika tidak ada, buat akun baru
             $user = User::updateOrCreate(
                 ['email' => $googleUser->email],
                 [
                     'name' => $googleUser->name,
-                    'password' => Hash::make(Str::random(24)), // Beri password acak
+                    'password' => Hash::make(Str::random(24)),
                     'role' => 'calon_penghuni',
                     'is_active' => true,
-                    'email_verified_at' => now(), // Otomatis terverifikasi karena dari Google
+                    'email_verified_at' => now(), // Otomatis terverifikasi (dari Google)
                 ]
             );
 
-            Auth::login($user, true);
+            Auth::login($user, false);
 
             if ($user->isAdmin()) {
                 return redirect()->intended(route('admin.dashboard'))->with('success', 'Berhasil masuk via Google.');
+            }
+
+            if ($user->role === 'penghuni' || $user->hasActiveBooking()) {
+                return redirect()->intended(route('user.dashboard'))->with('success', 'Berhasil masuk via Google.');
             }
 
             return redirect()->intended(route('home'))->with('success', 'Berhasil masuk via Google.');
@@ -174,32 +211,5 @@ class AuthController extends Controller
             Log::error('Google Login Error: ' . $e->getMessage());
             return redirect()->route('login')->with('error', 'Gagal masuk menggunakan Google. Silakan coba lagi.');
         }
-    }
-
-    // ==========================================
-    // FUNGSI HELPER WHATSAPP
-    // ==========================================
-    protected function sendWhatsAppWelcome(User $user)
-    {
-        if (!$user->phone) return;
-
-        $pesan = "*SELAMAT DATANG DI INNA KOS*\n\n";
-        $pesan .= "Halo {$user->name},\n";
-        $pesan .= "Akun Anda berhasil didaftarkan. Kami telah mengirimkan tautan verifikasi ke email Anda ({$user->email}).\n\n";
-        $pesan .= "Silakan lakukan verifikasi sebelum melakukan pemesanan kamar.\n\n";
-        $pesan .= "Terima kasih!";
-
-        try {
-            Http::withHeaders([
-                'Authorization' => env('FONNTE_TOKEN', 'A1mfS41ATJCcB923cAXn'),
-            ])->post('https://api.fonnte.com/send', [
-                'target' => $user->phone,
-                'message' => $pesan,
-                'countryCode' => '62',
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Gagal kirim WA Welcome: ' . $e->getMessage());
-        }
-        
     }
 }
