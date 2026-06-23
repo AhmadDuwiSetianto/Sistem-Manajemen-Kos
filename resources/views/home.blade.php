@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Inna Kos Pekalongan - Kos Premium')
+@section('title', 'Inna Kos Pekalongan')
 
 @section('content')
 
@@ -13,7 +13,7 @@
 
     /* Hero Section dengan Background Custom */
     .elite-hero {
-        background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.8)), url('{{ asset('images/koscontoh.jpeg') }}') center/cover no-repeat;
+        background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.8)), url('{{ asset('images/hero.png') }}') center/cover no-repeat;
         border-radius: 0 0 24px 24px;
         margin-bottom: 2rem;
         padding: 10rem 0 8rem 0; /* Padding disesuaikan */

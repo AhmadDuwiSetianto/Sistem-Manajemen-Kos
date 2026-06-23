@@ -1,19 +1,16 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard Panel Admin - Sistem Manajemen Inna Kos Premium Living Pekalongan.">
+    
     <title>@yield('title', 'Admin Dashboard') - Inna Kos</title>
     
-    <!-- FAVICON -->
     <link rel="shortcut icon" href="{{ asset('images/innakos.png') }}" type="image/png">
-    
     <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     
-    <!-- VITE FOR REAL-TIME NOTIFICATIONS -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script> 
     <style type="text/tailwindcss">
         :root {
@@ -50,6 +47,10 @@
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         body { font-family: var(--font-sans); }
     </style>
+
+    <!-- HANYA LOAD JS DARI VITE UNTUK NOTIFIKASI REAL-TIME -->
+    @vite(['resources/js/app.js'])
+    
     @stack('styles')
 </head>
 <body class="bg-muted min-h-screen overflow-x-hidden text-foreground">
@@ -60,17 +61,16 @@
         
         <aside id="sidebar" class="flex flex-col w-[280px] shrink-0 h-screen fixed inset-y-0 left-0 z-50 bg-white border-r border-border transform -translate-x-full lg:translate-x-0 transition-transform duration-300 shadow-xl lg:shadow-none">
             <div class="flex items-center justify-between border-b border-border h-[90px] px-5 gap-3 shrink-0">
-                <a href="{{ route('admin.dashboard') ?? '#' }}" class="flex items-center gap-2">
-                    <!-- LOGO SIDEBAR TANPA BACKGROUND -->
+                <a href="{{ route('admin.dashboard') ?? '#' }}" class="flex items-center gap-2" aria-label="Kembali ke Dashboard">
                     <div class="w-12 h-10 shrink-0 flex items-center justify-center">
-                        <img src="{{ asset('images/innakos.png') }}" alt="Inna Kos" class="w-full h-full object-contain">
+                        <img src="{{ asset('images/innakos.png') }}" alt="Logo Inna Kos" class="w-full h-full object-contain">
                     </div>
                     <div>
                         <h1 class="font-bold text-xl leading-tight">Inna Kos</h1>
                         <p class="text-[10px] text-secondary font-medium uppercase tracking-wider">Admin Panel</p>
                     </div>
                 </a>
-                <button onclick="toggleSidebar()" class="lg:hidden size-11 flex shrink-0 rounded-xl p-[10px] items-center justify-center hover:bg-muted transition-colors">
+                <button onclick="toggleSidebar()" aria-label="Tutup menu sidebar" class="lg:hidden size-11 flex shrink-0 rounded-xl p-[10px] items-center justify-center hover:bg-muted transition-colors">
                     <i data-lucide="x" class="size-6 text-secondary"></i>
                 </button>
             </div>
@@ -121,12 +121,6 @@
                                 <span class="font-medium text-secondary group-[.active]:font-semibold group-[.active]:text-primary group-hover:text-foreground">Keuangan</span>
                             </div>
                         </a>
-                        <a href="{{ route('admin.laporan.statistik') ?? '#' }}" class="group {{ request()->routeIs('admin.laporan.statistik') ? 'active' : '' }}">
-                            <div class="flex items-center rounded-xl p-3.5 gap-3 bg-white group-[.active]:bg-muted group-hover:bg-muted transition-all">
-                                <i data-lucide="bar-chart-2" class="size-5 text-secondary group-[.active]:text-primary group-hover:text-primary transition-colors"></i>
-                                <span class="font-medium text-secondary group-[.active]:font-semibold group-[.active]:text-primary group-hover:text-foreground">Statistik</span>
-                            </div>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -136,19 +130,19 @@
             
             <header class="flex items-center justify-between w-full h-[90px] shrink-0 border-b border-border bg-white px-5 md:px-8 z-30">
                 <div class="flex items-center gap-4">
-                    <button onclick="toggleSidebar()" class="lg:hidden size-11 flex items-center justify-center rounded-xl border border-border hover:bg-muted transition-colors">
+                    <button onclick="toggleSidebar()" aria-label="Buka menu sidebar" class="lg:hidden size-11 flex items-center justify-center rounded-xl border border-border hover:bg-muted transition-colors">
                         <i data-lucide="menu" class="size-5 text-foreground"></i>
                     </button>
                     <div class="hidden md:flex items-center gap-2 bg-muted rounded-xl px-4 py-2.5 w-72">
                         <i data-lucide="search" class="size-4 text-secondary"></i>
-                        <input type="text" placeholder="Cari data..." class="bg-transparent border-none outline-none text-sm w-full placeholder:text-secondary text-foreground">
+                        <input type="text" aria-label="Kotak pencarian data" placeholder="Cari data..." class="bg-transparent border-none outline-none text-sm w-full placeholder:text-secondary text-foreground">
                     </div>
                 </div>
                 
                 <div class="flex items-center gap-3 relative">
-                    <!-- NOTIFICATION BELL (REAL-TIME) -->
+                    <!-- NOTIFICATION BELL -->
                     <div class="relative">
-                        <button onclick="toggleDropdown('notificationDropdown')" class="relative size-11 flex items-center justify-center rounded-xl border border-border hover:bg-muted transition-colors">
+                        <button onclick="toggleDropdown(event, 'notificationDropdown')" aria-label="Lihat notifikasi" class="relative size-11 flex items-center justify-center rounded-xl border border-border hover:bg-muted transition-colors">
                             <i data-lucide="bell" class="size-5 text-secondary"></i>
                             <span id="notif-badge" class="{{ Auth::check() && Auth::user()->unreadNotifications->count() > 0 ? 'flex' : 'hidden' }} absolute top-2 right-2.5 size-2 bg-error rounded-full ring-2 ring-white"></span>
                         </button>
@@ -156,32 +150,35 @@
                         <div id="notificationDropdown" class="hidden absolute top-14 right-0 w-80 bg-white border border-border rounded-2xl shadow-xl z-50 overflow-hidden">
                             <div class="p-4 border-b border-border flex justify-between items-center bg-slate-50">
                                 <h3 class="font-bold text-sm text-foreground">Notifikasi</h3>
-                                <span class="text-[10px] font-bold text-primary" id="notif-count-text">{{ Auth::user()->unreadNotifications->count() }} Baru</span>
+                                <span class="text-[10px] font-bold text-primary" id="notif-count-text">{{ Auth::check() ? Auth::user()->unreadNotifications->count() : 0 }} Baru</span>
                             </div>
                             <div class="max-h-[300px] overflow-y-auto" id="notification-list">
-                                @forelse(Auth::user()->unreadNotifications->take(5) as $notification)
-                                    <a href="{{ $notification->data['url'] ?? '#' }}" class="flex gap-3 p-4 hover:bg-muted transition-colors border-b border-border bg-primary/5">
-                                        <div class="size-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                            <i data-lucide="{{ $notification->data['icon'] ?? 'bell' }}" class="size-4 text-primary"></i>
+                                @if(Auth::check())
+                                    @forelse(Auth::user()->unreadNotifications->take(5) as $notification)
+                                        <a href="{{ $notification->data['url'] ?? '#' }}" class="flex gap-3 p-4 hover:bg-muted transition-colors border-b border-border bg-primary/5">
+                                            <div class="size-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                                <i data-lucide="{{ $notification->data['icon'] ?? 'bell' }}" class="size-4 text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-bold text-foreground">{{ $notification->data['title'] ?? 'Pemberitahuan' }}</p>
+                                                <p class="text-xs text-secondary mt-0.5 leading-snug">{{ $notification->data['message'] ?? '' }}</p>
+                                                <p class="text-[10px] text-primary mt-1 font-semibold">{{ $notification->created_at->diffForHumans() }}</p>
+                                            </div>
+                                        </a>
+                                    @empty
+                                        <div id="empty-notif" class="p-8 flex flex-col items-center justify-center text-center">
+                                            <i data-lucide="bell-off" class="size-8 text-secondary/30 mb-2"></i>
+                                            <p class="text-xs font-medium text-secondary">Belum ada notifikasi baru</p>
                                         </div>
-                                        <div>
-                                            <p class="text-sm font-bold text-foreground">{{ $notification->data['title'] ?? 'Pesanan Baru' }}</p>
-                                            <p class="text-xs text-secondary mt-0.5 leading-snug">{{ $notification->data['message'] ?? 'Ada pesanan masuk.' }}</p>
-                                            <p class="text-[10px] text-primary mt-1 font-semibold">{{ $notification->created_at->diffForHumans() }}</p>
-                                        </div>
-                                    </a>
-                                @empty
-                                    <div id="empty-notif" class="p-8 flex flex-col items-center justify-center text-center">
-                                        <i data-lucide="bell-off" class="size-8 text-secondary/30 mb-2"></i>
-                                        <p class="text-xs font-medium text-secondary">Belum ada notifikasi baru</p>
-                                    </div>
-                                @endforelse
+                                    @endforelse
+                                @endif
                             </div>
                             <a href="{{ route('admin.notifications.index') ?? '#' }}" class="block p-3 text-center text-xs font-bold text-primary hover:bg-muted border-t border-border">Lihat Semua</a>
                         </div>
                     </div>
 
-                    <button onclick="toggleDropdown('userDropdown')" class="hidden md:flex items-center gap-3 pl-3 ml-2 border-l border-border hover:opacity-80 transition-opacity relative">
+                    <!-- PROFIL MENU -->
+                    <button onclick="toggleDropdown(event, 'userDropdown')" aria-label="Buka menu profil pengguna" aria-haspopup="true" aria-expanded="false" class="hidden md:flex items-center gap-3 pl-3 ml-2 border-l border-border hover:opacity-80 transition-opacity relative">
                         <div class="text-right">
                             <p class="font-semibold text-foreground text-sm">{{ Auth::user()->name ?? 'Administrator' }}</p>
                             <p class="text-secondary text-xs">Super Admin</p>
@@ -219,25 +216,27 @@
         document.addEventListener('DOMContentLoaded', function() {
             lucide.createIcons();
 
-            // === REAL-TIME NOTIFICATIONS (REVERB) ===
             const userId = {{ Auth::id() ?? 'null' }};
+            
+            // LARAVEL ECHO LISTENER UNTUK REAL-TIME
             if (userId && window.Echo) {
                 window.Echo.private(`App.Models.User.${userId}`)
                     .notification((notification) => {
-                        // 1. Show Red Badge
+                        
+                        // 1. Munculkan titik merah (Badge)
                         const badge = document.getElementById('notif-badge');
                         if (badge) badge.classList.remove('hidden');
 
-                        // 2. Remove Empty State if exists
+                        // 2. Hilangkan state "Kosong"
                         const emptyState = document.getElementById('empty-notif');
                         if (emptyState) emptyState.remove();
 
-                        // 3. Update Text Count
+                        // 3. Tambah hitungan angka
                         const countText = document.getElementById('notif-count-text');
                         let currentCount = parseInt(countText.innerText) || 0;
                         countText.innerText = (currentCount + 1) + " Baru";
 
-                        // 4. Prepend New Notification to List
+                        // 4. Sisipkan HTML notifikasi baru ke paling atas daftar
                         const list = document.getElementById('notification-list');
                         const newNotifHTML = `
                             <a href="${notification.url || '#'}" class="flex gap-3 p-4 hover:bg-muted transition-colors border-b border-border bg-primary/5">
@@ -252,20 +251,29 @@
                             </a>
                         `;
                         list.insertAdjacentHTML('afterbegin', newNotifHTML);
-                        lucide.createIcons(); // Refresh icons for new HTML
+                        
+                        // Refresh icon lucide yang baru dimuat
+                        lucide.createIcons();
                     });
             }
 
-            // Global Click to close dropdowns
+            // Menutup Dropdown saat mengeklik area kosong di luar kotak
             document.addEventListener('click', function(event) {
                 const userDropdown = document.getElementById('userDropdown');
                 const notifDropdown = document.getElementById('notificationDropdown');
                 
+                // Cek apakah klik berada di luar tombol dan luar dropdown User
                 if (!event.target.closest('#userDropdown') && !event.target.closest('[onclick*="userDropdown"]')) {
-                    if(userDropdown) userDropdown.classList.add('hidden');
+                    if(userDropdown && !userDropdown.classList.contains('hidden')) {
+                        userDropdown.classList.add('hidden');
+                    }
                 }
+                
+                // Cek apakah klik berada di luar tombol dan luar dropdown Notifikasi
                 if (!event.target.closest('#notificationDropdown') && !event.target.closest('[onclick*="notificationDropdown"]')) {
-                    if(notifDropdown) notifDropdown.classList.add('hidden');
+                    if(notifDropdown && !notifDropdown.classList.contains('hidden')) {
+                        notifDropdown.classList.add('hidden');
+                    }
                 }
             });
         });
@@ -278,7 +286,12 @@
             document.body.classList.toggle('overflow-hidden');
         }
 
-        function toggleDropdown(id) {
+        function toggleDropdown(event, id) {
+            // Mencegah klik menyebar ke `document` agar dropdown tidak langsung tertutup
+            if (event) {
+                event.stopPropagation();
+            }
+
             const dropdowns = ['userDropdown', 'notificationDropdown'];
             dropdowns.forEach(dId => {
                 const el = document.getElementById(dId);

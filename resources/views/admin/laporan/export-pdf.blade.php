@@ -1,162 +1,210 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Laporan Keuangan - Inna Kos</title>
-    <style>
-        @page { margin: 40px 40px 60px 40px; }
-        body { 
-            font-family: 'Helvetica', Arial, sans-serif; 
-            color: #1a1a1a;
-            font-size: 11px;
-            line-height: 1.4;
-        }
+@extends('layouts.admin')
+
+@section('title', 'Tambah Kamar Baru')
+
+@section('content')
+<div class="flex-1 p-4 md:p-8">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-foreground">Tambah Kamar</h1>
+            <p class="text-secondary mt-1 text-sm md:text-base">Masukkan detail informasi kamar baru</p>
+        </div>
+        <a href="{{ route('admin.kamar.index') }}" class="inline-flex items-center justify-center px-4 py-2 bg-white border border-border text-foreground font-bold text-sm rounded-xl hover:bg-muted transition-colors shadow-sm">
+            <i data-lucide="arrow-left" class="size-4 mr-2 text-secondary"></i> Kembali
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-2xl shadow-sm border border-border p-5 md:p-8">
+                <form action="{{ route('admin.kamar.store') }}" method="POST" enctype="multipart/form-data" id="kamarForm">
+                    @csrf
+                    
+                    <div class="mb-6 md:mb-8">
+                        <h3 class="text-sm md:text-base font-bold text-foreground flex items-center gap-2 mb-4">
+                            <i data-lucide="info" class="size-4 md:size-5 text-primary"></i> Info Dasar
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+                            <div>
+                                <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Nomor Kamar <span class="text-error">*</span></label>
+                                <input type="text" name="nomor_kamar" value="{{ old('nomor_kamar') }}" class="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm placeholder:text-secondary transition-all" placeholder="Ex: A101" required>
+                                @error('nomor_kamar')<p class="text-[10px] md:text-xs text-error mt-1">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Tipe Kamar <span class="text-error">*</span></label>
+                                <select name="tipe_kamar" class="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm appearance-none cursor-pointer" required>
+                                    <option value="" disabled selected>Pilih Tipe</option>
+                                    <option value="Standard" {{ old('tipe_kamar') == 'Standard' ? 'selected' : '' }}>Standard</option>
+                                    <option value="Deluxe" {{ old('tipe_kamar') == 'Deluxe' ? 'selected' : '' }}>Deluxe</option>
+                                    <option value="Executive" {{ old('tipe_kamar') == 'Executive' ? 'selected' : '' }}>Executive</option>
+                                    <option value="Vip" {{ old('tipe_kamar') == 'Vip' ? 'selected' : '' }}>VIP</option>
+                                </select>
+                                @error('tipe_kamar')<p class="text-[10px] md:text-xs text-error mt-1">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Harga/Bulan <span class="text-error">*</span></label>
+                                <input type="number" name="harga" value="{{ old('harga') }}" class="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm placeholder:text-secondary transition-all" placeholder="1000000" min="1000" step="1000" required>
+                                @error('harga')<p class="text-[10px] md:text-xs text-error mt-1">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Status <span class="text-error">*</span></label>
+                                <select name="status" class="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm appearance-none cursor-pointer" required>
+                                    <option value="tersedia" {{ old('status') == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
+                                    <option value="maintenance" {{ old('status') == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
+                                </select>
+                                @error('status')<p class="text-[10px] md:text-xs text-error mt-1">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-border mb-6 md:mb-8">
+
+                    <div class="mb-6 md:mb-8">
+                        <h3 class="text-sm md:text-base font-bold text-foreground flex items-center gap-2 mb-4">
+                            <i data-lucide="ruler" class="size-4 md:size-5 text-warning-dark"></i> Spesifikasi
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5">
+                            <div>
+                                <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Ukuran (m²)</label>
+                                <input type="number" name="ukuran" value="{{ old('ukuran') }}" class="w-full px-3.5 py-2 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm placeholder:text-secondary" placeholder="20" min="0">
+                            </div>
+                            <div>
+                                <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Lantai</label>
+                                <input type="number" name="lantai" value="{{ old('lantai') }}" class="w-full px-3.5 py-2 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm placeholder:text-secondary" placeholder="1" min="1">
+                            </div>
+                            <div>
+                                <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Kapasitas</label>
+                                <input type="number" name="kapasitas" value="{{ old('kapasitas') }}" class="w-full px-3.5 py-2 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm placeholder:text-secondary" placeholder="2" min="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-border mb-6 md:mb-8">
+
+                    <div class="mb-6 md:mb-8">
+                        <h3 class="text-sm md:text-base font-bold text-foreground flex items-center gap-2 mb-4">
+                            <i data-lucide="align-left" class="size-4 md:size-5 text-success"></i> Fasilitas & Deskripsi
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Fasilitas <span class="text-error">*</span></label>
+                                @php
+                                    $oldFasilitas = old('fasilitas') ?? '';
+                                    $oldFasilitas = str_replace(['[', ']', '"', '\\'], '', $oldFasilitas);
+                                @endphp
+                                <textarea id="fasilitas" name="fasilitas" rows="2" class="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm placeholder:text-secondary" placeholder="AC, WiFi, Kamar Mandi Dalam" required>{{ $oldFasilitas }}</textarea>
+                                <p class="text-[10px] md:text-xs text-secondary mt-1">Pisahkan tiap fasilitas dengan koma (,).</p>
+                                @error('fasilitas')<p class="text-[10px] md:text-xs text-error mt-1">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Deskripsi</label>
+                                <textarea name="deskripsi" rows="3" class="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm placeholder:text-secondary" placeholder="Tambahkan informasi rinci...">{{ old('deskripsi') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-border mb-6 md:mb-8">
+
+                    <div class="mb-6 md:mb-8">
+                        <h3 class="text-sm md:text-base font-bold text-foreground flex items-center gap-2 mb-4">
+                            <i data-lucide="image" class="size-4 md:size-5 text-purple-500"></i> Gambar Kamar
+                        </h3>
+                        <div id="uploadArea" class="border-2 border-dashed border-border rounded-xl p-6 md:p-8 text-center hover:bg-muted/50 transition-all cursor-pointer">
+                            <i data-lucide="upload-cloud" class="size-8 md:size-10 text-secondary mx-auto mb-2"></i>
+                            <p class="text-xs md:text-sm font-bold text-foreground">Klik untuk upload gambar</p>
+                            <p class="text-[10px] md:text-xs text-secondary mt-1">Format PNG/JPG (Maks 2MB)</p>
+                            <input id="gambar" name="gambar" type="file" class="hidden" accept="image/*">
+                        </div>
+                        <div id="imagePreview" class="hidden mt-4 relative inline-block">
+                            <img id="preview" src="" class="h-32 md:h-40 rounded-xl object-cover ring-1 ring-border shadow-sm" alt="Preview Image">
+                            <button type="button" onclick="resetImage()" class="absolute -top-2 -right-2 size-7 md:size-8 bg-white rounded-full shadow-md flex items-center justify-center text-error hover:bg-error-light transition-colors cursor-pointer">
+                                <i data-lucide="x" class="size-3 md:size-4"></i>
+                            </button>
+                        </div>
+                        @error('gambar')<p class="text-[10px] md:text-xs text-error mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4">
+                        <a href="{{ route('admin.kamar.index') }}" class="w-full sm:w-auto px-5 py-2.5 font-bold text-sm text-secondary text-center hover:text-foreground transition-colors">Batal</a>
+                        <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-hover transition-colors shadow-sm shadow-primary/30">
+                            Simpan Kamar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="lg:col-span-1">
+            <div class="bg-primary/5 border border-primary/20 rounded-2xl p-5 md:p-6 sticky top-8">
+                <h3 class="font-bold text-sm md:text-base text-primary flex items-center gap-2 mb-4">
+                    <i data-lucide="lightbulb" class="size-4 md:size-5"></i> Tips Data Kamar
+                </h3>
+                <ul class="space-y-3 text-xs md:text-sm text-foreground">
+                    <li class="flex gap-2 items-start"><i data-lucide="check" class="size-4 text-primary shrink-0 mt-0.5"></i> Pastikan nomor kamar unik dan belum dipakai.</li>
+                    <li class="flex gap-2 items-start"><i data-lucide="check" class="size-4 text-primary shrink-0 mt-0.5"></i> Isi harga menggunakan angka saja (tanpa titik).</li>
+                    <li class="flex gap-2 items-start"><i data-lucide="check" class="size-4 text-primary shrink-0 mt-0.5"></i> Gunakan gambar dengan rasio 4:3 (landscape).</li>
+                    <li class="flex gap-2 items-start"><i data-lucide="check" class="size-4 text-primary shrink-0 mt-0.5"></i> Pemisahan fasilitas dengan koma memudahkan sistem mencari data.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
         
-        .header-doc {
-            border-bottom: 2px solid #165DFF;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
+        // --- SCRIPT UPLOAD GAMBAR ---
+        const input = document.getElementById('gambar');
+        const uploadArea = document.getElementById('uploadArea');
+        const previewArea = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('preview');
+
+        uploadArea.addEventListener('click', () => input.click());
+
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if(file) {
+                // Validasi ukuran gambar di sisi frontend (Maks 2MB)
+                if(file.size > 2 * 1024 * 1024) {
+                    alert('Ukuran gambar terlalu besar! Maksimal 2MB.');
+                    input.value = '';
+                    return;
+                }
+                previewImg.src = URL.createObjectURL(file);
+                uploadArea.classList.add('hidden');
+                previewArea.classList.remove('hidden');
+            }
+        });
+
+        window.resetImage = function() {
+            input.value = ''; // Kosongkan file di input
+            previewImg.src = '';
+            uploadArea.classList.remove('hidden');
+            previewArea.classList.add('hidden');
+        };
+
+        // --- SCRIPT PEMBERSIHAN FASILITAS (ANTI JSON ERROR) ---
+        const fasilitasInput = document.getElementById('fasilitas');
+        const kamarForm = document.getElementById('kamarForm');
+
+        function cleanFasilitasString(val) {
+            // Hapus karakter kurung siku, kutip ganda, dan backslash
+            val = val.replace(/[\[\]"\\]/g, ''); 
+            // Pecah koma, hilangkan spasi berlebih, buang yang kosong
+            return val.split(',').map(item => item.trim()).filter(item => item !== "").join(', ');
         }
-        .header-doc h1 {
-            color: #165DFF;
-            font-size: 24px;
-            margin: 0;
-            letter-spacing: 1px;
-        }
-        .header-doc p { margin: 4px 0 0 0; color: #666; font-size: 10px; }
 
-        .title-section { text-align: center; margin-bottom: 25px; }
-        .title-section h2 { font-size: 16px; margin: 0; text-transform: uppercase; }
-        .title-section p { font-size: 11px; color: #555; margin-top: 5px; }
+        // Bersihkan saat user selesai mengetik (blur)
+        fasilitasInput.addEventListener('blur', function(e) {
+            e.target.value = cleanFasilitasString(e.target.value);
+        });
 
-        table.grid-layout { width: 100%; margin-bottom: 20px; border-collapse: collapse; }
-        table.grid-layout td { vertical-align: top; width: 50%; }
-
-        .info-box {
-            background-color: #f8fafc;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-            margin-right: 10px;
-        }
-        .summary-box {
-            background-color: #eff6ff;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #bfdbfe;
-            margin-left: 10px;
-            text-align: right;
-        }
-        .summary-box .amount { font-size: 20px; font-weight: bold; color: #1e3a8a; margin: 5px 0; }
-
-        /* Tabel Data Transaksi */
-        .table-data { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-        .table-data th {
-            background-color: #165DFF;
-            color: #ffffff;
-            font-size: 10px;
-            padding: 8px 10px;
-            text-align: left;
-            border: 1px solid #165DFF;
-        }
-        .table-data td {
-            padding: 8px 10px;
-            border: 1px solid #e2e8f0;
-            font-size: 10px;
-        }
-        .table-data tr:nth-child(even) { background-color: #f8fafc; }
-        .text-right { text-align: right; }
-        .text-center { text-align: center; }
-
-        /* Footer */
-        .footer {
-            position: fixed;
-            bottom: -30px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 9px;
-            color: #888;
-            border-top: 1px dashed #ccc;
-            padding-top: 10px;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="header-doc">
-        <h1>Inna Kos</h1>
-        <p>Jl. Perum Sinar Muncar, Perum Villa Pisma Asri, Podo, Kec. Kedungwuni, Kabupaten Pekalongan, Jawa Tengah 51173 | Telepon: 0856-4276-3667</p>
-    </div>
-
-    <div class="title-section">
-        <h2>Laporan Pendapatan Keuangan</h2>
-        <p>Periode: <strong>{{ $periodeTampil }}</strong></p>
-    </div>
-
-    <table class="grid-layout">
-        <tr>
-            <td>
-                <div class="info-box">
-                    <strong style="font-size: 12px; display:block; margin-bottom:5px;">Detail Laporan</strong>
-                    <table style="width: 100%; font-size: 10px;">
-                        <tr><td width="35%">Jenis Data</td><td>: Transaksi Sukses Lunas</td></tr>
-                        <tr><td>Dicetak Pada</td><td>: {{ $tanggalCetak }}</td></tr>
-                        <tr><td>Dicetak Oleh</td><td>: Administrator System</td></tr>
-                    </table>
-                </div>
-            </td>
-            <td>
-                <div class="summary-box">
-                    <span style="font-size: 10px; color:#3b82f6; text-transform:uppercase; font-weight:bold;">Total Pemasukan Periode Ini</span>
-                    <div class="amount">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</div>
-                    <span style="font-size: 10px; color:#64748b;">Dari {{ $transaksi->count() }} Transaksi</span>
-                </div>
-            </td>
-        </tr>
-    </table>
-
-    <table class="table-data">
-        <thead>
-            <tr>
-                <th width="5%" class="text-center">NO</th>
-                <th width="12%">ID TRX</th>
-                <th width="25%">NAMA PENYEWA</th>
-                <th width="15%">KAMAR</th>
-                <th width="20%">WAKTU BAYAR</th>
-                <th width="23%" class="text-right">JUMLAH (Rp)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($transaksi as $index => $item)
-            <tr>
-                <td class="text-center">{{ $index + 1 }}</td>
-                <td><strong>#{{ $item->id }}</strong></td>
-                <td>{{ $item->user->name ?? 'N/A' }}</td>
-                <td>Kamar {{ $item->kamar->nomor_kamar ?? '-' }}</td>
-                <td>{{ $item->tanggal_formatted }}<br><span style="font-size:8px; color:#666;">{{ $item->jam_formatted }} WIB</span></td>
-                <td class="text-right font-bold">Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="6" class="text-center" style="padding: 30px; color: #888;">
-                    Tidak ada data transaksi lunas pada periode ini.
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-        @if($transaksi->count() > 0)
-        <tfoot>
-            <tr>
-                <td colspan="5" class="text-right" style="font-weight: bold; background-color:#e2e8f0;">TOTAL PENDAPATAN KESELURUHAN</td>
-                <td class="text-right" style="font-weight: bold; font-size:12px; background-color:#e2e8f0;">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</td>
-            </tr>
-        </tfoot>
-        @endif
-    </table>
-
-    <div class="footer">
-        Dokumen Laporan Keuangan Sistem Informasi Manajemen Inna Kos | Digenerate secara otomatis pada {{ $waktuCetak }}
-    </div>
-
-</body>
-</html>
+        // Bersihkan lagi tepat sebelum form di submit untuk memastikan
+        kamarForm.addEventListener('submit', function() {
+            fasilitasInput.value = cleanFasilitasString(fasilitasInput.value);
+        });
+    });
+</script>
+@endsection

@@ -3,10 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <meta name="description" content="Sistem Manajemen Inna Kos Premium Living Pekalongan. Cari dan pesan kamar kos nyaman, aman, dan strategis.">
+    <meta property="og:title" content="@yield('title', 'Inna Kos Premium Living')">
+    <meta property="og:description" content="Manajemen pemesanan dan pembayaran Inna Kos secara online.">
+    <meta property="og:image" content="{{ asset('images/innakos.png') }}">
+
     <title>@yield('title', 'Inna Kos Premium Living')</title>
     
     <link rel="shortcut icon" href="{{ asset('images/innakos.png') }}" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- KEMBALI MENGGUNAKAN CDN AGAR DESAIN DIJAMIN AMAN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
@@ -103,13 +111,16 @@
         }
         .nav-link.active::after { width: 20px; }
     </style>
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="flex flex-col min-h-screen antialiased selection:bg-brand-600 selection:text-white">
 
     <header id="main-header" class="fixed w-full top-0 z-50 header-transparent transition-all duration-300">
         <div class="container mx-auto px-4 sm:px-6 h-20 flex justify-between items-center">
             
-            <a href="{{ route('home') }}" class="flex items-center gap-3 group lg:px-0 lg:py-0">
+            <!-- ARIA LABEL ACCESSIBILITY -->
+            <a href="{{ route('home') }}" aria-label="Beranda Inna Kos" class="flex items-center gap-3 group lg:px-0 lg:py-0">
                 <div class="flex items-center justify-center transition-transform duration-300 group-hover:-translate-y-0.5">
                     @if(file_exists(public_path('images/innakos.png')))
                         <img src="{{ asset('images/innakos.png') }}" alt="Inna Kos Logo" class="h-10 w-auto object-contain">
@@ -121,7 +132,8 @@
             </a>
 
             @if(!request()->routeIs('booking.*'))
-            <nav class="hidden md:flex gap-10 text-sm font-bold lg:px-0 lg:py-0">
+            <!-- ARIA LABEL ACCESSIBILITY -->
+            <nav class="hidden md:flex gap-10 text-sm font-bold lg:px-0 lg:py-0" aria-label="Navigasi Utama">
                 <a href="{{ route('home') }}#home" class="nav-link relative py-2 dynamic-text {{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a>
                 <a href="{{ route('home') }}#fasilitas" class="nav-link relative py-2 dynamic-text">Fasilitas</a>
                 <a href="{{ request()->routeIs('kamar.*') ? route('kamar.index') : route('home').'#kamar' }}" class="nav-link relative py-2 dynamic-text {{ request()->routeIs('kamar.*') ? 'active' : '' }}">Kamar</a>
@@ -132,7 +144,8 @@
             <div class="flex items-center gap-5 lg:px-0 lg:py-0">
                 @auth
                     <div class="relative group h-12 lg:h-20 flex items-center">
-                        <button class="flex items-center gap-3 font-medium transition focus:outline-none py-2 cursor-pointer">
+                        <!-- ARIA LABEL ACCESSIBILITY -->
+                        <button aria-label="Buka menu profil" aria-haspopup="true" aria-expanded="false" class="flex items-center gap-3 font-medium transition focus:outline-none py-2 cursor-pointer">
                             <div class="text-right hidden sm:block leading-tight">
                                 <div class="text-sm font-bold dynamic-user">{{ Auth::user()->name }}</div>
                                 <div class="text-[10px] font-bold uppercase tracking-wider mt-0.5 dynamic-role">
@@ -142,9 +155,9 @@
                             
                             <div class="relative shrink-0">
                                 @if(Auth::user()->avatar)
-                                    <img src="{{ asset('storage/' . Auth::user()->avatar) }}" class="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-sm border border-slate-100">
+                                    <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="Foto Profil" class="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-sm border border-slate-100">
                                 @else
-                                    <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=165DFF&color=fff&bold=true" class="w-10 h-10 rounded-full ring-2 ring-white shadow-sm border border-slate-100">
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=165DFF&color=fff&bold=true" alt="Foto Profil Default" class="w-10 h-10 rounded-full ring-2 ring-white shadow-sm border border-slate-100">
                                 @endif
                                 <span class="absolute bottom-0 right-0 w-3 h-3 bg-success border-2 border-white rounded-full"></span>
                             </div>
@@ -197,7 +210,8 @@
                                 <div class="p-2">
                                     <form action="{{ route('logout') }}" method="POST">
                                         @csrf
-                                        <button type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-error rounded-xl hover:bg-error-light transition-colors cursor-pointer">
+                                        <!-- ARIA LABEL ACCESSIBILITY -->
+                                        <button aria-label="Keluar dari Aplikasi" type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-error rounded-xl hover:bg-error-light transition-colors cursor-pointer">
                                             <div class="size-8 rounded-lg bg-error-light flex items-center justify-center text-error">
                                                 <i data-lucide="log-out" class="size-4"></i>
                                             </div>

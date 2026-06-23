@@ -59,7 +59,7 @@
         </form>
     </div>
 
-    <!-- Cards Statistik Keuangan (Mobile: 2 Kolom, Desktop: 4 Kolom) -->
+    <!-- Cards Statistik Keuangan -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
         <div class="flex flex-col justify-between rounded-xl border border-border p-4 bg-white shadow-sm hover:ring-1 hover:ring-primary transition-all">
             <div class="flex justify-between items-start mb-2">
@@ -83,16 +83,6 @@
             </div>
             <p class="font-medium text-secondary text-[10px] md:text-xs leading-tight">Total Pendapatan<br>({{ $filterTahun }})</p>
             <p class="font-black text-sm md:text-2xl text-foreground mt-1">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</p>
-        </div>
-
-        <div class="flex flex-col justify-between rounded-xl border border-border p-4 bg-white shadow-sm hover:ring-1 hover:ring-primary transition-all">
-            <div class="flex items-center gap-2 mb-2">
-                <div class="size-8 md:size-10 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
-                    <i data-lucide="bar-chart" class="size-4 text-purple-600"></i>
-                </div>
-            </div>
-            <p class="font-medium text-secondary text-[10px] md:text-xs leading-tight">Rata-rata<br>per Kamar</p>
-            <p class="font-black text-sm md:text-2xl text-foreground mt-1">Rp {{ number_format($rataRataKamar, 0, ',', '.') }}</p>
         </div>
 
         <div class="flex flex-col justify-between rounded-xl border border-border p-4 bg-white shadow-sm hover:ring-1 hover:ring-error transition-all">
@@ -176,9 +166,10 @@
                             <p class="text-xs md:text-sm font-semibold text-foreground">{{ $transaksi->user->name ?? 'N/A' }}</p>
                             <p class="text-[10px] md:text-[11px] text-secondary mt-0.5 truncate max-w-[120px] md:max-w-none">{{ $transaksi->user->email ?? '-' }}</p>
                         </td>
+                        <!-- ✅ PERBAIKAN: Pemanggilan Relasi Kamar Melalui Booking -->
                         <td class="px-5 py-3 whitespace-nowrap">
-                            <p class="text-xs md:text-sm font-semibold text-foreground">Kamar {{ $transaksi->kamar->nomor_kamar ?? 'N/A' }}</p>
-                            <p class="text-[10px] md:text-[11px] text-secondary mt-0.5">{{ $transaksi->kamar->tipe_kamar ?? '-' }}</p>
+                            <p class="text-xs md:text-sm font-semibold text-foreground">Kamar {{ optional(optional($transaksi->booking)->kamar)->nomor_kamar ?? 'N/A' }}</p>
+                            <p class="text-[10px] md:text-[11px] text-secondary mt-0.5">{{ optional(optional($transaksi->booking)->kamar)->tipe_kamar ?? '-' }}</p>
                         </td>
                         <td class="px-5 py-3 whitespace-nowrap">
                             <p class="text-xs md:text-sm font-medium text-foreground">{{ $transaksi->created_at->format('d M Y') }}</p>

@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\PembayaranController as AdminPembayaranController
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
+use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\Route;
 
 // Wajib untuk verifikasi email
@@ -104,6 +105,7 @@ Route::prefix('user')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/bookings', [UserDashboardController::class, 'bookings'])->name('user.bookings');
     Route::get('/bookings/{id}', [UserDashboardController::class, 'showBooking'])->name('user.bookings.show');
     Route::get('/pembayaran', [UserDashboardController::class, 'pembayaran'])->name('user.pembayaran');
+    Schedule::command('reminder:h2')->dailyAt('08:00');
 });
 
 // ====================================================

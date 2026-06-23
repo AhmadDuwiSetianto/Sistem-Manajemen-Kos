@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Auth\Events\Registered;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
-use Illuminate\Foundation\Auth\EmailVerificationRequest; // WAJIB DITAMBAHKAN
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 class AuthController extends Controller
 {
@@ -29,10 +29,6 @@ class AuthController extends Controller
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email|max:255',
                 'password' => 'required|string',
-            ], [
-                'email.required' => 'Email wajib diisi.',
-                'email.email' => 'Format email tidak valid.',
-                'password.required' => 'Password wajib diisi.',
             ]);
 
             if ($validator->fails()) {
@@ -52,19 +48,7 @@ class AuthController extends Controller
                 Log::info('Login successful', ['user_id' => $user->id, 'email' => $user->email]);
 
                 // PENGALIHAN (REDIRECT) BERDASARKAN ROLE
-                if ($user->isAdmin()) {
-                    return redirect()->intended(route('admin.dashboard'))
-                        ->with('success', 'Selamat datang, Admin!');
-                }
-
-                if ($user->role === 'penghuni' || $user->hasActiveBooking()) {
-                    return redirect()->intended(route('user.dashboard'))
-                        ->with('success', 'Selamat datang kembali di Dashboard Kos Anda!');
-                }
-
-                // Jika hanya Calon Penghuni
-                return redirect()->intended(route('home'))
-                    ->with('success', 'Login berhasil! Silakan cari kamar idaman Anda.');
+                return $this->redirectBasedOnRole($user)->with('success', 'Selamat datang kembali!');
             } else {
                 return back()
                     ->withErrors(['email' => 'Email atau password salah.'])
@@ -95,12 +79,6 @@ class AuthController extends Controller
             'password' => 'required|min:8|confirmed',
             'phone' => 'required|string|max:15',
             'terms' => 'required|accepted',
-        ], [
-            'name.required' => 'Nama lengkap wajib diisi.',
-            'email.unique' => 'Email sudah terdaftar.',
-            'password.min' => 'Password minimal 8 karakter.',
-            'phone.required' => 'Nomor telepon wajib diisi.',
-            'terms.required' => 'Anda harus menyetujui syarat dan ketentuan.',
         ]);
 
         if ($validator->fails()) {
@@ -120,12 +98,10 @@ class AuthController extends Controller
                 'is_active' => true,
             ]);
 
-            // Memicu pengiriman Email Verifikasi (Otomatis dari Laravel)
             event(new Registered($user));
 
-            // Redirect ke halaman login tanpa Auth::login()
             return redirect()->route('login')
-                ->with('success', 'Registrasi berhasil! Kami telah mengirimkan link verifikasi ke email Anda. Silakan verifikasi email Anda sebelum login.');
+                ->with('success', 'Registrasi berhasil! Kami telah mengirimkan link verifikasi ke email Anda.');
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
@@ -136,26 +112,23 @@ class AuthController extends Controller
     // ==========================================
     // 3. LOGIKA VERIFIKASI EMAIL
     // ==========================================
-    
-    // Menampilkan halaman peringatan untuk cek email
     public function verifyNotice()
     {
         return view('auth.verify-email');
     }
 
-    // Memproses saat user mengklik tautan dari kotak masuk email
+    // ✅ DIPERBAIKI: Redirect menggunakan aturan role
     public function verifyEmail(EmailVerificationRequest $request)
     {
-        $request->fulfill(); // Mengubah status email_verified_at di database
+        $request->fulfill(); 
         
-        return redirect('/')->with('success', 'Email berhasil diverifikasi! Anda sekarang memiliki akses penuh untuk memesan kamar.');
+        $user = $request->user();
+        return $this->redirectBasedOnRole($user)->with('success', 'Email berhasil diverifikasi!');
     }
 
-    // Memproses klik tombol "Kirim Ulang Email"
     public function verifyResend(Request $request)
     {
         $request->user()->sendEmailVerificationNotification();
-        
         return back()->with('message', 'Verification link sent!');
     }
 
@@ -179,6 +152,7 @@ class AuthController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
+    // ✅ DIPERBAIKI: Redirect menggunakan aturan role
     public function handleGoogleCallback()
     {
         try {
@@ -189,27 +163,44 @@ class AuthController extends Controller
                 [
                     'name' => $googleUser->name,
                     'password' => Hash::make(Str::random(24)),
-                    'role' => 'calon_penghuni',
+                    // Jangan timpa role jika user sudah ada (hanya set calon_penghuni jika user benar-benar baru)
+                    'role' => User::where('email', $googleUser->email)->exists() ? User::where('email', $googleUser->email)->first()->role : 'calon_penghuni',
                     'is_active' => true,
-                    'email_verified_at' => now(), // Otomatis terverifikasi (dari Google)
+                    'email_verified_at' => now(), 
                 ]
             );
 
             Auth::login($user, false);
 
-            if ($user->isAdmin()) {
-                return redirect()->intended(route('admin.dashboard'))->with('success', 'Berhasil masuk via Google.');
-            }
-
-            if ($user->role === 'penghuni' || $user->hasActiveBooking()) {
-                return redirect()->intended(route('user.dashboard'))->with('success', 'Berhasil masuk via Google.');
-            }
-
-            return redirect()->intended(route('home'))->with('success', 'Berhasil masuk via Google.');
+            return $this->redirectBasedOnRole($user)->with('success', 'Berhasil masuk via Google.');
 
         } catch (\Exception $e) {
             Log::error('Google Login Error: ' . $e->getMessage());
             return redirect()->route('login')->with('error', 'Gagal masuk menggunakan Google. Silakan coba lagi.');
         }
+    }
+
+    // ==========================================
+    // 6. HELPER REDIRECT (FUNGSI PEMBANTU)
+    // ==========================================
+    // Fungsi ini dipanggil untuk memastikan setiap selesai Login/Verifikasi,
+    // user diarahkan ke halaman yang benar sesuai jabatannya.
+    private function redirectBasedOnRole($user)
+    {
+        if ($user->isAdmin()) {
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        if ($user->role === 'penghuni') {
+            return redirect()->intended(route('user.dashboard'));
+        }
+
+        // Jika dia masih 'calon_penghuni' tapi ternyata punya pesanan aktif (bug role), lempar juga ke dashboard
+        if ($user->hasActiveBooking()) {
+            return redirect()->intended(route('user.dashboard'));
+        }
+
+        // Jika benar-benar baru mendaftar dan belum pesan kamar sama sekali
+        return redirect()->intended(route('home'));
     }
 }

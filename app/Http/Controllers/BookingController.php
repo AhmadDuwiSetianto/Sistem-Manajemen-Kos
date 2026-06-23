@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Kamar;
 use App\Models\Pembayaran;
+use App\Models\User; // ✅ DITAMBAHKAN: Untuk memanggil akun Admin
 use App\Notifications\PaymentNotification;
+use App\Notifications\AdminNotification; // ✅ DITAMBAHKAN: Class Notifikasi Admin
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification; // ✅ DITAMBAHKAN: Facade Notifikasi
 use Carbon\Carbon;
 use Midtrans\Snap;
 use Midtrans\Config;
@@ -76,7 +79,7 @@ class BookingController extends Controller
     }
 
     // =========================================================================
-    // 2. SIMPAN DATA KE DATABASE
+    // 2. SIMPAN DATA KE DATABASE & NOTIFIKASI BOOKING BARU
     // =========================================================================
     public function store(Request $request, Kamar $kamar)
     {
@@ -119,10 +122,22 @@ class BookingController extends Controller
             $snapToken = $this->generateSnapToken($pembayaran, $user, $kamar);
             $pembayaran->update(['snap_token' => $snapToken]);
 
-            // ✅ PERBAIKAN: Ubah kata 'booking' menjadi 'dipesan' agar sesuai ENUM Database
             $kamar->update(['status' => 'dipesan']);
 
             DB::commit();
+
+            // ========================================================
+            // ✅ MENGIRIM NOTIFIKASI KE ADMIN (BOOKING BARU)
+            // ========================================================
+            defer(function () use ($user, $kamar) {
+                $admins = User::where('role', 'admin')->get();
+                Notification::send($admins, new AdminNotification(
+                    'Pemesanan Kamar Baru', 
+                    $user->name . ' telah memesan Kamar ' . $kamar->nomor_kamar . ' dan sedang menunggu pembayaran.', 
+                    route('admin.booking.index'), 
+                    'calendar-plus' // Icon kalender
+                ));
+            });
 
             return redirect()->route('booking.payment', $pembayaran->id)
                 ->with('success', 'Pesanan berhasil dibuat, silakan lakukan pembayaran.');
@@ -262,9 +277,24 @@ class BookingController extends Controller
                     $pembayaran->user->update(['role' => 'penghuni']);
                 }
 
-                // Notifikasi Email & Real-time Reverb
-                $this->sendNotificationEmail($pembayaran, 'success');
-                $pembayaran->user->notify(new PaymentNotification($pembayaran, 'success'));
+                // ========================================================
+                // PERBAIKAN PERFORMA: Gunakan defer() bawaan Laravel 11/12
+                // Mengeksekusi pengiriman Email & WA SETELAH browser user 
+                // menampilkan halaman sukses (Instan Loading)
+                // ========================================================
+                defer(function () use ($pembayaran) {
+                    $this->sendNotificationEmail($pembayaran, 'success');
+                    $pembayaran->user->notify(new PaymentNotification($pembayaran, 'success'));
+
+                    // ✅ MENGIRIM NOTIFIKASI KE ADMIN (PEMBAYARAN LUNAS)
+                    $admins = User::where('role', 'admin')->get();
+                    Notification::send($admins, new AdminNotification(
+                        'Pembayaran Berhasil', 
+                        'Pembayaran sebesar Rp ' . number_format($pembayaran->jumlah, 0, ',', '.') . ' dari ' . $pembayaran->user->name . ' telah lunas diverifikasi.', 
+                        route('admin.pembayaran.index'), 
+                        'check-circle' // Icon centang hijau
+                    ));
+                });
 
             } else if ($status == Pembayaran::STATUS_EXPIRED || $status == 'cancelled') {
                 $pembayaran->booking->update(['status' => Booking::STATUS_CANCELLED]);
@@ -280,9 +310,13 @@ class BookingController extends Controller
                     $user->update(['role' => 'calon_penghuni']);
                 }
 
-                // Notifikasi Email & Real-time Reverb
-                $this->sendNotificationEmail($pembayaran, 'expired');
-                $pembayaran->user->notify(new PaymentNotification($pembayaran, 'expired'));
+                // ========================================================
+                // PERBAIKAN PERFORMA: Gunakan defer() untuk notif expired
+                // ========================================================
+                defer(function () use ($pembayaran) {
+                    $this->sendNotificationEmail($pembayaran, 'expired');
+                    $pembayaran->user->notify(new PaymentNotification($pembayaran, 'expired'));
+                });
             }
         });
     }
@@ -377,6 +411,9 @@ class BookingController extends Controller
         return view('booking.extend', compact('booking'));
     }
 
+    // =========================================================================
+    // 9. PROSES PERPANJANGAN & NOTIFIKASI
+    // =========================================================================
     public function processExtend(Request $request, Booking $booking)
     {
         $request->validate(['durasi' => 'required|integer|min:1|max:12']);
@@ -410,7 +447,21 @@ class BookingController extends Controller
             ]);
 
             $pembayaran->update(['snap_token' => $this->generateSnapToken($pembayaran, $user, $kamar)]);
+            
             DB::commit();
+
+            // ========================================================
+            // ✅ MENGIRIM NOTIFIKASI KE ADMIN (PERPANJANGAN KAMAR)
+            // ========================================================
+            defer(function () use ($user, $kamar) {
+                $admins = User::where('role', 'admin')->get();
+                Notification::send($admins, new AdminNotification(
+                    'Perpanjangan Kamar', 
+                    $user->name . ' telah mengajukan perpanjangan Kamar ' . $kamar->nomor_kamar . ' selama ' . request()->durasi . ' bulan.', 
+                    route('admin.booking.index'), 
+                    'clock' // Icon jam (waktu)
+                ));
+            });
 
             return redirect()->route('booking.payment', $pembayaran->id);
         } catch (\Exception $e) {

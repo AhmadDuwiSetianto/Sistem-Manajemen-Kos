@@ -37,6 +37,12 @@ class Kamar extends Model
         'updated_at' => 'datetime',
     ];
 
+    // ==========================================
+    // FIX PERFORMA: Mematikan auto-appends global
+    // untuk mencegah overhead memory saat query data.
+    // Panggil manual di Blade: {{ $kamar->harga_formatted }}
+    // ==========================================
+    /*
     protected $appends = [
         'fasilitas_list',
         'gambar_url',
@@ -44,6 +50,7 @@ class Kamar extends Model
         'tipe_kamar_display',
         'harga_formatted',
     ];
+    */
 
     // ============ CONSTANTS (DIPERBAIKI) ============
     const STATUS_TERSEDIA = 'tersedia'; // ✅ FIX: Sebelumnya TYPO (STATUS_TESEDIA)

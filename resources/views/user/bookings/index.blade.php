@@ -9,6 +9,51 @@
         <p class="text-secondary mt-1 font-medium">Daftar semua riwayat penyewaan kamar Anda di Inna Kos.</p>
     </div>
 
+    <!-- ========================================================== -->
+    <!-- LOGIKA BANNER PERINGATAN H-2 JATUH TEMPO -->
+    <!-- ========================================================== -->
+    @php
+        // Cari booking aktif yang masa berlakunya tinggal 2 hari atau kurang
+        $h2Booking = $bookings->filter(function($booking) {
+            return in_array($booking->status, ['confirmed', 'checked_in']);
+        })->first(function($booking) {
+            $jatuhTempo = \Carbon\Carbon::parse($booking->tanggal_keluar)->startOfDay();
+            $sekarang = \Carbon\Carbon::now()->startOfDay();
+            $selisihHari = $sekarang->diffInDays($jatuhTempo, false); // false agar bisa melihat minus jika sudah lewat
+
+            // Peringatkan jika sisa hari antara 0 sampai 2 hari
+            return $selisihHari >= 0 && $selisihHari <= 2;
+        });
+    @endphp
+
+    @if($h2Booking)
+    <div class="bg-warning-light border border-warning text-warning-dark p-4 md:p-5 rounded-2xl mb-6 md:mb-8 flex items-start gap-3 md:gap-4 shadow-sm relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-2 h-full bg-warning"></div>
+        <div class="size-10 bg-warning/20 rounded-full flex items-center justify-center shrink-0">
+            <i data-lucide="alert-triangle" class="size-5 text-warning-dark"></i>
+        </div>
+        <div>
+            <h3 class="font-bold text-sm md:text-base">Peringatan Jatuh Tempo!</h3>
+            @php
+                $sisaHari = \Carbon\Carbon::now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($h2Booking->tanggal_keluar)->startOfDay(), false);
+            @endphp
+            <p class="text-xs md:text-sm mt-1 mb-3 leading-relaxed">
+                Masa sewa <strong>Kamar {{ $h2Booking->kamar->nomor_kamar ?? '-' }}</strong> Anda akan habis pada <strong>{{ \Carbon\Carbon::parse($h2Booking->tanggal_keluar)->translatedFormat('d M Y') }}</strong> 
+                @if($sisaHari == 0)
+                    (<span class="text-error font-bold">Hari Ini!</span>).
+                @else
+                    (Sisa <strong>{{ $sisaHari }} hari</strong>). 
+                @endif
+                Segera lakukan perpanjangan agar sistem tidak melepas kamar Anda ke publik.
+            </p>
+            <a href="{{ route('booking.extendForm', $h2Booking->id) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-warning-dark text-white text-xs font-bold rounded-lg hover:bg-yellow-600 transition-colors">
+                <i data-lucide="calendar-plus" class="size-3.5"></i> Perpanjang Sekarang
+            </a>
+        </div>
+    </div>
+    @endif
+    <!-- ========================================================== -->
+
     <div class="bg-white rounded-3xl shadow-sm border border-border overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">

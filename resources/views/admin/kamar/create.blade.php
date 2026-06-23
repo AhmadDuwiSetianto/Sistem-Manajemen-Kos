@@ -20,7 +20,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         <div class="lg:col-span-2">
             <div class="bg-white rounded-2xl shadow-sm border border-border p-5 md:p-8">
-                <form action="{{ route('admin.kamar.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.kamar.store') }}" method="POST" enctype="multipart/form-data" id="kamarForm">
                     @csrf
                     
                     <!-- Info Dasar -->
@@ -94,8 +94,13 @@
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Fasilitas <span class="text-error">*</span></label>
-                                <textarea id="fasilitas" name="fasilitas" rows="2" class="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm placeholder:text-secondary" placeholder="AC, WiFi, Kamar Mandi Dalam" required>{{ old('fasilitas') }}</textarea>
+                                @php
+                                    $oldFasilitas = old('fasilitas') ?? '';
+                                    $oldFasilitas = str_replace(['[', ']', '"', '\\'], '', $oldFasilitas);
+                                @endphp
+                                <textarea id="fasilitas" name="fasilitas" rows="2" class="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm placeholder:text-secondary" placeholder="AC, WiFi, Kamar Mandi Dalam" required>{{ $oldFasilitas }}</textarea>
                                 <p class="text-[10px] md:text-xs text-secondary mt-1">Pisahkan tiap fasilitas dengan koma (,).</p>
+                                @error('fasilitas')<p class="text-[10px] md:text-xs text-error mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
                                 <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Deskripsi</label>
@@ -111,18 +116,23 @@
                         <h3 class="text-sm md:text-base font-bold text-foreground flex items-center gap-2 mb-4">
                             <i data-lucide="image" class="size-4 md:size-5 text-purple-500"></i> Gambar Kamar
                         </h3>
+                        
+                        <!-- Upload Area -->
                         <div id="uploadArea" class="border-2 border-dashed border-border rounded-xl p-6 md:p-8 text-center hover:bg-muted/50 transition-all cursor-pointer">
                             <i data-lucide="upload-cloud" class="size-8 md:size-10 text-secondary mx-auto mb-2"></i>
                             <p class="text-xs md:text-sm font-bold text-foreground">Klik untuk upload gambar</p>
                             <p class="text-[10px] md:text-xs text-secondary mt-1">Format PNG/JPG (Maks 2MB)</p>
                             <input id="gambar" name="gambar" type="file" class="hidden" accept="image/*">
                         </div>
-                        <div id="imagePreview" class="hidden mt-4 relative inline-block">
-                            <img id="preview" class="h-32 md:h-40 rounded-xl object-cover ring-1 ring-border shadow-sm">
+                        
+                        <!-- ✅ PERBAIKAN: Gunakan style="display: none;" -->
+                        <div id="imagePreview" style="display: none;" class="mt-4 relative inline-block">
+                            <img id="preview" src="" class="h-32 md:h-40 rounded-xl object-cover ring-1 ring-border shadow-sm" alt="Preview Image">
                             <button type="button" onclick="resetImage()" class="absolute -top-2 -right-2 size-7 md:size-8 bg-white rounded-full shadow-md flex items-center justify-center text-error hover:bg-error-light transition-colors cursor-pointer">
                                 <i data-lucide="x" class="size-3 md:size-4"></i>
                             </button>
                         </div>
+                        @error('gambar')<p class="text-[10px] md:text-xs text-error mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <div class="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4">
@@ -156,6 +166,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         lucide.createIcons();
         
+        // --- SCRIPT UPLOAD GAMBAR ---
         const input = document.getElementById('gambar');
         const uploadArea = document.getElementById('uploadArea');
         const previewArea = document.getElementById('imagePreview');
@@ -166,21 +177,42 @@
         input.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if(file) {
+                // Validasi ukuran
+                if(file.size > 2 * 1024 * 1024) {
+                    alert('Ukuran gambar terlalu besar! Maksimal 2MB.');
+                    input.value = '';
+                    return;
+                }
                 previewImg.src = URL.createObjectURL(file);
-                uploadArea.classList.add('hidden');
-                previewArea.classList.remove('hidden');
+                // Menukar tampilan dengan memanipulasi property display
+                uploadArea.style.display = 'none';
+                previewArea.style.display = 'inline-block';
             }
         });
 
         window.resetImage = function() {
             input.value = '';
             previewImg.src = '';
-            uploadArea.classList.remove('hidden');
-            previewArea.classList.add('hidden');
+            // Mengembalikan ke tampilan semula
+            uploadArea.style.display = 'block';
+            previewArea.style.display = 'none';
         };
 
-        document.getElementById('fasilitas').addEventListener('blur', function(e) {
-            e.target.value = e.target.value.replace(/\s*,\s*/g, ', ').replace(/\s+/g, ' ').trim();
+        // --- SCRIPT PEMBERSIHAN FASILITAS ---
+        const fasilitasInput = document.getElementById('fasilitas');
+        const kamarForm = document.getElementById('kamarForm');
+
+        function cleanFasilitasString(val) {
+            val = val.replace(/[\[\]"\\]/g, ''); 
+            return val.split(',').map(item => item.trim()).filter(item => item !== "").join(', ');
+        }
+
+        fasilitasInput.addEventListener('blur', function(e) {
+            e.target.value = cleanFasilitasString(e.target.value);
+        });
+
+        kamarForm.addEventListener('submit', function() {
+            fasilitasInput.value = cleanFasilitasString(fasilitasInput.value);
         });
     });
 </script>

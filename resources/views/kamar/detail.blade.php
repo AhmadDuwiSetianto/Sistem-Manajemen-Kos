@@ -30,7 +30,7 @@
                         
                         <div class="absolute top-4 left-4 {{ $kamar->status == 'tersedia' ? 'bg-success/90 border-success text-white' : 'bg-slate-800/90 border-slate-600 text-slate-200' }} px-3 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold shadow-lg flex items-center gap-1.5 backdrop-blur-sm border uppercase tracking-wider">
                             @if($kamar->status == 'tersedia')
-                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> TERSA HUNI
+                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> TERSEDIA
                             @else
                                 <i data-lucide="lock" class="size-3"></i> SEDANG TERISI
                             @endif
@@ -130,20 +130,27 @@
                             </div>
                         </div>
 
-                        <div class="space-y-3 mb-6 text-sm font-medium text-slate-500">
-                            <div class="flex justify-between pb-3 border-b border-dashed border-slate-100">
-                                <span class="flex items-center gap-2"><i data-lucide="shield" class="size-4 text-slate-400"></i> Deposit Awal</span>
-                                <span class="font-semibold text-slate-800">Rp 500.000</span>
-                            </div>
-                            <div class="flex justify-between pb-3 border-b border-dashed border-slate-100">
-                                <span class="flex items-center gap-2"><i data-lucide="calendar-clock" class="size-4 text-slate-400"></i> Min. Sewa</span>
-                                <span class="font-semibold text-slate-800">3 Bulan</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="flex items-center gap-2"><i data-lucide="zap" class="size-4 text-slate-400"></i> Listrik</span>
-                                <span class="font-semibold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">Token Sendiri</span>
-                            </div>
-                        </div>
+                        <!-- KODE BARU: Informasi Fasilitas Utama yang Lebih Profesional -->
+<div class="grid grid-cols-1 gap-4 mb-8">
+    <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+        <div class="size-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 shrink-0">
+            <i data-lucide="shield-check" class="size-5"></i>
+        </div>
+        <div>
+            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Keamanan</p>
+            <p class="text-sm font-bold text-slate-800">Sistem Keamanan 24/7</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+        <div class="size-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 shrink-0">
+            <i data-lucide="zap" class="size-5"></i>
+        </div>
+        <div>
+            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Listrik</p>
+            <p class="text-sm font-bold text-slate-800">Sistem Token Mandiri</p>
+        </div>
+    </div>
+</div>
 
                         <div class="space-y-3">
                             @if($kamar->status == 'tersedia')
@@ -156,8 +163,8 @@
                                     @endif
                                 @else
                                 <a href="{{ route('login') }}" 
-                                   class="w-full py-3.5 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-900 transition-colors flex items-center justify-center gap-2 text-sm">
-                                    <i data-lucide="log-in" class="size-4"></i> Login Untuk Pesan
+                                   class="w-full py-3.5 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-all shadow-md shadow-brand-600/20 flex items-center justify-center gap-2 text-sm transform active:scale-95">
+                                   Login Untuk Pesan
                                 </a>
                                 @endauth
                             @else

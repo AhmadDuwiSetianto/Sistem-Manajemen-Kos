@@ -17,7 +17,6 @@ use Illuminate\Support\Str;
 @section('content')
 <div class="flex-1 p-4 md:p-8">
 
-    <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold text-foreground">Kelola Kamar</h1>
@@ -28,7 +27,6 @@ use Illuminate\Support\Str;
         </a>
     </div>
 
-    <!-- Stats Cards (Mobile: 1 Kolom, Tablet/Desktop: 3 Kolom) -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8">
         <div class="flex flex-col rounded-xl border border-border p-4 md:p-5 bg-white shadow-sm hover:ring-1 hover:ring-primary transition-all">
             <div class="flex items-center gap-3 mb-2">
@@ -61,7 +59,6 @@ use Illuminate\Support\Str;
         </div>
     </div>
 
-    <!-- Tabel Kamar -->
     <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
         <div class="px-5 py-4 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <h2 class="text-base md:text-lg font-bold text-foreground">Daftar Kamar</h2>
@@ -129,14 +126,22 @@ use Illuminate\Support\Str;
                         <td class="px-5 py-3">
                             <div class="flex flex-wrap gap-1 max-w-[150px] md:max-w-[200px]">
                                 @php
-                                    $fasilitasList = is_array($kamar->fasilitas) ? $kamar->fasilitas : explode(',', $kamar->fasilitas);
-                                    $fasilitasList = array_filter($fasilitasList, fn($item) => !empty(trim($item)));
+                                    // 1. Ambil data mentah
+                                    $rawFasilitas = is_array($kamar->fasilitas) ? implode(',', $kamar->fasilitas) : ($kamar->fasilitas ?? '');
+                                    
+                                    // 2. Bersihkan karakter aneh (kurung siku, kutip ganda, dan backslash)
+                                    $cleanFasilitas = str_replace(['[', ']', '"', '\\'], '', $rawFasilitas);
+                                    
+                                    // 3. Pecah berdasarkan koma dan hilangkan spasi kosong
+                                    $fasilitasList = array_filter(array_map('trim', explode(',', $cleanFasilitas)));
                                 @endphp
+
                                 @foreach(array_slice($fasilitasList, 0, 2) as $fasilitas)
                                 <span class="inline-flex items-center bg-muted text-secondary text-[9px] md:text-[10px] font-semibold px-2 py-0.5 rounded-md">
                                     {{ trim($fasilitas) }}
                                 </span>
                                 @endforeach
+
                                 @if(count($fasilitasList) > 2)
                                 <span class="inline-flex items-center bg-primary/10 text-primary text-[9px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-md">
                                     +{{ count($fasilitasList) - 2 }}

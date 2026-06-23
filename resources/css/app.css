@@ -1,16 +1,102 @@
-@import 'tailwindcss';
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+@import "tailwindcss";
 
 @theme {
-    --font-sans: 'Lexend Deca', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Lexend Deca", sans-serif;
+
+    --color-brand-50: #e8f0ff;
+    --color-brand-100: #d1e0ff;
+    --color-brand-500: #3b7dff;
+    --color-brand-600: #165DFF;
+    --color-brand-700: #0E4BD9;
+    --color-brand-800: #0a36a3;
+    --color-brand-900: #082570;
+
+    --color-slate-50: #EFF2F7;
+    --color-slate-100: #F3F4F3;
+    --color-slate-200: #e2e8f0;
+    --color-slate-300: #cbd5e1;
+    --color-slate-400: #94a3b8;
+    --color-slate-500: #6A7686;
+    --color-slate-600: #475569;
+    --color-slate-700: #334155;
+    --color-slate-800: #080C1A;
+    --color-slate-900: #0f172a;
+
+    --color-success: #10B981;
+    --color-success-light: #D1FAE5;
     
-    /* Warna brand khusus Inna Kos untuk notifikasi */
-    --color-brand-50: #f0f4ff;
-    --color-brand-100: #e0e9fe;
-    --color-brand-500: #165DFF;
-    --color-brand-600: #0E4BD9;
+    --color-warning: #F59E0B;
+    --color-warning-light: #FEF3C7;
+    --color-warning-dark: #B45309;
+    
+    --color-error: #EF4444;
+    --color-error-light: #FEE2E2;
+
+    --shadow-soft: 0 4px 20px -2px rgba(22, 93, 255, 0.12);
+    --shadow-floating: 0 10px 40px -10px rgba(8, 12, 26, 0.08);
 }
+
+@layer base {
+    body { 
+        background-color: #F8FAFC; 
+        color: #080C1A; 
+        -webkit-font-smoothing: antialiased;
+        font-family: var(--font-sans);
+    }
+}
+
+/* Transisi Header Landing Page */
+#main-header, .dynamic-text, .dynamic-logo, .dynamic-brand, .dynamic-btn, .dynamic-user, .dynamic-role, .dynamic-icon {
+    transition: all 0.3s ease-in-out;
+}
+
+.header-transparent {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+.header-transparent .dynamic-logo { color: #ffffff; }
+.header-transparent .dynamic-brand { color: #ffffff; } 
+.header-transparent .dynamic-text { color: rgba(255, 255, 255, 0.9); }
+    .header-transparent .dynamic-text:hover { color: #ffffff; }
+.header-transparent .dynamic-btn { background-color: #ffffff; color: #165DFF; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .header-transparent .dynamic-btn:hover { background-color: #f8fafc; transform: translateY(-2px); }
+.header-transparent .dynamic-user { color: #ffffff; }
+.header-transparent .dynamic-role { color: rgba(255, 255, 255, 0.7); }
+.header-transparent .dynamic-icon { color: rgba(255, 255, 255, 0.9); }
+.header-transparent .nav-link.active { color: #ffffff; font-weight: 800; }
+.header-transparent .nav-link.active::after { background-color: #ffffff; }
+
+.header-scrolled {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.6) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+.header-scrolled .dynamic-logo { color: #1e293b; }
+.header-scrolled .dynamic-brand { color: #165DFF; } 
+.header-scrolled .dynamic-text { color: #64748b; }
+    .header-scrolled .dynamic-text:hover { color: #165DFF; }
+.header-scrolled .dynamic-btn { background-color: #165DFF; color: #ffffff; }
+    .header-scrolled .dynamic-btn:hover { background-color: #0E4BD9; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(22, 93, 255, 0.3); }
+.header-scrolled .dynamic-user { color: #1e293b; }
+.header-scrolled .dynamic-role { color: #94a3b8; }
+.header-scrolled .dynamic-icon { color: #94a3b8; }
+.header-scrolled .nav-link.active { color: #165DFF; font-weight: 800; }
+.header-scrolled .nav-link.active::after { background-color: #165DFF; }
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; 
+    height: 3px;
+    border-radius: 4px;
+    transition: all 0.3s ease-in-out;
+}
+.nav-link.active::after { width: 20px; }

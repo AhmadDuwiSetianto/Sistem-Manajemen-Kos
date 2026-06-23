@@ -24,7 +24,7 @@ use Illuminate\Support\Str;
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         <div class="lg:col-span-2">
             <div class="bg-white rounded-2xl shadow-sm border border-border p-5 md:p-8">
-                <form action="{{ route('admin.kamar.update', $kamar) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.kamar.update', $kamar) }}" method="POST" enctype="multipart/form-data" id="kamarForm">
                     @csrf
                     @method('PUT')
                     
@@ -39,7 +39,7 @@ use Illuminate\Support\Str;
                                 $gambarUrl = asset('storage/' . $kamar->gambar);
                             }
                         @endphp
-                        <img src="{{ $gambarUrl }}" class="size-16 md:size-24 rounded-lg object-cover ring-1 ring-border shadow-sm shrink-0">
+                        <img src="{{ $gambarUrl }}" class="size-16 md:size-24 rounded-lg object-cover ring-1 ring-border shadow-sm shrink-0" alt="Gambar Kamar">
                         <div>
                             <p class="text-xs md:text-sm font-semibold text-foreground mb-1">Gambar Terpasang</p>
                             <button type="button" onclick="removeCurrentImage()" class="text-[10px] md:text-xs font-bold text-error hover:text-error-light transition-colors flex items-center gap-1 cursor-pointer">
@@ -59,6 +59,7 @@ use Illuminate\Support\Str;
                             <div>
                                 <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Nomor Kamar <span class="text-error">*</span></label>
                                 <input type="text" name="nomor_kamar" value="{{ old('nomor_kamar', $kamar->nomor_kamar) }}" class="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm transition-all" required>
+                                @error('nomor_kamar')<p class="text-[10px] md:text-xs text-error mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
                                 <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Tipe Kamar <span class="text-error">*</span></label>
@@ -68,10 +69,12 @@ use Illuminate\Support\Str;
                                     <option value="Executive" {{ old('tipe_kamar', $kamar->tipe_kamar) == 'Executive' ? 'selected' : '' }}>Executive</option>
                                     <option value="Vip" {{ old('tipe_kamar', $kamar->tipe_kamar) == 'Vip' ? 'selected' : '' }}>VIP</option>
                                 </select>
+                                @error('tipe_kamar')<p class="text-[10px] md:text-xs text-error mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
                                 <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Harga/Bulan <span class="text-error">*</span></label>
                                 <input type="number" name="harga" value="{{ old('harga', $kamar->harga) }}" class="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm transition-all" min="1000" step="1000" required>
+                                @error('harga')<p class="text-[10px] md:text-xs text-error mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
                                 <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Status <span class="text-error">*</span></label>
@@ -80,6 +83,7 @@ use Illuminate\Support\Str;
                                     <option value="terisi" {{ old('status', $kamar->status) == 'terisi' ? 'selected' : '' }}>Terisi</option>
                                     <option value="maintenance" {{ old('status', $kamar->status) == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
                                 </select>
+                                @error('status')<p class="text-[10px] md:text-xs text-error mt-1">{{ $message }}</p>@enderror
                             </div>
                         </div>
                     </div>
@@ -117,7 +121,12 @@ use Illuminate\Support\Str;
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Fasilitas <span class="text-error">*</span></label>
-                                <textarea id="fasilitas" name="fasilitas" rows="2" class="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm" required>{{ old('fasilitas', $kamar->fasilitas) }}</textarea>
+                                @php
+                                    $currentFasilitas = old('fasilitas', $kamar->fasilitas ?? '');
+                                    $currentFasilitas = str_replace(['[', ']', '"', '\\'], '', $currentFasilitas);
+                                @endphp
+                                <textarea id="fasilitas" name="fasilitas" rows="2" class="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-sm" required>{{ $currentFasilitas }}</textarea>
+                                @error('fasilitas')<p class="text-[10px] md:text-xs text-error mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
                                 <label class="block text-xs md:text-sm font-bold text-foreground mb-1.5">Deskripsi</label>
@@ -133,17 +142,21 @@ use Illuminate\Support\Str;
                         <h3 class="text-sm md:text-base font-bold text-foreground flex items-center gap-2 mb-4">
                             <i data-lucide="image" class="size-4 md:size-5 text-purple-500"></i> Ganti Gambar
                         </h3>
+                        
                         <div id="uploadArea" class="border-2 border-dashed border-border rounded-xl p-6 md:p-8 text-center hover:bg-muted/50 transition-all cursor-pointer">
                             <i data-lucide="upload-cloud" class="size-8 md:size-10 text-secondary mx-auto mb-2"></i>
                             <p class="text-xs md:text-sm font-bold text-foreground">Pilih gambar pengganti</p>
                             <input id="gambar" name="gambar" type="file" class="hidden" accept="image/*">
                         </div>
-                        <div id="imagePreview" class="hidden mt-4 relative inline-block">
-                            <img id="preview" class="h-32 md:h-40 rounded-xl object-cover ring-1 ring-border shadow-sm">
+                        
+                        <!-- ✅ PERBAIKAN: Gunakan style="display: none;" -->
+                        <div id="imagePreview" style="display: none;" class="mt-4 relative inline-block">
+                            <img id="preview" class="h-32 md:h-40 rounded-xl object-cover ring-1 ring-border shadow-sm" alt="Preview Baru">
                             <button type="button" onclick="resetImage()" class="absolute -top-2 -right-2 size-7 md:size-8 bg-white rounded-full shadow-md flex items-center justify-center text-error hover:bg-error-light transition-colors cursor-pointer">
                                 <i data-lucide="x" class="size-3 md:size-4"></i>
                             </button>
                         </div>
+                        @error('gambar')<p class="text-[10px] md:text-xs text-error mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <div class="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4">
@@ -179,6 +192,7 @@ use Illuminate\Support\Str;
     document.addEventListener('DOMContentLoaded', function() {
         lucide.createIcons();
         
+        // --- SCRIPT UPLOAD GAMBAR ---
         const input = document.getElementById('gambar');
         const uploadArea = document.getElementById('uploadArea');
         const previewArea = document.getElementById('imagePreview');
@@ -189,17 +203,24 @@ use Illuminate\Support\Str;
         input.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if(file) {
+                if(file.size > 2 * 1024 * 1024) {
+                    alert('Ukuran gambar terlalu besar! Maksimal 2MB.');
+                    input.value = '';
+                    return;
+                }
                 previewImg.src = URL.createObjectURL(file);
-                uploadArea.classList.add('hidden');
-                previewArea.classList.remove('hidden');
+                // Menukar tampilan dengan memanipulasi property display
+                uploadArea.style.display = 'none';
+                previewArea.style.display = 'inline-block';
             }
         });
 
         window.resetImage = function() {
             input.value = '';
             previewImg.src = '';
-            uploadArea.classList.remove('hidden');
-            previewArea.classList.add('hidden');
+            // Mengembalikan ke tampilan semula
+            uploadArea.style.display = 'block';
+            previewArea.style.display = 'none';
         };
 
         window.removeCurrentImage = function() {
@@ -207,8 +228,21 @@ use Illuminate\Support\Str;
             document.getElementById('current-image-container').classList.add('hidden');
         }
 
-        document.getElementById('fasilitas').addEventListener('blur', function(e) {
-            e.target.value = e.target.value.replace(/\s*,\s*/g, ', ').replace(/\s+/g, ' ').trim();
+        // --- SCRIPT PEMBERSIHAN FASILITAS ---
+        const fasilitasInput = document.getElementById('fasilitas');
+        const kamarForm = document.getElementById('kamarForm');
+
+        function cleanFasilitasString(val) {
+            val = val.replace(/[\[\]"\\]/g, ''); 
+            return val.split(',').map(item => item.trim()).filter(item => item !== "").join(', ');
+        }
+
+        fasilitasInput.addEventListener('blur', function(e) {
+            e.target.value = cleanFasilitasString(e.target.value);
+        });
+
+        kamarForm.addEventListener('submit', function() {
+            fasilitasInput.value = cleanFasilitasString(fasilitasInput.value);
         });
     });
 </script>

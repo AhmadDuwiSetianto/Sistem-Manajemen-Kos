@@ -9,7 +9,7 @@ use App\Models\Pembayaran;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash; // ✅ Wajib ditambahkan untuk fungsi Hash Password
+use Illuminate\Support\Facades\Hash;
 
 class DashboardController extends Controller
 {
@@ -37,6 +37,10 @@ class DashboardController extends Controller
             $checkedInBookingsCount = Booking::where('status', 'checked_in')->count();
             $pendingPaymentsCount = Pembayaran::where('status', 'pending')->count();
 
+            // ✅ MENGHITUNG TOTAL PENDAPATAN NYATA DARI DATABASE
+            // Menjumlahkan kolom 'jumlah' dari tabel pembayaran yang statusnya 'paid'
+            $totalPendapatan = Pembayaran::where('status', 'paid')->sum('jumlah');
+
             // Data untuk tables
             $recentBookings = Booking::with(['user', 'kamar'])
                 ->latest()
@@ -47,6 +51,11 @@ class DashboardController extends Controller
                 ->latest()
                 ->take(5)
                 ->get();
+
+            // ✅ DATA GRAFIK PENDAPATAN 
+            // Bulan Jan-Mei masih dummy, bulan Juni otomatis mengambil data asli dari database
+            $chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'];
+            $chartData = [4500000, 6000000, 5500000, 8000000, 7500000, $totalPendapatan];
 
             return view('admin.dashboard', compact(
                 'totalKamar',
@@ -62,11 +71,14 @@ class DashboardController extends Controller
                 'checkedInBookingsCount',
                 'pendingPaymentsCount',
                 'recentBookings',
-                'recentUsers'
+                'recentUsers',
+                'chartLabels',
+                'chartData',
+                'totalPendapatan' // ✅ Mengirim total pendapatan ke Card View
             ));
 
         } catch (\Exception $e) {
-            // Fallback values jika ada error
+            // Fallback values jika ada error database
             return view('admin.dashboard', [
                 'totalKamar' => 0,
                 'kamarTersedia' => 0,
@@ -82,6 +94,9 @@ class DashboardController extends Controller
                 'pendingPaymentsCount' => 0,
                 'recentBookings' => collect(),
                 'recentUsers' => collect(),
+                'chartLabels' => ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+                'chartData' => [0, 0, 0, 0, 0, 0],
+                'totalPendapatan' => 0 // ✅ Fallback total pendapatan
             ]);
         }
     }
@@ -100,7 +115,6 @@ class DashboardController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . Auth::id(),
-            // tambahkan validasi lain jika ada input tambahan (misal no_hp)
         ]);
 
         $user = Auth::user();
@@ -112,7 +126,6 @@ class DashboardController extends Controller
         return back()->with('success', 'Profil berhasil diperbarui.');
     }
 
-    // ✅ FUNGSI INI YANG TADI BIKIN ERROR (KARENA BELUM ADA)
     public function updatePassword(Request $request)
     {
         $request->validate([
