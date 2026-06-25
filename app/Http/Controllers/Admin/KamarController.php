@@ -32,7 +32,6 @@ class KamarController extends Controller
     }
 
     /**
-     * 🔥 FUNGSI INI YANG HILANG SEBELUMNYA (STORE) 🔥
      * Simpan data kamar baru ke database
      */
     public function store(Request $request)

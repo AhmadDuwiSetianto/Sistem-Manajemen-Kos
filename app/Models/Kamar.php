@@ -53,7 +53,7 @@ class Kamar extends Model
     */
 
     // ============ CONSTANTS (DIPERBAIKI) ============
-    const STATUS_TERSEDIA = 'tersedia'; // ✅ FIX: Sebelumnya TYPO (STATUS_TESEDIA)
+    const STATUS_TERSEDIA = 'tersedia';
     const STATUS_DIPESAN = 'dipesan';
     const STATUS_TERISI = 'terisi';
     const STATUS_MAINTENANCE = 'maintenance';

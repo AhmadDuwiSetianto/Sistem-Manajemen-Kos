@@ -15,7 +15,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 🔥 SATPAM 2: Jika User Biasa coba masuk sini, Tampilkan Error 403
         if (Auth::user()->role !== 'admin') {
             abort(403, 'ANDA TIDAK MEMILIKI AKSES ADMIN!');
         }
@@ -37,7 +36,6 @@ class DashboardController extends Controller
             $checkedInBookingsCount = Booking::where('status', 'checked_in')->count();
             $pendingPaymentsCount = Pembayaran::where('status', 'pending')->count();
 
-            // ✅ MENGHITUNG TOTAL PENDAPATAN NYATA DARI DATABASE
             // Menjumlahkan kolom 'jumlah' dari tabel pembayaran yang statusnya 'paid'
             $totalPendapatan = Pembayaran::where('status', 'paid')->sum('jumlah');
 
@@ -52,7 +50,6 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get();
 
-            // ✅ DATA GRAFIK PENDAPATAN 
             // Bulan Jan-Mei masih dummy, bulan Juni otomatis mengambil data asli dari database
             $chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'];
             $chartData = [4500000, 6000000, 5500000, 8000000, 7500000, $totalPendapatan];
@@ -74,7 +71,7 @@ class DashboardController extends Controller
                 'recentUsers',
                 'chartLabels',
                 'chartData',
-                'totalPendapatan' // ✅ Mengirim total pendapatan ke Card View
+                'totalPendapatan'
             ));
 
         } catch (\Exception $e) {
@@ -96,7 +93,7 @@ class DashboardController extends Controller
                 'recentUsers' => collect(),
                 'chartLabels' => ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
                 'chartData' => [0, 0, 0, 0, 0, 0],
-                'totalPendapatan' => 0 // ✅ Fallback total pendapatan
+                'totalPendapatan' => 0
             ]);
         }
     }
@@ -117,6 +114,7 @@ class DashboardController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . Auth::id(),
         ]);
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $user->update([
             'name' => $request->name,
@@ -137,6 +135,7 @@ class DashboardController extends Controller
             'password.min' => 'Password baru minimal harus 8 karakter.'
         ]);
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $user->update([
             'password' => Hash::make($request->password)
@@ -151,18 +150,25 @@ class DashboardController extends Controller
 
     public function notifications()
     {
-        $notifications = Auth::user()->notifications()->paginate(10);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $notifications = $user->notifications()->paginate(10);
+        
         return view('admin.notifications.index', compact('notifications')); 
     }
 
     public function markAllRead()
     {
-        Auth::user()->unreadNotifications->markAsRead();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $user->unreadNotifications->markAsRead();
+        
         return back()->with('success', 'Semua notifikasi telah ditandai dibaca.');
     }
 
     public function latestNotifications()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $unreadCount = $user->unreadNotifications->count();
         

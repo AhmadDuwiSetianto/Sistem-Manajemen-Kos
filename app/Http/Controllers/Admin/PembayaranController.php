@@ -53,8 +53,9 @@ class PembayaranController extends Controller
 
     /**
      * Menampilkan detail pembayaran (Invoice / Bukti Bayar)
+     * * @param string $id
      */
-    public function show($id)
+    public function show(string $id) // ✅ Penambahan tipe data 'string' di sini
     {
         $pembayaran = Pembayaran::with(['user', 'booking.kamar'])->findOrFail($id);
         
@@ -63,8 +64,9 @@ class PembayaranController extends Controller
 
     /**
      * Verifikasi (Approve) pembayaran yang masuk (Manual)
+     * * @param string $id
      */
-    public function verify($id)
+    public function verify(string $id) // ✅ Penambahan tipe data 'string' di sini
     {
         $pembayaran = Pembayaran::findOrFail($id);
         
@@ -81,14 +83,18 @@ class PembayaranController extends Controller
                 $booking->update(['status' => 'confirmed']);
                 
                 if ($booking->kamar) {
-                    $booking->kamar->update(['status' => 'terisi']);
+                    /** @var \App\Models\Kamar $kamar */
+                    $kamar = $booking->kamar;
+                    $kamar->update(['status' => 'terisi']);
                 }
             }
         }
 
         // Ubah role user jadi penghuni jika sebelumnya masih calon
         if ($pembayaran->user && $pembayaran->user->role === 'calon_penghuni') {
-            $pembayaran->user->update(['role' => 'penghuni']);
+            /** @var \App\Models\User $user */
+            $user = $pembayaran->user;
+            $user->update(['role' => 'penghuni']);
         }
 
         return redirect()->back()->with('success', 'Pembayaran berhasil diverifikasi & dikonfirmasi!');
@@ -96,8 +102,9 @@ class PembayaranController extends Controller
 
     /**
      * Tolak (Reject) pembayaran jika bukti transfer tidak valid (Manual)
+     * * @param string $id
      */
-    public function reject($id)
+    public function reject(string $id) // ✅ Penambahan tipe data 'string' di sini
     {
         $pembayaran = Pembayaran::findOrFail($id);
         
@@ -115,7 +122,9 @@ class PembayaranController extends Controller
                 // Pastikan kamar dikosongkan lagi JIKA ini bukan perpanjangan (extend)
                 $isPerpanjangan = str_contains($booking->catatan ?? '', 'Perpanjangan');
                 if ($booking->kamar && !$isPerpanjangan) {
-                    $booking->kamar->update(['status' => 'tersedia']);
+                    /** @var \App\Models\Kamar $kamar */
+                    $kamar = $booking->kamar;
+                    $kamar->update(['status' => 'tersedia']);
                 }
             }
         }

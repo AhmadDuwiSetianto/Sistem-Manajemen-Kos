@@ -5,15 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Kamar;
 use App\Models\Pembayaran;
-use App\Models\User; // ✅ DITAMBAHKAN: Untuk memanggil akun Admin
+use App\Models\User;
 use App\Notifications\PaymentNotification;
-use App\Notifications\AdminNotification; // ✅ DITAMBAHKAN: Class Notifikasi Admin
+use App\Notifications\AdminNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Notification; // ✅ DITAMBAHKAN: Facade Notifikasi
+use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;
 use Midtrans\Snap;
 use Midtrans\Config;
@@ -51,6 +51,7 @@ class BookingController extends Controller
             return redirect()->route('login')->with('error', 'Silakan login untuk memesan kamar.');
         }
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if (!$user->isCalonPenghuni() && !$user->isAdmin()) {
@@ -94,6 +95,7 @@ class BookingController extends Controller
 
         DB::beginTransaction();
         try {
+            /** @var \App\Models\User $user */
             $user = Auth::user();
             $durasiBulan = (int) $request->durasi;
             $totalHarga = $kamar->harga * $durasiBulan;
@@ -132,9 +134,9 @@ class BookingController extends Controller
             defer(function () use ($user, $kamar) {
                 $admins = User::where('role', 'admin')->get();
                 Notification::send($admins, new AdminNotification(
-                    'Pemesanan Kamar Baru', 
-                    $user->name . ' telah memesan Kamar ' . $kamar->nomor_kamar . ' dan sedang menunggu pembayaran.', 
-                    route('admin.booking.index'), 
+                    'Pemesanan Kamar Baru',
+                    $user->name . ' telah memesan Kamar ' . $kamar->nomor_kamar . ' dan sedang menunggu pembayaran.',
+                    route('admin.booking.index'),
                     'calendar-plus' // Icon kalender
                 ));
             });
@@ -151,11 +153,14 @@ class BookingController extends Controller
     // =========================================================================
     // 3. HALAMAN PEMBAYARAN
     // =========================================================================
-    public function payment($id)
+    public function payment(string $id)
     {
         $pembayaran = Pembayaran::with(['booking.kamar', 'user'])->findOrFail($id);
 
-        if ($pembayaran->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        if ($pembayaran->user_id !== Auth::id() && !$currentUser->isAdmin()) {
             abort(403);
         }
 
@@ -183,7 +188,7 @@ class BookingController extends Controller
     // =========================================================================
     // 4. MANUAL CHECK STATUS
     // =========================================================================
-    public function checkStatus($id)
+    public function checkStatus(string $id)
     {
         $pembayaran = Pembayaran::findOrFail($id);
         $this->checkMidtransStatus($pembayaran);
@@ -201,7 +206,7 @@ class BookingController extends Controller
     // =========================================================================
     // 5. HALAMAN STRUK
     // =========================================================================
-    public function receipt($id)
+    public function receipt(string $id)
     {
         $pembayaran = Pembayaran::with(['booking.kamar', 'user'])->findOrFail($id);
 
@@ -221,7 +226,8 @@ class BookingController extends Controller
         $this->_configureMidtrans();
 
         try {
-            $status = Transaction::status($pembayaran->kode_pembayaran);
+            /** @var \stdClass $status */
+            $status = (object) Transaction::status($pembayaran->kode_pembayaran);
             $transactionStatus = $status->transaction_status;
 
             $type = $status->payment_type;
@@ -251,7 +257,7 @@ class BookingController extends Controller
         }
     }
 
-    private function updatePaymentToDB(Pembayaran $pembayaran, $status, $method = null)
+    private function updatePaymentToDB(Pembayaran $pembayaran, string $status, ?string $method = null)
     {
         if ($pembayaran->status === $status) return;
 
@@ -279,40 +285,33 @@ class BookingController extends Controller
 
                 // ========================================================
                 // PERBAIKAN PERFORMA: Gunakan defer() bawaan Laravel 11/12
-                // Mengeksekusi pengiriman Email & WA SETELAH browser user 
-                // menampilkan halaman sukses (Instan Loading)
                 // ========================================================
                 defer(function () use ($pembayaran) {
                     $this->sendNotificationEmail($pembayaran, 'success');
                     $pembayaran->user->notify(new PaymentNotification($pembayaran, 'success'));
 
-                    // ✅ MENGIRIM NOTIFIKASI KE ADMIN (PEMBAYARAN LUNAS)
                     $admins = User::where('role', 'admin')->get();
                     Notification::send($admins, new AdminNotification(
-                        'Pembayaran Berhasil', 
-                        'Pembayaran sebesar Rp ' . number_format($pembayaran->jumlah, 0, ',', '.') . ' dari ' . $pembayaran->user->name . ' telah lunas diverifikasi.', 
-                        route('admin.pembayaran.index'), 
-                        'check-circle' // Icon centang hijau
+                        'Pembayaran Berhasil',
+                        'Pembayaran sebesar Rp ' . number_format($pembayaran->jumlah, 0, ',', '.') . ' dari ' . $pembayaran->user->name . ' telah lunas diverifikasi.',
+                        route('admin.pembayaran.index'),
+                        'check-circle'
                     ));
                 });
-
             } else if ($status == Pembayaran::STATUS_EXPIRED || $status == 'cancelled') {
                 $pembayaran->booking->update(['status' => Booking::STATUS_CANCELLED]);
-                
+
                 if (!$isPerpanjangan) {
                     $pembayaran->booking->kamar->update(['status' => 'tersedia']);
                 }
-                
+
                 $user = $pembayaran->user;
                 $hasActiveBooking = $user->bookings()->whereIn('status', [Booking::STATUS_CONFIRMED, Booking::STATUS_CHECKED_IN])->exists();
-                
+
                 if (!$hasActiveBooking && $user->role !== 'admin') {
                     $user->update(['role' => 'calon_penghuni']);
                 }
 
-                // ========================================================
-                // PERBAIKAN PERFORMA: Gunakan defer() untuk notif expired
-                // ========================================================
                 defer(function () use ($pembayaran) {
                     $this->sendNotificationEmail($pembayaran, 'expired');
                     $pembayaran->user->notify(new PaymentNotification($pembayaran, 'expired'));
@@ -324,7 +323,7 @@ class BookingController extends Controller
     // =========================================================================
     // 7. FUNGSI PENGIRIMAN EMAIL
     // =========================================================================
-    private function sendNotificationEmail(Pembayaran $pembayaran, $type)
+    private function sendNotificationEmail(Pembayaran $pembayaran, string $type)
     {
         $user = $pembayaran->user;
         $kamar = $pembayaran->booking->kamar;
@@ -357,7 +356,7 @@ class BookingController extends Controller
         }
 
         try {
-            Mail::html($htmlContent, function($message) use ($user, $subject) {
+            Mail::html($htmlContent, function ($message) use ($user, $subject) {
                 $message->to($user->email)->subject($subject);
             });
         } catch (\Exception $e) {
@@ -368,7 +367,7 @@ class BookingController extends Controller
     // =========================================================================
     // 8. GENERATE SNAP TOKEN & UTILS
     // =========================================================================
-    private function generateSnapToken($pembayaran, $user, $kamar)
+    private function generateSnapToken(Pembayaran $pembayaran, User $user, Kamar $kamar)
     {
         $this->_configureMidtrans();
         $params = [
@@ -391,13 +390,14 @@ class BookingController extends Controller
         return Snap::getSnapToken($params);
     }
 
-    public function cancelPayment($id)
+    public function cancelPayment(string $id)
     {
         $pembayaran = Pembayaran::findOrFail($id);
         try {
             $this->_configureMidtrans();
             Transaction::cancel($pembayaran->kode_pembayaran);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         $this->updatePaymentToDB($pembayaran, 'cancelled');
         return redirect()->route('home')->with('success', 'Pemesanan dibatalkan.');
@@ -417,10 +417,11 @@ class BookingController extends Controller
     public function processExtend(Request $request, Booking $booking)
     {
         $request->validate(['durasi' => 'required|integer|min:1|max:12']);
-        $durasiBulan = (int) $request->durasi; 
+        $durasiBulan = (int) $request->durasi;
 
         DB::beginTransaction();
         try {
+            /** @var \App\Models\User $user */
             $user = Auth::user();
             $kamar = $booking->kamar;
             $tanggalMasukBaru = Carbon::parse($booking->tanggal_keluar);
@@ -447,19 +448,16 @@ class BookingController extends Controller
             ]);
 
             $pembayaran->update(['snap_token' => $this->generateSnapToken($pembayaran, $user, $kamar)]);
-            
+
             DB::commit();
 
-            // ========================================================
-            // ✅ MENGIRIM NOTIFIKASI KE ADMIN (PERPANJANGAN KAMAR)
-            // ========================================================
             defer(function () use ($user, $kamar) {
                 $admins = User::where('role', 'admin')->get();
                 Notification::send($admins, new AdminNotification(
-                    'Perpanjangan Kamar', 
-                    $user->name . ' telah mengajukan perpanjangan Kamar ' . $kamar->nomor_kamar . ' selama ' . request()->durasi . ' bulan.', 
-                    route('admin.booking.index'), 
-                    'clock' // Icon jam (waktu)
+                    'Perpanjangan Kamar',
+                    $user->name . ' telah mengajukan perpanjangan Kamar ' . $kamar->nomor_kamar . ' selama ' . request()->durasi . ' bulan.',
+                    route('admin.booking.index'),
+                    'clock'
                 ));
             });
 

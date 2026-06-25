@@ -185,7 +185,9 @@ class AuthController extends Controller
     // ==========================================
     // Fungsi ini dipanggil untuk memastikan setiap selesai Login/Verifikasi,
     // user diarahkan ke halaman yang benar sesuai jabatannya.
-    private function redirectBasedOnRole($user)
+    
+    // ✅ PERBAIKAN: Menambahkan type hint 'User' pada parameter $user
+    private function redirectBasedOnRole(User $user)
     {
         if ($user->isAdmin()) {
             return redirect()->intended(route('admin.dashboard'));

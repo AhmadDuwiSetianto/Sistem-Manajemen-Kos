@@ -124,8 +124,6 @@
                             <p class="text-[10px] md:text-xs text-secondary mt-1">Format PNG/JPG (Maks 2MB)</p>
                             <input id="gambar" name="gambar" type="file" class="hidden" accept="image/*">
                         </div>
-                        
-                        <!-- ✅ PERBAIKAN: Gunakan style="display: none;" -->
                         <div id="imagePreview" style="display: none;" class="mt-4 relative inline-block">
                             <img id="preview" src="" class="h-32 md:h-40 rounded-xl object-cover ring-1 ring-border shadow-sm" alt="Preview Image">
                             <button type="button" onclick="resetImage()" class="absolute -top-2 -right-2 size-7 md:size-8 bg-white rounded-full shadow-md flex items-center justify-center text-error hover:bg-error-light transition-colors cursor-pointer">

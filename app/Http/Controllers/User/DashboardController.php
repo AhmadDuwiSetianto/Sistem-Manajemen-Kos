@@ -28,7 +28,7 @@ class DashboardController extends Controller
     }
 
     // 3. Halaman Detail Satu Booking (INI FUNGSI YANG HILANG TADI)
-    public function showBooking($id)
+    public function showBooking(string $id) // ✅ Penambahan tipe data 'string' pada parameter $id
     {
         $booking = Booking::where('user_id', Auth::id())
             ->with(['kamar', 'pembayaran'])
@@ -58,6 +58,7 @@ class DashboardController extends Controller
     // 6. Proses Update Profil
     public function updateProfile(Request $request)
     {
+        /** @var \App\Models\User $user */ // ✅ Membantu IDE mengenali bahwa ini adalah Model User
         $user = Auth::user();
         
         $request->validate([

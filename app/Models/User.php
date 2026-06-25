@@ -7,10 +7,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Contracts\Auth\MustVerifyEmail; // 1. TAMBAHKAN INI
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 // 2. TAMBAHKAN "implements MustVerifyEmail"
-class User extends Authenticatable implements MustVerifyEmail 
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
@@ -177,7 +177,7 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($this->profile_image && Storage::disk('public')->exists('profile_images/' . $this->profile_image)) {
             return Storage::disk('public')->url('profile_images/' . $this->profile_image);
         }
-        
+
         // Default avatar
         $params = http_build_query([
             'name' => $this->name,
@@ -199,9 +199,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $allowedRoles = ['calon_penghuni', 'admin'];
 
-        return in_array($this->role, $allowedRoles) && 
-               !$this->hasActiveBooking() && 
-               $this->isActive();
+        return in_array($this->role, $allowedRoles) &&
+            !$this->hasActiveBooking() &&
+            $this->isActive();
     }
 
     // ============ UTILITY METHODS ============

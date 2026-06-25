@@ -73,7 +73,6 @@ class Pembayaran extends Model
         return $this->status === self::STATUS_CANCELLED;
     }
 
-    // ✅ PERBAIKAN: Logic isOverdue yang benar dan konsisten
     public function isOverdue(): bool
     {
         // Hanya cek overdue untuk pembayaran yang statusnya masih pending

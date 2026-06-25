@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Kamar;
 use App\Models\Pembayaran;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -19,19 +20,19 @@ class UserController extends Controller
     {
         $activeBooking = Booking::whereIn('status', ['confirmed', 'checked_in'])->count();
         $users = User::with(['bookings.kamar'])
-                    ->latest()
-                    ->paginate(10);
-                    
+            ->latest()
+            ->paginate(10);
+
         $totalUsers = User::count();
         $adminCount = User::where('role', 'admin')->count();
         $penghuniCount = User::where('role', 'penghuni')->count();
         $calonPenghuniCount = User::where('role', 'calon_penghuni')->count();
 
         return view('admin.user.index', compact(
-            'users', 
-            'totalUsers', 
-            'adminCount', 
-            'penghuniCount', 
+            'users',
+            'totalUsers',
+            'adminCount',
+            'penghuniCount',
             'calonPenghuniCount',
             'activeBooking'
         ));
@@ -47,13 +48,11 @@ class UserController extends Controller
     public function create()
     {
         $activeBooking = Booking::whereIn('status', ['confirmed', 'checked_in'])->count();
-        // ✅ DITAMBAHKAN: Mengambil kamar yang tersedia untuk dropdown form
         $kamarTersedia = Kamar::where('status', 'tersedia')->get();
-        
+
         return view('admin.user.create', compact('activeBooking', 'kamarTersedia'));
     }
 
-    // ✅ DITAMBAHKAN: Fungsi Store dengan Logika Alokasi Kamar
     public function store(Request $request)
     {
         $request->validate([
@@ -143,7 +142,7 @@ class UserController extends Controller
             'identity_number' => 'nullable|string|max:50'
         ]);
 
-        $oldRole = $user->role; 
+        $oldRole = $user->role;
 
         $data = $request->only(['name', 'email', 'role', 'phone', 'address', 'identity_number']);
 
@@ -162,7 +161,6 @@ class UserController extends Controller
             DB::commit();
             return redirect()->route('admin.user.index')
                 ->with('success', 'User berhasil diupdate dan status kamar telah disinkronkan.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Update User Error: ' . $e->getMessage());
@@ -172,7 +170,8 @@ class UserController extends Controller
 
     public function toggleStatus(User $user)
     {
-        if ($user->id === auth()->id()) {
+        // ✅ Menggunakan Auth::id() agar terbaca sempurna oleh IDE
+        if ($user->id === Auth::id()) {
             return redirect()->back()
                 ->with('error', 'Tidak dapat menonaktifkan akun sendiri.');
         }
@@ -189,10 +188,9 @@ class UserController extends Controller
 
             DB::commit();
             $statusStr = $newStatus ? 'diaktifkan' : 'dinonaktifkan dan kamar dikosongkan';
-            
+
             return redirect()->back()
                 ->with('success', "Akun user {$user->name} berhasil {$statusStr}.");
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Toggle Status Error: ' . $e->getMessage());
@@ -202,7 +200,8 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        if ($user->id === auth()->id()) {
+        // ✅ Menggunakan Auth::id() agar terbaca sempurna oleh IDE
+        if ($user->id === Auth::id()) {
             return redirect()->route('admin.user.index')
                 ->with('error', 'Tidak dapat menghapus akun sendiri');
         }

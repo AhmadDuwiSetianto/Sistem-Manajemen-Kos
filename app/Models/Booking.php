@@ -12,7 +12,6 @@ class Booking extends Model
 
     protected $table = 'bookings';
 
-    // ✅ PERBAIKAN 1: Menambahkan 'tanggal_keluar' ke fillable
     protected $fillable = [
         'user_id',
         'kamar_id',
