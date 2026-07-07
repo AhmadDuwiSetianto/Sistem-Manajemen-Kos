@@ -149,3 +149,15 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 Route::prefix('api')->middleware(['auth'])->group(function () {
     Route::get('/check-booking-status/{pembayaran}', [BookingController::class, 'checkBookingStatus'])->name('api.booking.status');
 });
+// ====================================================
+// DEBUGGING ROUTE (TAMBAHKAN INI DI PALING BAWAH)
+// ====================================================
+use Illuminate\Support\Facades\DB;
+
+Route::get('/cek-db', function () {
+    try {
+        return 'Berhasil konek ke database bernama: ' . DB::connection()->getDatabaseName() . ' | Menggunakan driver: ' . DB::connection()->getDriverName();
+    } catch (\Exception $e) {
+        return 'Gagal konek: ' . $e->getMessage();
+    }
+});
