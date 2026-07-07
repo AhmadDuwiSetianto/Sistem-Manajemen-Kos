@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         
+        // 1. TAMBAHKAN BARIS INI: Memaksa Laravel memercayai proxy Vercel agar HTTPS terbaca sempurna
+        $middleware->trustProxies(at: '*');
+
         // Mendaftarkan alias middleware khusus aplikasi Anda
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
