@@ -173,7 +173,6 @@ class BookingController extends Controller
         }
     }
 
-    // ✅ METHOD DESTROY - Hapus Data Permanen
     public function destroy(Booking $booking)
     {
         try {

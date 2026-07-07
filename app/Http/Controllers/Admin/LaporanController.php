@@ -247,7 +247,6 @@ class LaporanController extends Controller
             $filterBulan = $request->get('bulan', date('Y-m'));
             $filterTahun = $request->get('tahun', date('Y'));
 
-            // ✅ PERBAIKAN: 'paid'
             $baseQuery = Pembayaran::where('status', 'paid')
                 ->with(['user', 'booking.kamar']);
 
