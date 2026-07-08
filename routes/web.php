@@ -161,3 +161,13 @@ Route::get('/cek-db', function () {
         return 'Gagal konek: ' . $e->getMessage();
     }
 });
+Route::get('/cek-env', function () {
+    $cloudinary = env('CLOUDINARY_URL');
+    
+    if ($cloudinary) {
+        // Menampilkan 25 karakter pertama saja demi keamanan kredensial kamu
+        return "<h3>Berhasil!</h3> Laravel di Vercel bisa membaca CLOUDINARY_URL dengan aman.<br>Potongan URL: <code>" . substr($cloudinary, 0, 25) . "...</code>";
+    } else {
+        return "<h3>GAGAL!</h3> Laravel di Vercel membaca CLOUDINARY_URL sebagai <strong>NULL</strong> (kosong).";
+    }
+});
