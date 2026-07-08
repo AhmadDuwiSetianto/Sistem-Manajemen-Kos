@@ -39,18 +39,21 @@ use Illuminate\Support\Str;
         <div class="size-16 md:size-20 shrink-0 bg-slate-100 rounded-xl md:rounded-2xl overflow-hidden ring-1 ring-slate-200">
              @php
                 $gambarKamar = asset('images/default-room.jpg');
-                if ($pembayaran->booking->kamar->gambar) {
-                    // Tambahkan \Illuminate\Support\ di depan Str
-                    if (\Illuminate\Support\Str::startsWith($pembayaran->booking->kamar->gambar, ['http://', 'https://'])) {
-                        $gambarKamar = $pembayaran->booking->kamar->gambar;
+                $kamarGambar = $pembayaran->booking->kamar->gambar;
+                
+                if ($kamarGambar) {
+                    if (\Illuminate\Support\Str::startsWith($kamarGambar, ['http://', 'https://'])) {
+                        // Menggunakan w_200 karena container-nya kecil (efisiensi maksimal)
+                        $gambarKamar = \Illuminate\Support\Str::replace('/upload/', '/upload/q_auto,f_auto,w_200/', $kamarGambar);
                     } else {
-                        $gambarKamar = asset('storage/' . $pembayaran->booking->kamar->gambar);
+                        $gambarKamar = asset('storage/' . $kamarGambar);
                     }
                 }
             @endphp
-            <img src="{{ $gambarKamar }}" class="w-full h-full object-cover">
+            <img src="{{ $gambarKamar }}" loading="lazy" class="w-full h-full object-cover">
         </div>
-                    
+    </div>
+</div>  
                     <div class="flex-1 flex flex-col justify-center min-w-0">
                         <h3 class="font-black text-base md:text-lg text-slate-800 mb-0.5 md:mb-1 truncate">Kamar {{ $pembayaran->booking->kamar->nomor_kamar }}</h3>
                         <p class="text-[11px] md:text-xs text-slate-500 font-medium">Durasi: {{ $pembayaran->booking->durasi }} Bulan</p>

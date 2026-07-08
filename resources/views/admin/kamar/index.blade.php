@@ -86,16 +86,24 @@ use Illuminate\Support\Str;
                         <td class="px-5 py-3 whitespace-nowrap">
                             <div class="flex items-center gap-3">
                                 @php
-                                    $gambarUrl = asset('images/default-room.jpg');
-                                    if ($kamar->gambar) {
-                                        if (Str::startsWith($kamar->gambar, ['http://', 'https://'])) {
-                                            $gambarUrl = $kamar->gambar;
-                                        } elseif (Storage::disk('public')->exists($kamar->gambar)) {
-                                            $gambarUrl = asset('storage/' . $kamar->gambar);
-                                        }
-                                    }
-                                @endphp
-                                <img src="{{ $gambarUrl }}" alt="Kamar" class="size-10 md:size-12 rounded-lg object-cover ring-1 ring-border shrink-0">
+    $gambarUrl = asset('images/default-room.jpg');
+    
+    if ($kamar->gambar) {
+        // Cek apakah link eksternal (Cloudinary)
+        if (\Illuminate\Support\Str::startsWith($kamar->gambar, ['http://', 'https://'])) {
+            // Gunakan Str::replace untuk menyisipkan parameter optimasi (q_auto, f_auto, w_100)
+            $gambarUrl = \Illuminate\Support\Str::replace('/upload/', '/upload/q_auto,f_auto,w_100/', $kamar->gambar);
+        } 
+        // Cek apakah file ada di storage lokal
+        elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($kamar->gambar)) {
+            $gambarUrl = asset('storage/' . $kamar->gambar);
+        }
+    }
+@endphp
+                                <img src="{{ $gambarUrl }}" 
+     alt="Kamar" 
+     loading="lazy" 
+     class="size-10 md:size-12 rounded-lg object-cover ring-1 ring-border shrink-0">
                                 <div>
                                     <p class="text-xs md:text-sm font-bold text-foreground">Kamar {{ $kamar->nomor_kamar }}</p>
                                     <p class="text-[10px] md:text-xs text-secondary mt-0.5 truncate max-w-[120px]">{{ Str::limit($kamar->deskripsi, 25) }}</p>

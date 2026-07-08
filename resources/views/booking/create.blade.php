@@ -154,7 +154,9 @@
                     
                     <div class="flex items-center gap-3 md:gap-4 mb-5 md:mb-6 bg-slate-50 p-3 md:p-3.5 rounded-xl md:rounded-2xl border border-slate-200">
                         @if($kamar->gambar)
-                            <img src="{{ \Illuminate\Support\Str::startsWith($theKamar->gambar, ['http://', 'https://']) ? $theKamar->gambar : asset('storage/' . $theKamar->gambar) }}" class="size-14 md:size-16 rounded-lg md:rounded-xl object-cover ring-1 ring-slate-200 shrink-0">
+                            <img src="{{ \Illuminate\Support\Str::startsWith($theKamar->gambar, ['http://', 'https://']) ? \Illuminate\Support\Str::replace('/upload/', '/upload/q_auto,f_auto,w_150/', $theKamar->gambar) : asset('storage/' . $theKamar->gambar) }}" 
+     loading="lazy" 
+     class="size-14 md:size-16 rounded-lg md:rounded-xl object-cover ring-1 ring-slate-200 shrink-0">
                         @else
                             <div class="size-14 md:size-16 rounded-lg md:rounded-xl bg-slate-100 flex items-center justify-center ring-1 ring-slate-200 shrink-0">
                                 <i data-lucide="bed-double" class="size-5 md:size-6 text-slate-400"></i>

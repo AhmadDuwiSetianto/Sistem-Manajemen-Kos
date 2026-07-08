@@ -23,7 +23,9 @@
                 <div class="bg-white rounded-3xl p-2 shadow-sm border border-slate-200">
                     <div class="relative h-[250px] sm:h-[350px] lg:h-[400px] rounded-[1.25rem] overflow-hidden group bg-slate-100">
                         @if($kamar->gambar)
-                            <img src="{{ \Illuminate\Support\Str::startsWith($kamar->gambar, ['http://', 'https://']) ? $kamar->gambar : asset('storage/' . $kamar->gambar) }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                            <img src="{{ \Illuminate\Support\Str::startsWith($kamar->gambar, ['http://', 'https://']) ? \Illuminate\Support\Str::replace('/upload/', '/upload/q_auto,f_auto,w_800/', $kamar->gambar) : asset('storage/' . $kamar->gambar) }}" 
+     loading="lazy" 
+     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                         @else
                             <img src="https://images.unsplash.com/photo-1522771753035-4a5046216955?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-700">
                         @endif

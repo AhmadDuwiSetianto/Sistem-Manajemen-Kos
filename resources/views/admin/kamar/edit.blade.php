@@ -32,14 +32,23 @@ use Illuminate\Support\Str;
                     @if($kamar->gambar)
                     <div class="mb-6 md:mb-8 p-3 md:p-4 bg-muted/50 rounded-xl border border-border flex items-center gap-4 md:gap-6" id="current-image-container">
                         @php
-                            $gambarUrl = asset('images/default-room.jpg');
-                            if (Str::startsWith($kamar->gambar, ['http://', 'https://'])) {
-                                $gambarUrl = $kamar->gambar;
-                            } elseif (Storage::disk('public')->exists($kamar->gambar)) {
-                                $gambarUrl = asset('storage/' . $kamar->gambar);
-                            }
-                        @endphp
-                        <img src="{{ $gambarUrl }}" class="size-16 md:size-24 rounded-lg object-cover ring-1 ring-border shadow-sm shrink-0" alt="Gambar Kamar">
+    $gambarUrl = asset('images/default-room.jpg');
+    
+    // Pastikan $kamar->gambar ada nilainya sebelum memproses
+    if ($kamar->gambar) {
+        if (\Illuminate\Support\Str::startsWith($kamar->gambar, ['http://', 'https://'])) {
+            // Transformasi Cloudinary: Kompres otomatis + WebP + Resize 200px
+            $gambarUrl = \Illuminate\Support\Str::replace('/upload/', '/upload/q_auto,f_auto,w_200/', $kamar->gambar);
+        } elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($kamar->gambar)) {
+            $gambarUrl = asset('storage/' . $kamar->gambar);
+        }
+    }
+@endphp
+
+<img src="{{ $gambarUrl }}" 
+     loading="lazy" 
+     class="size-16 md:size-24 rounded-lg object-cover ring-1 ring-border shadow-sm shrink-0" 
+     alt="Gambar Kamar">
                         <div>
                             <p class="text-xs md:text-sm font-semibold text-foreground mb-1">Gambar Terpasang</p>
                             <button type="button" onclick="removeCurrentImage()" class="text-[10px] md:text-xs font-bold text-error hover:text-error-light transition-colors flex items-center gap-1 cursor-pointer">

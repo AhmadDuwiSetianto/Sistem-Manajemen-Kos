@@ -107,7 +107,9 @@
                     
                     <div class="relative h-48 lg:h-56 overflow-hidden rounded-xl lg:rounded-[1.5rem] bg-slate-200">
                         @if($kamar->gambar)
-                            <img src="{{ \Illuminate\Support\Str::startsWith($kamar->gambar, ['http://', 'https://']) ? $kamar->gambar : asset('storage/' . $kamar->gambar) }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                            <img src="{{ \Illuminate\Support\Str::startsWith($kamar->gambar, ['http://', 'https://']) ? \Illuminate\Support\Str::replace('/upload/', '/upload/q_auto,f_auto,w_800/', $kamar->gambar) : asset('storage/' . $kamar->gambar) }}" 
+     loading="lazy" 
+     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                         @else
                             <img src="https://images.unsplash.com/photo-1522771753035-4a5046216955?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-700">
                         @endif

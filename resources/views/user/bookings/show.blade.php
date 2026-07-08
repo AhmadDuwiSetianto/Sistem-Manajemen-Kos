@@ -26,7 +26,9 @@
                 <div class="flex gap-4 items-center mb-6">
                     <div class="size-20 rounded-2xl bg-muted overflow-hidden ring-1 ring-border shrink-0">
                         @if($booking->kamar && $booking->kamar->gambar)
-                            <img src="{{ \Illuminate\Support\Str::startsWith($theKamar->gambar, ['http://', 'https://']) ? $theKamar->gambar : asset('storage/' . $theKamar->gambar) }}" class="w-full h-full object-cover">
+                            <img src="{{ \Illuminate\Support\Str::startsWith($theKamar->gambar, ['http://', 'https://']) ? \Illuminate\Support\Str::replace('/upload/', '/upload/q_auto,f_auto,w_800/', $theKamar->gambar) : asset('storage/' . $theKamar->gambar) }}" 
+     loading="lazy" 
+     class="w-full h-full object-cover">
                         @else
                             <div class="w-full h-full flex items-center justify-center"><i data-lucide="image-off" class="text-secondary"></i></div>
                         @endif
