@@ -16,8 +16,8 @@ class KamarController extends Controller
     public function index()
     {
         $activeBooking = Booking::whereIn('status', ['confirmed', 'checked_in'])->count();
-        
-        $kamars = Kamar::latest()->get(); 
+
+        $kamars = Kamar::latest()->get();
         return view('admin.kamar.index', compact('kamars', 'activeBooking'));
     }
 
@@ -37,13 +37,13 @@ class KamarController extends Controller
     {
         // 1. Validasi
         $request->validate([
-            'nomor_kamar' => 'required|unique:kamar,nomor_kamar', 
+            'nomor_kamar' => 'required|unique:kamar,nomor_kamar',
             'tipe_kamar'  => 'required|in:Standard,Deluxe,Executive,Superior,VIP',
             'harga'       => 'required|numeric|min:0',
             'ukuran'      => 'nullable|integer|min:0',
             'lantai'      => 'nullable|integer|min:1',
             'kapasitas'   => 'nullable|integer|min:1',
-            'fasilitas'   => 'required', 
+            'fasilitas'   => 'required',
             'status'      => 'required|in:tersedia,terisi,maintenance',
             'deskripsi'   => 'nullable|string|max:1000',
             'gambar'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -51,8 +51,14 @@ class KamarController extends Controller
 
         // 2. Ambil Data
         $data = $request->only([
-            'nomor_kamar', 'tipe_kamar', 'harga', 'ukuran', 
-            'lantai', 'kapasitas', 'status', 'deskripsi'
+            'nomor_kamar',
+            'tipe_kamar',
+            'harga',
+            'ukuran',
+            'lantai',
+            'kapasitas',
+            'status',
+            'deskripsi'
         ]);
 
         $data['is_active'] = $request->has('is_active');
@@ -62,7 +68,7 @@ class KamarController extends Controller
             $uploadedFileUrl = Cloudinary::upload($request->file('gambar')->getRealPath(), [
                 'folder' => 'kamar_kos'
             ])->getSecurePath();
-            
+
             $data['gambar'] = $uploadedFileUrl;
         }
 
@@ -97,7 +103,7 @@ class KamarController extends Controller
     {
         // 1. Validasi
         $request->validate([
-            'nomor_kamar' => 'required|unique:kamar,nomor_kamar,' . $kamar->id, 
+            'nomor_kamar' => 'required|unique:kamar,nomor_kamar,' . $kamar->id,
             'tipe_kamar'  => 'required|in:Standard,Deluxe,Executive,Superior,VIP',
             'harga'       => 'required|numeric|min:0',
             'ukuran'      => 'nullable|integer|min:0',
@@ -111,8 +117,14 @@ class KamarController extends Controller
 
         // 2. Ambil Data
         $data = $request->only([
-            'nomor_kamar', 'tipe_kamar', 'harga', 'ukuran', 
-            'lantai', 'kapasitas', 'status', 'deskripsi'
+            'nomor_kamar',
+            'tipe_kamar',
+            'harga',
+            'ukuran',
+            'lantai',
+            'kapasitas',
+            'status',
+            'deskripsi'
         ]);
 
         $data['is_active'] = $request->has('is_active');
@@ -121,12 +133,12 @@ class KamarController extends Controller
         if ($request->hasFile('gambar')) {
             // Hapus gambar lama jika ada
             $this->deleteCloudinaryImage($kamar->gambar);
-            
+
             // Upload gambar baru menggunakan Facade
             $uploadedFileUrl = Cloudinary::upload($request->file('gambar')->getRealPath(), [
                 'folder' => 'kamar_kos'
             ])->getSecurePath();
-            
+
             $data['gambar'] = $uploadedFileUrl;
         }
 
@@ -180,14 +192,14 @@ class KamarController extends Controller
             // Mengambil nama file (Public ID) dari URL Cloudinary
             $path = parse_url($imageUrl, PHP_URL_PATH);
             $parts = explode('/', $path);
-            
+
             if (count($parts) >= 2) {
                 $folder = $parts[count($parts) - 2];
                 $file = $parts[count($parts) - 1];
-                $filename = pathinfo($file, PATHINFO_FILENAME); 
-                
+                $filename = pathinfo($file, PATHINFO_FILENAME);
+
                 $publicId = $folder . '/' . $filename;
-                
+
                 // Eksekusi perintah hapus menggunakan Facade resmi
                 Cloudinary::uploadApi()->destroy($publicId);
             }
