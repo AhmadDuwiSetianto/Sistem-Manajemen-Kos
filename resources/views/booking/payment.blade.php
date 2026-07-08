@@ -35,20 +35,21 @@ use Illuminate\Support\Str;
             </div>
             
             <div class="p-4 md:p-5">
-                <div class="flex items-center gap-3 md:gap-4 mb-4">
-                    <div class="size-16 md:size-20 shrink-0 bg-slate-100 rounded-xl md:rounded-2xl overflow-hidden ring-1 ring-slate-200">
-                         @php
-                            $gambarKamar = asset('images/default-room.jpg');
-                            if ($pembayaran->booking->kamar->gambar) {
-                                if (Str::startsWith($pembayaran->booking->kamar->gambar, ['http://', 'https://'])) {
-                                    $gambarKamar = $pembayaran->booking->kamar->gambar;
-                                } else {
-                                    $gambarKamar = asset('storage/' . $pembayaran->booking->kamar->gambar);
-                                }
-                            }
-                        @endphp
-                        <img src="{{ $gambarKamar }}" class="w-full h-full object-cover">
-                    </div>
+    <div class="flex items-center gap-3 md:gap-4 mb-4">
+        <div class="size-16 md:size-20 shrink-0 bg-slate-100 rounded-xl md:rounded-2xl overflow-hidden ring-1 ring-slate-200">
+             @php
+                $gambarKamar = asset('images/default-room.jpg');
+                if ($pembayaran->booking->kamar->gambar) {
+                    // Tambahkan \Illuminate\Support\ di depan Str
+                    if (\Illuminate\Support\Str::startsWith($pembayaran->booking->kamar->gambar, ['http://', 'https://'])) {
+                        $gambarKamar = $pembayaran->booking->kamar->gambar;
+                    } else {
+                        $gambarKamar = asset('storage/' . $pembayaran->booking->kamar->gambar);
+                    }
+                }
+            @endphp
+            <img src="{{ $gambarKamar }}" class="w-full h-full object-cover">
+        </div>
                     
                     <div class="flex-1 flex flex-col justify-center min-w-0">
                         <h3 class="font-black text-base md:text-lg text-slate-800 mb-0.5 md:mb-1 truncate">Kamar {{ $pembayaran->booking->kamar->nomor_kamar }}</h3>

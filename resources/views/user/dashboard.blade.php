@@ -108,7 +108,7 @@
                 <div class="lg:col-span-4 xl:col-span-3">
                     <div class="aspect-video md:aspect-[4/3] rounded-xl md:rounded-2xl overflow-hidden bg-muted ring-1 ring-border relative group">
                         @if($theKamar->gambar)
-                            <img src="{{ asset('storage/' . $theKamar->gambar) }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                            <img src="{{ \Illuminate\Support\Str::startsWith($theKamar->gambar, ['http://', 'https://']) ? $theKamar->gambar : asset('storage/' . $theKamar->gambar) }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                         @else
                             <div class="w-full h-full flex flex-col items-center justify-center text-secondary">
                                 <i data-lucide="image-off" class="size-6 md:size-8 opacity-50 mb-1.5 md:mb-2"></i>
