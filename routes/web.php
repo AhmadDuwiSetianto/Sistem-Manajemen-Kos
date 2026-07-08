@@ -171,3 +171,7 @@ Route::get('/cek-env', function () {
         return "<h3>GAGAL!</h3> Laravel di Vercel membaca CLOUDINARY_URL sebagai <strong>NULL</strong> (kosong).";
     }
 });
+Route::get('/clear-cache', function () {
+    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    return "<h3>Sapu Jagat Berhasil!</h3> Cache Laravel di Vercel sudah dibersihkan total.";
+});
