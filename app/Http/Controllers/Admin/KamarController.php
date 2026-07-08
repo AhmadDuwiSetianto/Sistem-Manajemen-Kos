@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Kamar;
 use Illuminate\Http\Request;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary; // Tambahkan import Facade ini agar IDE tidak error
+use Cloudinary\Cloudinary; // Kita panggil inti library Cloudinary, bukan Facade Laravel
 
 class KamarController extends Controller
 {
@@ -35,7 +35,6 @@ class KamarController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validasi
         $request->validate([
             'nomor_kamar' => 'required|unique:kamar,nomor_kamar',
             'tipe_kamar'  => 'required|in:Standard,Deluxe,Executive,Superior,VIP',
@@ -49,7 +48,6 @@ class KamarController extends Controller
             'gambar'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // 2. Ambil Data
         $data = $request->only([
             'nomor_kamar',
             'tipe_kamar',
@@ -63,16 +61,16 @@ class KamarController extends Controller
 
         $data['is_active'] = $request->has('is_active');
 
-        // 3. Handle Gambar (Upload ke Cloudinary menggunakan Facade)
+        // BYPASS CACHE: Inisialisasi manual menggunakan env() yang sudah terbukti jalan
         if ($request->hasFile('gambar')) {
-            $uploadedFileUrl = Cloudinary::upload($request->file('gambar')->getRealPath(), [
+            $cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
+            $uploadResult = $cloudinary->uploadApi()->upload($request->file('gambar')->getRealPath(), [
                 'folder' => 'kamar_kos'
-            ])->getSecurePath();
+            ]);
 
-            $data['gambar'] = $uploadedFileUrl;
+            $data['gambar'] = $uploadResult['secure_url'];
         }
 
-        // 4. Handle Fasilitas 
         if ($request->filled('fasilitas')) {
             $fasilitasArray = array_map('trim', explode(',', $request->fasilitas));
             $data['fasilitas'] = json_encode($fasilitasArray);
@@ -80,7 +78,6 @@ class KamarController extends Controller
             $data['fasilitas'] = json_encode([]);
         }
 
-        // 5. Simpan
         Kamar::create($data);
 
         return redirect()->route('admin.kamar.index')
@@ -101,7 +98,6 @@ class KamarController extends Controller
      */
     public function update(Request $request, Kamar $kamar)
     {
-        // 1. Validasi
         $request->validate([
             'nomor_kamar' => 'required|unique:kamar,nomor_kamar,' . $kamar->id,
             'tipe_kamar'  => 'required|in:Standard,Deluxe,Executive,Superior,VIP',
@@ -115,7 +111,6 @@ class KamarController extends Controller
             'gambar'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // 2. Ambil Data
         $data = $request->only([
             'nomor_kamar',
             'tipe_kamar',
@@ -129,24 +124,21 @@ class KamarController extends Controller
 
         $data['is_active'] = $request->has('is_active');
 
-        // 3. Handle Gambar (Hapus lama dari Cloudinary, Upload baru)
+        // BYPASS CACHE: Hapus gambar lama dan unggah yang baru secara manual
         if ($request->hasFile('gambar')) {
-            // Hapus gambar lama jika ada
             $this->deleteCloudinaryImage($kamar->gambar);
 
-            // Upload gambar baru menggunakan Facade
-            $uploadedFileUrl = Cloudinary::upload($request->file('gambar')->getRealPath(), [
+            $cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
+            $uploadResult = $cloudinary->uploadApi()->upload($request->file('gambar')->getRealPath(), [
                 'folder' => 'kamar_kos'
-            ])->getSecurePath();
+            ]);
 
-            $data['gambar'] = $uploadedFileUrl;
+            $data['gambar'] = $uploadResult['secure_url'];
         }
 
-        // 4. Handle Fasilitas
         $fasilitasArray = array_map('trim', explode(',', $request->fasilitas));
         $data['fasilitas'] = json_encode($fasilitasArray);
 
-        // 5. Update
         $kamar->update($data);
 
         return redirect()->route('admin.kamar.index')
@@ -158,9 +150,7 @@ class KamarController extends Controller
      */
     public function destroy(Kamar $kamar)
     {
-        // Hapus gambar dari Cloudinary sebelum data dihapus dari database
         $this->deleteCloudinaryImage($kamar->gambar);
-
         $kamar->delete();
 
         return redirect()->route('admin.kamar.index')
@@ -180,7 +170,7 @@ class KamarController extends Controller
     }
 
     /**
-     * Helper function untuk menghapus gambar dari Cloudinary
+     * Helper function untuk menghapus gambar dari Cloudinary (Bypass Cache)
      */
     private function deleteCloudinaryImage($imageUrl)
     {
@@ -189,7 +179,6 @@ class KamarController extends Controller
         }
 
         try {
-            // Mengambil nama file (Public ID) dari URL Cloudinary
             $path = parse_url($imageUrl, PHP_URL_PATH);
             $parts = explode('/', $path);
 
@@ -200,11 +189,12 @@ class KamarController extends Controller
 
                 $publicId = $folder . '/' . $filename;
 
-                // Eksekusi perintah hapus menggunakan Facade resmi
-                Cloudinary::uploadApi()->destroy($publicId);
+                // Panggil API Destroy secara manual menggunakan instansiasi baru
+                $cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
+                $cloudinary->uploadApi()->destroy($publicId);
             }
         } catch (\Exception $e) {
-            // Abaikan jika tidak ditemukan agar flow program utama tidak crash
+            // Abaikan error
         }
     }
 }
