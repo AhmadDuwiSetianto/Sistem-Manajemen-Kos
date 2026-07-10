@@ -120,6 +120,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::resource('user', AdminUserController::class)->names('admin.user');
     Route::patch('/user/{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])->name('admin.user.toggle-status');
     Route::resource('booking', AdminBookingController::class)->names('admin.booking');
+    Route::post('/pembayaran/{pembayaran}/reject', [AdminPembayaranController::class, 'reject'])->name('admin.pembayaran.reject');
     Route::resource('pembayaran', AdminPembayaranController::class)->names('admin.pembayaran');
 
     // Profil Admin
